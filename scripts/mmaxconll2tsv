@@ -1,0 +1,97 @@
+#!/usr/bin/gawk -f
+
+##################################################################
+# Methods
+function reset() {
+    tok_cnt = 0
+    msg_id = label = toks = lemmas = tags = deps = feats = ""
+}
+
+function append(arr, tok) {
+    if (arr)
+	arr = arr " " tok
+    else
+	arr = tok
+
+    return arr
+}
+
+function get_label(feats) {
+    tmp_label = ""
+    if (feats ~ /\<Sentiment::[^:]+::Polarity=Positive\>/)
+	tmp_label = "positive"
+    else if (feats ~ /\<Sentiment::[^:]+::Polarity=Negative\>/)
+	tmp_label = "negative"
+
+    if (tmp_label) {
+	if (label) {
+	    if (label != tmp_label)
+		label = "mixed"
+	} else {
+	    label = tmp_label
+	}
+    }
+}
+
+
+function get_prnt_idx(tok_offset, prnt_id) {
+    if (prn_id == "_" || prn_id == "0")
+	return prnt_d
+
+    return tok_offset + prnt_id
+}
+
+function output_tweet() {
+    if (toks) {
+	if (label == "")
+	    label = "neutral"
+
+	printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n", msg_id,
+	       label, toks, lemmas, tags, deps, feats)
+	reset()
+    }
+}
+
+##################################################################
+# Begin
+BEGIN {
+    FS = OFS = "\t"
+    IGNORECASE = 1
+    reset()
+}
+
+##################################################################
+# Main
+/^/ {
+    output_tweet()
+    if ($2 == "id")
+	msg_id = $NF
+
+    next
+}
+
+NF {
+    ++tok_cnt
+    toks = append(toks, $2)
+    lemmas = append(lemmas, $3)
+    tags = append(tags, $5)
+
+    feats_i = $8
+    feats = append(feats, feats_i)
+    get_label(feats_i)
+
+    prnt_id = $10
+    rel_type = $12
+    deps = append(deps, get_prnt_idx(tok_offset, prnt_id) "/" rel_type)
+    next
+}
+
+1 {
+    tok_offset = tok_cnt
+}
+
+##################################################################
+# End
+END {
+    output_tweet()
+}
