@@ -15,7 +15,7 @@
 from __future__ import absolute_import, unicode_literals, print_function
 
 from glob import iglob
-import  sklearn.metrics as sklm
+import sklearn.metrics as sklm
 import pandas as pd
 import os
 import sys
@@ -30,6 +30,9 @@ LEMMAS = "lemmas"
 TAGS = "tags"
 DEPS = "dependencies"
 FEATS = "features"
+RELEVANCE = "relevance"
+ASPECT = "aspect"
+
 POSITIVE = "positive"
 NEGATIVE = "negative"
 NEUTRAL = "neutral"
@@ -39,11 +42,12 @@ MICRO_CLASSES = [POSITIVE, NEGATIVE, NEUTRAL]
 
 ##################################################################
 # Methods
-def read_file(fname):
+def read_file(fname, germeval=False):
     """Read input file and construct DataFrame.
 
     Args:
       fname (str): path to the input file
+      germeval (bool): use GermEval format
 
     Returns:
       pd.DataFrame: tabular view of file's contents
@@ -51,20 +55,28 @@ def read_file(fname):
     """
     assert os.path.exists(fname) and os.access(fname, os.R_OK), \
         "Cannot read file {!r}.".format(fname)
-    ret = pd.read_table(fname,
-                        names=[ID, POLARITY, TOKS, LEMMAS, TAGS, DEPS, FEATS],
-                        header=None, skipinitialspace=True, encoding=ENCODING)
+    if germeval:
+        ret = pd.read_table(
+            fname,
+            names=[ID, TOKS, RELEVANCE, POLARITY, ASPECT],
+            header=None, skipinitialspace=True, encoding=ENCODING)
+    else:
+        ret = pd.read_table(
+            fname,
+            names=[ID, POLARITY, TOKS, LEMMAS, TAGS, DEPS, FEATS],
+            header=None, skipinitialspace=True, encoding=ENCODING)
     # only leave data with labels (positive, negative, or neutral)
     ret = ret.loc[lambda df: df.polarity.isin(MICRO_CLASSES)]
     ret.sort_values(by=[ID], axis=0, inplace=True, kind="heapsort")
     return ret
 
 
-def read_dir(fnames):
+def read_dir(fnames, germeval=False):
     """Read multiple input files and construct single DataFrame.
 
     Args:
       fnames (list[str]): paths to the input files
+      germeval (bool): use GermEval format
 
     Returns:
       pd.DataFrame: tabular view of files' contents
@@ -74,24 +86,25 @@ def read_dir(fnames):
     for fname_i in fnames:
         os.path.exists(fname_i) and os.access(fname_i, os.R_OK), \
             "Cannot read file {!r}.".format(fname_i)
-        dframes.append(read_file(fname_i))
+        dframes.append(read_file(fname_i, germeval))
     return pd.concat(dframes)
 
 
-def read_data(path, glob_ptrn):
+def read_data(path, glob_ptrn, germeval=False):
     """Read file or directory containing input data.
 
     Args:
       path (str): file or directory containing input data
       glob_ptrn (str): globbing pattern to use for finding files
+      germeval (bool): use GermEval format
 
     Returns:
       pd.DataFrame: tabular view of files' contents
 
     """
     if os.path.isdir(path):
-        return read_dir(iglob(os.path.join(path, glob_ptrn)))
-    return read_file(path)
+        return read_dir(iglob(os.path.join(path, glob_ptrn)), germeval)
+    return read_file(path, germeval)
 
 
 def compute_stat(gold, pred, verbose):
@@ -106,33 +119,25 @@ def compute_stat(gold, pred, verbose):
       void:
 
     """
-    y_gold_full = gold.loc[:, POLARITY]
-    y_pred_full = pred.loc[:, POLARITY]
+    y_gold = gold.loc[:, POLARITY]
+    y_pred = pred.loc[:, POLARITY]
 
     print("General Statistics:")
-    print(sklm.classification_report(y_gold_full, y_pred_full),
+    print(sklm.classification_report(y_gold, y_pred),
           end="\n\n")
 
-    # Accuracy
-    print("Accuracy: {:.2%}".format(
-        sklm.accuracy_score(y_gold_full, y_pred_full)
-    ))
-
     # Macro-Averaged F1 Score
-    y_gold_pos_neg = gold.loc[lambda df: df.polarity.isin(MACRO_CLASSES),
-                              POLARITY]
-    y_pred_pos_neg = pred.loc[lambda df: df.polarity.isin(MACRO_CLASSES),
-                              POLARITY]
     print(
         "Macro-Averaged F1-Score (Positive and Negative Classes):"
         " {:.2%}".format(
-            sklm.f1_score(y_gold_pos_neg, y_pred_pos_neg, average="macro")
+            sklm.f1_score(y_gold, y_pred,
+                          labels=(POSITIVE, NEGATIVE), average="macro")
         ))
 
     # Micro-Averaged F1 Score
     print(
         "Micro-Averaged F1-Score (All Classes): {:.2%}".format(
-            sklm.f1_score(y_gold_full, y_pred_full, average="micro")
+            sklm.f1_score(y_gold, y_pred, average="micro")
         ), end="\n\n")
 
     # Confusion Matrix and Examples
@@ -143,13 +148,13 @@ def compute_stat(gold, pred, verbose):
         print("")
 
         print("Examples:")
-        for y_gld, y_pred, df in zip(y_gold_full, y_pred_full, gold):
-            if y_gld != y_pred:
+        for y_g, y_p, (_, df) in zip(y_gold, y_pred, gold.iterrows()):
+            if y_g != y_p:
                 print(
-                    "<<<\tgold:\t{:s}\n>>>\tpredicted:\t{:s}"
-                    "\n{:s}\t{:s}\n".format(
-                        y_gld, y_pred, df[ID], df[TOKS]
-                    ).encode(ENCODING)
+                    ("<<<\tgold:\t{:s}\n>>>\tpredicted:\t{:s}"
+                     "\n{:s}\t{:s}\n").format(
+                         y_g, y_p, df[ID], df[TOKS]
+                     )
                 )
 
 
@@ -162,6 +167,8 @@ def main(argv):
     """
     from argparse import ArgumentParser
     argparser = ArgumentParser(description="")
+    argparser.add_argument("--germeval",
+                           help="use GermEval format", action="store_true")
     argparser.add_argument("-g", "--glob-ptrn",
                            help="globbing pattern to use for finding files in"
                            " directories", type=str, default="*.tsv")
@@ -175,8 +182,8 @@ def main(argv):
                            " labels")
     args = argparser.parse_args(argv)
 
-    gold_data = read_data(args.gold_file, args.glob_ptrn)
-    pred_data = read_data(args.pred_file, args.glob_ptrn)
+    gold_data = read_data(args.gold_file, args.glob_ptrn, args.germeval)
+    pred_data = read_data(args.pred_file, args.glob_ptrn, args.germeval)
 
     # check whether we have the same set of ids in both datasets
     gold_ids = set(gold_data.loc[:, ID])
