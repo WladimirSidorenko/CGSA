@@ -123,8 +123,7 @@ def compute_stat(gold, pred, verbose):
     y_pred = pred.loc[:, POLARITY]
 
     print("General Statistics:")
-    print(sklm.classification_report(y_gold, y_pred),
-          end="\n\n")
+    print(sklm.classification_report(y_gold, y_pred), end="\n\n")
 
     # Macro-Averaged F1 Score
     print(
