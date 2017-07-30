@@ -15,7 +15,7 @@ Attributes:
 from __future__ import absolute_import, print_function, unicode_literals
 
 from collections import defaultdict
-from sklearn.cross_validation import StratifiedKFold
+from sklearn.model_selection import StratifiedKFold
 from _pickle import load
 import abc
 import numpy as np
@@ -164,7 +164,7 @@ class BaseAnalyzer(object):
         if dev_y:
             return self._get_devset_cv(self, train_x, train_y,
                                        dev_x, dev_y, n_folds)
-        cv = StratifiedKFold(train_y, n_folds=NFOLDS, shuffle=True)
+        cv = None
         return cv, train_x, train_y
 
     def _get_devset_cv(self, train_x, train_y, dev_x, dev_y, n_folds):
@@ -191,8 +191,8 @@ class BaseAnalyzer(object):
         n_dev = len(dev_y)
         dev_ids = [n_train + i for i in xrange(n_dev)]
         # create stratified K-folds over the training data
-        skf = StratifiedKFold(train_y, n_folds)
-        for train_ids, test_ids in skf:
+        skf = StratifiedKFold(n_splits=NFOLDS, shuffle=True)
+        for train_ids, test_ids in skf.split(train_x, train_y):
             folds.append((train_ids,
                           np.concatenate((test_ids, dev_ids))))
         train_x += dev_x

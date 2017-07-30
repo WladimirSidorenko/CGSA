@@ -191,14 +191,28 @@ class Tweet(object):
     def __init__(self, tweet):
         """Class constructor.
 
-        Attributes:
+        Args:
           tweet (str): tweet
 
         """
         self.msg_id = None
         self.label = None
         self.words = []
+        self.iwords = iter(self.words)
         self._parse(tweet)
+
+    def __iter__(self):
+        """Private method required for iteration.
+
+        """
+        self.iwords = iter(self.words)
+        return self
+
+    def __next__(self):
+        """Private method required for iteration.
+
+        """
+        return next(self.iwords)
 
     def __unicode__(self):
         """Return unicode representation of the given word.
