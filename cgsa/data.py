@@ -18,11 +18,12 @@ from collections import defaultdict
 from six import iteritems
 import re
 
+from cgsa.common import LOGGER
 from cgsa.constants import KNOWN_LABELS
 
 ##################################################################
-# Variables and Cosntants
-BAR_RE = re.compile(r'|')
+# Variables and Constants
+BAR_RE = re.compile(r'[|]')
 COLON_RE = re.compile(r'::+')
 EQ_RE = re.compile(r'=')
 SLASH_RE = re.compile(r'/')
@@ -129,17 +130,18 @@ class Word(object):
 
     """
 
-    def __init__(self, form, lemma, tag, feats, deprel):
+    def __init__(self, form, lemma, tag, deprel, feats):
         """Class constructor.
 
         Attributes:
           form (str): word's form
           lemma (str): word's lemma
           tag (str): part-of-speech tag
-          feats (str): word's features to be parsed
           deprel (str): dependency relation and index of the parent node
+          feats (str): word's features to be parsed
 
         """
+        self._logger = LOGGER
         self.form = form
         self.lemma = lemma
         self.tag = tag
@@ -168,9 +170,12 @@ class Word(object):
 
         """
         fields = SLASH_RE.split(deprel)
-        self.prnt_idx = -1 if (fields[0] == '_' or fields[0] == '0') \
-            else int(fields[0]) - 1
-        self.deprel = fields[1]
+        if fields[0] == '_' or fields[0] == '0':
+            self.prnt_idx = -1
+            self.deprel = None
+        else:
+            self.prnt_idx = int(fields[0]) - 1
+            self.deprel = fields[1]
 
 
 class Tweet(object):
@@ -236,9 +241,17 @@ class Tweet(object):
         tags = SPACE_RE.split(fields[4])
         deps = SPACE_RE.split(fields[5])
         feats = SPACE_RE.split(fields[6])
-        assert len(toks) == len(lemmas) == len(tags) \
-            == len(deps) == len(feats), \
-            "Unequal number of attributes at line {:r}"
+        n = len(toks)
+        if n != len(lemmas) or n != len(tags) \
+           or n != len(deps) or n != len(feats):
+            print(repr(n))
+            print(repr(len(lemmas)))
+            print(repr(len(tags)))
+            print(repr(len(deps)))
+            print(repr(len(feats)))
+            assert False, \
+                "Unequal number of attributes at line {!r}".format(
+                    tweet)
         self.words = [
             Word(tok_i, lemma_i, tag_i, dep_i, feats_i)
             for tok_i, lemma_i, tag_i, dep_i, feats_i

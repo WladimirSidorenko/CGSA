@@ -11,10 +11,10 @@ Attributes:
 # Imports
 from __future__ import absolute_import, unicode_literals
 
-from cgsa.judge.judge import DfltJudge, SumJudge
+from cgsa.judge.judge import DefaultJudge, SumJudge
 
 
 ##################################################################
 # Variables and Constants
-__all__ = ["DfltJudge", "SumJudge"]
+__all__ = ["DefaultJudge", "SumJudge"]
 __version__ = "0.0.1"

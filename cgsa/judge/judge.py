@@ -58,5 +58,5 @@ class SumJudge(object):
         return (np.argmax(ret), ret)
 
 
-class DfltJudge(SumJudge):
+class DefaultJudge(SumJudge):
     pass

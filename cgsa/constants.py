@@ -20,14 +20,17 @@ import os
 ##################################################################
 # Variables and Constants
 ENCODING = "utf-8"
+NFOLDS = 3                      # default number of folds for cross-validation
 
 DIRNAME = os.path.dirname(__file__)
 DATA_DIR = os.path.join(DIRNAME, "data")
 
 MODEL_DIR = os.path.join(DATA_DIR, "models")
-DFLT_MODEL_PATH = os.path.join(MODEL_DIR, "pdtb.sense.model")
+DFLT_MODEL_PATH = os.path.join(MODEL_DIR, "cgsa.model")
 
 TABOADA = "taboada"
+MOHAMMAD = "mohammad"
+SEVERYN = "severyn"
 
 # labels
 POSITIVE = "positive"

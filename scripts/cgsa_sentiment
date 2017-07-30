@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- mode: python; coding: utf-8 -*-
 
 ##################################################################
 # Imports
@@ -8,8 +9,10 @@ from argparse import ArgumentParser
 import codecs
 import sys
 
-from cgsa.base import SentimentAnalyzer
-from cgsa.constants import ENCODING, TABOADA, DFLT_MODEL_PATH
+from cgsa.cgsa import SentimentAnalyzer
+from cgsa.common import LOGGER
+from cgsa.constants import DFLT_MODEL_PATH, ENCODING, MOHAMMAD, SEVERYN, \
+    TABOADA
 from cgsa.data import Tweet
 
 
@@ -36,7 +39,7 @@ def _add_cmn_options(a_parser):
                           help="path to the main model (if different from"
                           " default)", type=str, default=DFLT_MODEL_PATH)
     a_parser.add_argument(
-        "file", help="input file(s)", type=str, nargs="+")
+        "files", help="input file(s)", type=str, nargs="+")
 
 
 def _read_data(files):
@@ -46,6 +49,8 @@ def _read_data(files):
       files (list[str]): list of input files
 
     """
+    if files is None:
+        raise StopIteration
     for ifname in files:
         with codecs.open(ifname, 'r', ENCODING) as ifile:
             for iline in ifile:
@@ -73,14 +78,21 @@ def main(argv):
     parser_train = subparsers.add_parser(
         TRAIN, help="train model on the provided data")
     parser_train.add_argument("-t", "--type",
-                              help="type of the model to train",
-                              choices=(TABOADA), required=True)
+                              help="type(s) of the model(s) to train",
+                              choices=(MOHAMMAD, SEVERYN, TABOADA),
+                              required=True, type=str, action="append")
     parser_train.add_argument("-d", "--dev",
                               help="development data",
-                              type=str, action="append")
-    parser_train.add_argument("-l", "--lexicon",
-                              help="lexicon(s) to use",
-                              type=str, action="append")
+                              action="append")
+    parser_train.add_argument("-g", "--grid-search",
+                              help="determine best hyper-parameters using"
+                              " grid search", action="store_true")
+    parser_train.add_argument("--auto-lexicon",
+                              help="automatic lexicon(s) to use",
+                              action="append", default=[])
+    parser_train.add_argument("--manual-lexicon",
+                              help="manual lexicon(s) to use",
+                              type=str, action="append", default=[])
     _add_cmn_options(parser_train)
 
     parser_test = subparsers.add_parser(
@@ -89,15 +101,26 @@ def main(argv):
 
     args = argparser.parse_args()
     if args.mode == TRAIN:
+        LOGGER.debug("Reading training set...")
         train_set = [tweet_i
                      for tweet_i in _read_data(args.files)]
+        LOGGER.debug("Reading development set...")
         dev_set = [tweet_i
                    for tweet_i in _read_data(args.dev)]
-        analyzer = SentimentAnalyzer(args.type)
-        analyzer.train(args.lexicon, train_set, dev_set)
-        analyzer.save(args.model)
+        LOGGER.debug("Initialining analyzer...")
+        analyzer = SentimentAnalyzer(args.type,
+                                     auto_lexicons=args.auto_lexicon,
+                                     manual_lexicons=args.manual_lexicon
+                                     )
+        LOGGER.debug("Training analyzer...")
+        analyzer.train(train_set, dev_set,
+                       a_path=args.model,
+                       a_grid_search=args.grid_search
+                       )
+        LOGGER.debug("Saving analyzer...")
+        LOGGER.debug("Finished.")
     else:
-        analyzer = SentimentAnalyzer(args.model)
+        analyzer = SentimentAnalyzer.load(args.model)
         for tweet_i in _read_data(args.files):
             tweet_i.label = analyzer.predict(tweet_i)
             print(unicode(tweet_i).encode(ENCODING))

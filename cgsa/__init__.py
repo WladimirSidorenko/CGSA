@@ -3,7 +3,7 @@
 
 ##################################################################
 # Documentation
-"""Main meta-package containing a collection of discourse segmenters.
+"""Main meta-package containing a collection of sentiment analyzers.
 
 Attributes:
   lexicon (module):
@@ -21,6 +21,8 @@ Attributes:
 
 ##################################################################
 # Imports
+from __future__ import absolute_import, unicode_literals, print_function
+
 
 ##################################################################
 # Variables and Constants
