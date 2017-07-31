@@ -17,6 +17,7 @@ from sklearn.svm import LinearSVC
 import numpy as np
 import re
 
+from cgsa.constants import DFLT_AUTO_LEXICA, DFLT_MANUAL_LEXICA
 from cgsa.ml.base import MLBaseAnalyzer
 
 ##################################################################
@@ -38,6 +39,7 @@ HSHTAG = "%hshtag"
 UNI = "%uni"
 BI = "%bi"
 NONCONTIG = "%noncont"
+ALEX = "alex_"
 AFF_CTXT = "affirmative"
 NEG_CTXT = "negated"
 ALL_POL = "all"
@@ -117,7 +119,9 @@ class MohammadAnalyzer(MLBaseAnalyzer):
 
     """
 
-    def __init__(self, auto_lexicons=[], manual_lexicons=[], a_clf=None):
+    def __init__(self, auto_lexicons=DFLT_MANUAL_LEXICA,
+                 manual_lexicons=DFLT_AUTO_LEXICA,
+                 a_clf=None):
         """Class constructor.
 
         Args:
@@ -128,7 +132,7 @@ class MohammadAnalyzer(MLBaseAnalyzer):
             default)
 
         """
-        super(MohammadAnalyzer, self).__init__()
+        super(MohammadAnalyzer, self).__init__(auto_lexicons, manual_lexicons)
         self.name = "NRC-Canada"
         clf = a_clf or LinearSVC(C=DFLT_C, **DFLT_PARAMS)
         self._model = Pipeline([("vect", DictVectorizer()),
@@ -181,10 +185,6 @@ class MohammadAnalyzer(MLBaseAnalyzer):
         # lexicon features
         self._lex_feats(feats, ngrams, toks, tags)
         self._tertilize_feats(feats)
-        for v in feats.values():
-            if not isinstance(v, int) and not isinstance(v, float):
-                print(repr(v))
-                sys.exit(66)
         return feats
 
     def _extract_ngrams(self, a_feats, a_input, a_min_len, a_max_len,

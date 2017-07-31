@@ -12,7 +12,7 @@ import sys
 from cgsa.cgsa import SentimentAnalyzer
 from cgsa.common import LOGGER
 from cgsa.constants import DFLT_MODEL_PATH, ENCODING, MOHAMMAD, SEVERYN, \
-    TABOADA
+    TABOADA, DFLT_AUTO_LEXICA, DFLT_MANUAL_LEXICA
 from cgsa.data import Tweet
 
 
@@ -89,10 +89,11 @@ def main(argv):
                               " grid search", action="store_true")
     parser_train.add_argument("--auto-lexicon",
                               help="automatic lexicon(s) to use",
-                              action="append", default=[])
+                              action="append", default=DFLT_AUTO_LEXICA)
     parser_train.add_argument("--manual-lexicon",
                               help="manual lexicon(s) to use",
-                              type=str, action="append", default=[])
+                              type=str, action="append",
+                              default=DFLT_MANUAL_LEXICA)
     _add_cmn_options(parser_train)
 
     parser_test = subparsers.add_parser(

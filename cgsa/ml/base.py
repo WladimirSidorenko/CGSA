@@ -11,6 +11,7 @@ from __future__ import absolute_import, unicode_literals, print_function
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import f1_score, make_scorer
 import abc
+import pandas as pd
 
 from cgsa.base import BaseAnalyzer
 
@@ -38,12 +39,11 @@ class MLBaseAnalyzer(BaseAnalyzer):
             default)
 
         """
-        super(MLBaseAnalyzer, self).__init__()
+        super(MLBaseAnalyzer, self).__init__(
+            auto_lexicons=auto_lexicons,
+            manual_lexicons=manual_lexicons
+        )
         self.name = "MLBaseAnalyzer"
-        self._read_lexicons(self._term2auto, self._neg_term2auto,
-                            auto_lexicons)
-        self._read_lexicons(self._term2mnl, self._neg_term2auto,
-                            manual_lexicons)
         self._model = None
         self.N_JOBS = 1
         self.PARAM_GRID = {}
@@ -66,8 +66,14 @@ class MLBaseAnalyzer(BaseAnalyzer):
             self._model.fit(train_x, train_y)
             self._logger.debug("Classifier %s trained.", self.name)
             if a_grid_search:
+                cv_results = pd.DataFrame.from_dict(self._model.cv_results_)
+                self._logger.info("CV results:\n%s", cv_results[[
+                    "params", "mean_test_score", "std_test_score"
+                ]])
                 self._logger.info("Best parameters for %s: %r", self.name,
                                   self._model.best_params_)
+                self._logger.info("Best score on held-out set: %r",
+                                  self._model.best_score_)
         except:
             # `dev_x' and `dev_y' might have been appended to `train_x' and
             # `train_y' while generating the CV set
