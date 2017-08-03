@@ -16,6 +16,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from _pickle import dump, load
 import gc
+import numpy as np
 import os
 
 from cgsa.base import BaseAnalyzer
@@ -41,11 +42,12 @@ class SentimentAnalyzer(object):
 
     """
     @staticmethod
-    def load(a_path):
+    def load(a_path, on_demand=False):
         """Load serialized model(s) from disc.
 
         Args:
           a_path (str): path to file from which to load the model
+          on_demand (bool): load models later (when explicitly asked for)
 
         Returns:
           (void)
@@ -54,12 +56,34 @@ class SentimentAnalyzer(object):
         # load paths to serialized models
         with open(a_path, "rb") as ifile:
             analyzer = load(ifile)
+        print("analyzer:", dir(analyzer))
         analyzer._logger = LOGGER
-        dirname = os.path.dirname(a_path)
         # normalize paths to serialized models
-        analyzer.models = [BaseAnalyzer.load(os.path.join(dirname, ipath))
-                           for ipath in analyzer._model_paths]
+        analyzer._dirname = os.path.dirname(a_path)
+        if not on_demand:
+            analyzer._models = [
+                model_i
+                for model_i in SentimentAnalyzer._load_models(
+                        analyzer
+                )
+            ]
         return analyzer
+
+    @staticmethod
+    def _load_models(a_analyzer):
+        """Load serialized sub-model(s) from disc.
+
+        Args:
+          a_analyzer (SentimentAnalyzer): instance of this class
+
+        Yields:
+          (cgsa.base.BaseAnalyzer): loaded submodel
+
+        """
+        for mpath_i in a_analyzer._model_paths:
+            with open(os.path.join(a_analyzer._dirname,
+                                   mpath_i), "rb") as ifile:
+                yield BaseAnalyzer.load(ifile)
 
     def __init__(self, a_models, *args, **kwargs):
         """Class constructor.
@@ -73,6 +97,7 @@ class SentimentAnalyzer(object):
         self._models = []
         self.judge = DefaultJudge()
 
+        self._dirname = None
         self._n_cls = 0
         self._cls2idx = {}
         self._idx2cls = {}
@@ -131,18 +156,57 @@ class SentimentAnalyzer(object):
             with open(a_path, "wb") as ofile:
                 dump(self, ofile)
 
-    def predict(self, a_data):
-        """Determine polarity of input instances.
+    def batch_predict(self, a_instances):
+        """Predict multiple input instances at once.
+
+        Models will be loaded
 
         Args:
-          a_data (list):
-            input data to be analyzed
-
-        Returns:
-          void: updates input set in place
+          a_models (list[str]): type of the models to train
 
         """
-        raise NotImplementedError
+        # create a workspace for doing the predictions
+        probs = np.zeros((len(a_instances),
+                          len(self._model_paths),
+                          len(self._cls2idx)
+                          ))
+        # load each trained model and let it predict the classes
+        for i, model_i in enumerate(SentimentAnalyzer._load_models(self)):
+            for inst_j, y_j in zip(a_instances, probs):
+                print("inst_j:", repr(inst_j))
+                print("* y_j:", repr(y_j))
+                model_i.predict_proba(inst_j, y_j[i])
+                print("** y_j:", repr(y_j))
+            # unload the moddel to save some disc space
+            model_i = None
+            gc.collect()
+        # let judge merge the decisions
+        for inst_j, x_j in zip(a_instances, probs):
+            model_i.predict_proba(inst_j, x_j[i])
+
+    def predict(self, instance):
+        """Predict label of a single input instance.
+
+        Args:
+          instance (cgsa.data.Tweet): input instance to classify
+
+        Returns:
+          void
+
+        Note:
+          modifies input tweet in place
+
+        """
+        if self._wbench is None:
+            self._wbench = np.zeros((len(self._models), len(self._cls2idx)))
+        else:
+            self._wbench *= 0
+        # let each trained model predict the probabilities of classes
+        for i, model_i in enumerate(self._models):
+            model_i.predict_proba(instance, self._wbench[i])
+        # let the judge unite the decisions
+        lbl_idx, _ = self.judge.predict(self._wbench)
+        instance.label = self._idx2cls[lbl_idx]
 
     def save(self, a_path):
         """Dump model to disc.
@@ -154,9 +218,7 @@ class SentimentAnalyzer(object):
         dirname = self._check_path(a_path)
         # store each trained model
         for i, model_i in enumerate(self._models):
-            self._model_paths.append(
-                self._save_model(model_i, dirname)
-            )
+            self._save_model(model_i, dirname)
             self._models[i] = model_i = None
             gc.collect()
         self._reset()
@@ -242,10 +304,32 @@ class SentimentAnalyzer(object):
             y.append(y_i)
         return (x, y)
 
+    def _prejudge(self, a_rel, a_data):
+        """Collect judgments of single classifiers.
+
+        Args:
+          a_rel (dict):
+            discourse relation whose sense should be predicted
+          a_data (2-tuple(dict, dict)):
+            list of input JSON data
+
+        Returns:
+          np.array: modified ``a_ret``
+
+        """
+        if self._wbench is None:
+            self._wbench = np.zeros((len(self._models), len(self._cls2idx)))
+        else:
+            self._wbench *= 0
+        for i, model_i in enumerate(self._models):
+            model_i.predict(a_rel, a_data, self._wbench, i)
+        return self._wbench
+
     def _reset(self):
         """Remove members which cannot be serialized.
 
         """
+        self._wbench = None
         self._logger = None
         self._models = []
 
@@ -271,4 +355,7 @@ class SentimentAnalyzer(object):
         self._logger.info("Model %s saved to %s...",
                           a_model.name, abspath
                           )
-        return os.path.relpath(abspath, a_path)
+        self._model_paths.append(
+            os.path.relpath(abspath, a_path)
+        )
+        return self._model_paths[-1]

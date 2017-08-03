@@ -98,6 +98,9 @@ def main(argv):
 
     parser_test = subparsers.add_parser(
         TEST, help="determine polarity of the given messages")
+    parser_test.add_argument("-b", "--batch",
+                             help="batch-predict the classes",
+                             action="store_true")
     _add_cmn_options(parser_test)
 
     args = argparser.parse_args()
@@ -121,10 +124,18 @@ def main(argv):
         LOGGER.debug("Saving analyzer...")
         LOGGER.debug("Finished.")
     else:
-        analyzer = SentimentAnalyzer.load(args.model)
-        for tweet_i in _read_data(args.files):
-            tweet_i.label = analyzer.predict(tweet_i)
-            print(unicode(tweet_i).encode(ENCODING))
+        analyzer = SentimentAnalyzer.load(args.model,
+                                          on_demand=args.batch)
+        if args.batch:
+            tweets = [tweet_i
+                      for tweet_i in _read_data(args.files)]
+            analyzer.batch_predict(tweets)
+            for tweet_i in tweets:
+                print(unicode(tweet_i).encode(ENCODING))
+        else:
+            for tweet_i in _read_data(args.files):
+                tweet_i.label = analyzer.predict(tweet_i)
+                print(unicode(tweet_i).encode(ENCODING))
 
 
 ##################################################################

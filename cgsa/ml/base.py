@@ -64,6 +64,11 @@ class MLBaseAnalyzer(BaseAnalyzer):
                 )
             self._logger.debug("Training classifier %s.", self.name)
             self._model.fit(train_x, train_y)
+            if a_grid_search:
+                self.classes_ = self._model.best_estimator_.classes_
+            else:
+                self.classes_ = self._model.classes_
+
             self._logger.debug("Classifier %s trained.", self.name)
             if a_grid_search:
                 cv_results = pd.DataFrame.from_dict(self._model.cv_results_)
@@ -80,10 +85,6 @@ class MLBaseAnalyzer(BaseAnalyzer):
             train_x = train_x[:train_len]
             train_y = train_y[:train_len]
             raise
-
-    def predict(self, msg):
-        # no training is required for this method
-        raise NotImplementedError
 
     @abc.abstractmethod
     def _extract_feats(self, a_tweet):

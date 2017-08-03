@@ -142,6 +142,22 @@ class MohammadAnalyzer(MLBaseAnalyzer):
         self._cs_fallback = False
         self._feats2tertiles = {}
 
+    def predict_proba(self, msg, yvec):
+        # self._logger.debug("msg: %r", msg)
+        # self._logger.debug("* yvec: %r", yvec)
+        feats = self._extract_feats(msg)
+        dec = self._model.decision_function(feats)
+        if len(dec.shape) > 1:
+            dec = np.mean(dec, axis=0)
+        # self._logger.debug("* proba: %r", dec)
+        # self._logger.debug("* type(self._model): %r",
+        #                    type(self._model))
+        # self._logger.debug("* dir(self._model): %r",
+        #                    dir(self._model))
+        for i, ival in enumerate(dec):
+            yvec[self._model.classes_[i]] += ival
+        # self._logger.debug("** yvec: %r", yvec)
+
     def _extract_feats(self, a_tweet):
         """Method for training the model.
 

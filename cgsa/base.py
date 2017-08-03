@@ -73,6 +73,7 @@ class BaseAnalyzer(object):
         """
         analyzer = load(a_path)
         analyzer._logger = LOGGER
+        return analyzer
 
     def __init__(self, *args, **kwargs):
         """Class constructor.
@@ -113,15 +114,19 @@ class BaseAnalyzer(object):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def predict(self, msg):
-        """Method for predicting sentiment of a single message.
+    def predict_proba(self, msg, yvec):
+        """Method for predicting sentiment propbablities of a single message.
 
         Args:
-          msg (dict):
+          msg (cgsa.data.Tweet):
             discourse relation whose sense should be predicted
+          yvec (np.array): target array for storing the probabilities
 
         Returns:
-          str: predicted sentiment label
+          void
+
+        Note:
+          modifies `'
 
         """
         raise NotImplementedError
