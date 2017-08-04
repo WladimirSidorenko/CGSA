@@ -15,6 +15,7 @@ Attributes:
 from __future__ import absolute_import, print_function, unicode_literals
 
 from collections import defaultdict
+from future.utils import python_2_unicode_compatible
 from six import iteritems
 import re
 
@@ -35,6 +36,7 @@ MMAX = "mmax"
 
 ##################################################################
 # Classes
+@python_2_unicode_compatible
 class Features(object):
     """Class comprising relevant information about features.
 
@@ -92,7 +94,7 @@ class Features(object):
         self._feats[key] = value
         return value
 
-    def __unicode__(self):
+    def __str__(self):
         """Return unicode representation of the given word.
 
         Returns:
@@ -102,13 +104,13 @@ class Features(object):
         if len(self._feats) == 1 and self._feats[MMAX]:
             return '_'
         mmax_feats = '|'.join([
-            markable + "::" + markable_id + "::"
+            mkbl + "::" + markable_id + "::"
             + attr + '=' + value
-            for markable in self.feats[MMAX]
-            for markable_id in markable
-            for attr, value in iteritems(markable_id)])
+            for mkbl, mkbl_val in iteritems(self._feats[MMAX])
+            for markable_id in mkbl_val
+            for attr, value in iteritems(mkbl_val[markable_id])])
         feats = '|'.join([k + '-' + v
-                          for k, v in iteritems(self.feats)
+                          for k, v in iteritems(self._feats)
                           if k != MMAX])
         if feats:
             if mmax_feats:
@@ -117,6 +119,7 @@ class Features(object):
         return mmax_feats
 
 
+@python_2_unicode_compatible
 class Word(object):
     """Class comprising relevant information about a word.
 
@@ -148,7 +151,7 @@ class Word(object):
         self._parse_deps(deprel)
         self.feats = Features(feats)
 
-    def __unicode__(self):
+    def __str__(self):
         """Return unicode representation of the given word.
 
         Returns:
@@ -158,8 +161,8 @@ class Word(object):
         ret = "form: '{:s}'; lemma: {:s}; tag: {:s}; deprel: {:s}/{:s}; " \
               " feats: {:s}".format(
                   self.form, self.lemma, self.tag,
-                  unicode(self.prnt_idx + 1), self.deprel,
-                  unicode(self.feats))
+                  str(self.prnt_idx + 1), self.deprel,
+                  str(self.feats))
         return ret
 
     def _parse_deps(self, deprel):
@@ -172,12 +175,13 @@ class Word(object):
         fields = SLASH_RE.split(deprel)
         if fields[0] == '_' or fields[0] == '0':
             self.prnt_idx = -1
-            self.deprel = None
+            self.deprel = '_'
         else:
             self.prnt_idx = int(fields[0]) - 1
             self.deprel = fields[1]
 
 
+@python_2_unicode_compatible
 class Tweet(object):
     """Class comprising relevant information about a tweet.
 
@@ -214,7 +218,7 @@ class Tweet(object):
         """
         return next(self.iwords)
 
-    def __unicode__(self):
+    def __str__(self):
         """Return unicode representation of the given word.
 
         Returns:
@@ -222,15 +226,15 @@ class Tweet(object):
 
         """
         # output the same string as the one that has been parsed
-        ret = "{msg_id:s}\t{label:s}\t{tokens:s}\t{lemas:s}" \
+        ret = "{msg_id:s}\t{label:s}\t{tokens:s}\t{lemmas:s}" \
               "\t{tags:s}\t{deps:s}\t{feats:s}".format(
-                  self.msg_id, self.label,
-                  ' '.join(w.form for w in self.words),
-                  ' '.join(w.lemma for w in self.words),
-                  ' '.join(w.tag for w in self.words),
-                  ' '.join(str(w.prnt_idx + 1) + '/' + w.deprel
-                           for w in self.words),
-                  ' '.join(str(w.feats) for w in self.words)
+                  msg_id=self.msg_id, label=self.label,
+                  tokens=' '.join(w.form for w in self.words),
+                  lemmas=' '.join(w.lemma for w in self.words),
+                  tags=' '.join(w.tag for w in self.words),
+                  deps=' '.join(str(w.prnt_idx + 1) + '/' + w.deprel
+                                for w in self.words),
+                  feats=' '.join(str(w.feats) for w in self.words)
               )
         return ret
 

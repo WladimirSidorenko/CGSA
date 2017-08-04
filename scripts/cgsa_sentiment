@@ -131,11 +131,11 @@ def main(argv):
                       for tweet_i in _read_data(args.files)]
             analyzer.batch_predict(tweets)
             for tweet_i in tweets:
-                print(unicode(tweet_i).encode(ENCODING))
+                print(str(tweet_i).encode(ENCODING))
         else:
             for tweet_i in _read_data(args.files):
                 tweet_i.label = analyzer.predict(tweet_i)
-                print(unicode(tweet_i).encode(ENCODING))
+                print(str(tweet_i).encode(ENCODING))
 
 
 ##################################################################

@@ -56,7 +56,6 @@ class SentimentAnalyzer(object):
         # load paths to serialized models
         with open(a_path, "rb") as ifile:
             analyzer = load(ifile)
-        print("analyzer:", dir(analyzer))
         analyzer._logger = LOGGER
         # normalize paths to serialized models
         analyzer._dirname = os.path.dirname(a_path)
@@ -173,16 +172,14 @@ class SentimentAnalyzer(object):
         # load each trained model and let it predict the classes
         for i, model_i in enumerate(SentimentAnalyzer._load_models(self)):
             for inst_j, y_j in zip(a_instances, probs):
-                print("inst_j:", repr(inst_j))
-                print("* y_j:", repr(y_j))
                 model_i.predict_proba(inst_j, y_j[i])
-                print("** y_j:", repr(y_j))
             # unload the moddel to save some disc space
             model_i = None
             gc.collect()
         # let judge merge the decisions
-        for inst_j, x_j in zip(a_instances, probs):
-            model_i.predict_proba(inst_j, x_j[i])
+        for inst_j, y_j in zip(a_instances, probs):
+            lbl_idx, _ = self.judge.predict(y_j)
+            inst_j.label = self._idx2cls[lbl_idx]
 
     def predict(self, instance):
         """Predict label of a single input instance.
@@ -191,7 +188,7 @@ class SentimentAnalyzer(object):
           instance (cgsa.data.Tweet): input instance to classify
 
         Returns:
-          void
+          str: predicted label
 
         Note:
           modifies input tweet in place
@@ -206,7 +203,7 @@ class SentimentAnalyzer(object):
             model_i.predict_proba(instance, self._wbench[i])
         # let the judge unite the decisions
         lbl_idx, _ = self.judge.predict(self._wbench)
-        instance.label = self._idx2cls[lbl_idx]
+        return self._idx2cls[lbl_idx]
 
     def save(self, a_path):
         """Dump model to disc.

@@ -155,7 +155,7 @@ class MohammadAnalyzer(MLBaseAnalyzer):
         # self._logger.debug("* dir(self._model): %r",
         #                    dir(self._model))
         for i, ival in enumerate(dec):
-            yvec[self._model.classes_[i]] += ival
+            yvec[self.classes_[i]] += ival
         # self._logger.debug("** yvec: %r", yvec)
 
     def _extract_feats(self, a_tweet):

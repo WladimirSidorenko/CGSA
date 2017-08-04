@@ -41,20 +41,18 @@ class SumJudge(object):
         """
         return
 
-    def predict(self, a_rel, a_x):
+    def predict(self, scores):
         """Method for predicting sense of single relation.
 
         Args:
-          a_rel (dict):
-            input relation to classify
-          a_x (np.array):
-            (submodels x class) array of input predictions
+          scores (np.array):
+            array of classifiers' predictions
 
         Returns:
           2-tuple: index of the most likely class and the total score vector
 
         """
-        ret = np.sum(a_x, axis=0)
+        ret = np.sum(scores, axis=0)
         return (np.argmax(ret), ret)
 
 
