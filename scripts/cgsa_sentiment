@@ -12,7 +12,7 @@ import sys
 from cgsa.cgsa import SentimentAnalyzer
 from cgsa.common import LOGGER
 from cgsa.constants import DFLT_MODEL_PATH, ENCODING, MOHAMMAD, SEVERYN, \
-    TABOADA, DFLT_AUTO_LEXICA, DFLT_MANUAL_LEXICA
+    TABOADA, DFLT_AUTO_LEXICA, DFLT_MANUAL_LEXICA, THREE_CLASS
 from cgsa.data import Tweet
 
 
@@ -57,7 +57,12 @@ def _read_data(files):
                 iline = iline.strip()
                 if not iline:
                     continue
-                yield Tweet(iline)
+                tweet = Tweet(iline)
+                if tweet.label not in THREE_CLASS:
+                    LOGGER.warn("Skipping tweet with label %s.",
+                                tweet.label)
+                    continue
+                yield tweet
 
 
 def main(argv):
