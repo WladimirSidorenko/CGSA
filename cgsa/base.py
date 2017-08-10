@@ -16,7 +16,10 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from collections import defaultdict
 from sklearn.model_selection import StratifiedKFold
-from _pickle import load
+try:
+    from cPickle import load
+except ImportError:
+    from _pickle import load
 import abc
 import numpy as np
 import os

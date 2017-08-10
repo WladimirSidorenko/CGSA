@@ -14,7 +14,10 @@ Attributes:
 # Imports
 from __future__ import absolute_import, print_function, unicode_literals
 
-from _pickle import dump, load
+try:
+    from cPickle import dump, load
+except ImportError:
+    from _pickle import dump, load
 import gc
 import numpy as np
 import os
