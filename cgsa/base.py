@@ -75,7 +75,7 @@ class BaseAnalyzer(object):
 
         """
         analyzer = load(a_path)
-        analyzer._logger = LOGGER
+        analyzer._load()
         return analyzer
 
     def __init__(self, *args, **kwargs):
@@ -139,6 +139,12 @@ class BaseAnalyzer(object):
 
         """
         self._logger = None
+
+    def _load(self):
+        """Re-initialize reset members.
+
+        """
+        self._logger = LOGGER
 
     @abc.abstractmethod
     def _extract_feats(self, a_tweet):

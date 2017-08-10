@@ -26,9 +26,13 @@ class SeverynAnalyzer(DLBaseAnalyzer):
 
     """
     # it's actually filter width
-    _min_wdth = 3
-    _flt_wdth = 5
-    _n_filters = 300
+
+    def __init__(self, *args, **kwargs):
+        super(SeverynAnalyzer, self).__init__(*args, **kwargs)
+        self.name = "Severyn"
+        self._min_wdth = 3
+        self._flt_wdth = 5
+        self._n_filters = 300
 
     def _init_nn(self):
         self.init_w_emb()
@@ -49,4 +53,5 @@ class SeverynAnalyzer(DLBaseAnalyzer):
                               kernel_initializer="he_normal",
                               bias_initializer="he_normal"))
         self._model.compile(optimizer="rmsprop",
+                            metrics=["accuracy"],
                             loss="categorical_crossentropy")

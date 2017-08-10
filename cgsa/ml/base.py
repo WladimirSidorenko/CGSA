@@ -49,6 +49,7 @@ class MLBaseAnalyzer(BaseAnalyzer):
         self.PARAM_GRID = {}
 
     def train(self, train_x, train_y, dev_x, dev_y, a_grid_search):
+        self._logger.debug("Training %s...", self.name)
         train_len = len(train_x)
         train_x = [self._extract_feats(t) for t in train_x]
         dev_x = [self._extract_feats(t) for t in dev_x]
@@ -85,6 +86,7 @@ class MLBaseAnalyzer(BaseAnalyzer):
             train_x = train_x[:train_len]
             train_y = train_y[:train_len]
             raise
+        self._logger.debug("%s trained", self.name)
 
     @abc.abstractmethod
     def _extract_feats(self, a_tweet):
