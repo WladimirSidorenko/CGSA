@@ -89,9 +89,9 @@ class BaseAnalyzer(object):
         self._term2auto = defaultdict(dict)
         self._neg_term2auto = defaultdict(dict)
         self._read_lexicons(self._term2mnl, self._neg_term2mnl,
-                            kwargs.get("manual_lexicons"))
+                            kwargs.get("manual_lexicons", []))
         self._read_lexicons(self._term2auto, self._neg_term2auto,
-                            kwargs.get("auto_lexicons"))
+                            kwargs.get("auto_lexicons", []))
 
     @abc.abstractmethod
     def train(self, train_x, train_y, dev_x, dev_y, grid_search=True):
