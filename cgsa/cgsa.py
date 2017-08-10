@@ -25,6 +25,7 @@ import os
 from cgsa.base import BaseAnalyzer
 from cgsa.common import LOGGER
 from cgsa.constants import DFLT_MODEL_PATH, MOHAMMAD, SEVERYN, TABOADA
+from cgsa.dl.base import DLBaseAnalyzer
 from cgsa.judge import DefaultJudge
 
 ##################################################################
@@ -268,7 +269,7 @@ class SentimentAnalyzer(object):
                 from cgsa.ml.mohammad import MohammadAnalyzer
                 self._models.append(MohammadAnalyzer(*a_args, **a_kwargs))
             elif model_i == SEVERYN:
-                from cgsa.ml.severyn import SeverynAnalyzer
+                from cgsa.dl.severyn import SeverynAnalyzer
                 self._models.append(SeverynAnalyzer(*a_args, **a_kwargs))
 
     def _generate_ts(self, a_data):
@@ -349,9 +350,12 @@ class SentimentAnalyzer(object):
         self._logger.info("Saving model %s to %s...",
                           a_model.name, abspath
                           )
-        with open(abspath, "wb") as ofile:
-            a_model.reset()
-            dump(a_model, ofile)
+        a_model.reset()
+        if isinstance(a_model, DLBaseAnalyzer):
+            a_model.save(abspath)
+        else:
+            with open(abspath, "wb") as ofile:
+                dump(a_model, ofile)
         self._logger.info("Model %s saved to %s...",
                           a_model.name, abspath
                           )

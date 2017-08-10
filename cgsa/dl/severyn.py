@@ -8,7 +8,10 @@
 # Imports
 from __future__ import absolute_import, unicode_literals, print_function
 
-from cgsa.base import BaseAnalyzer
+from keras.models import Sequential
+from keras.layers import (BatchNormalization, Conv1D, Dense,
+                          GlobalMaxPooling1D)
+from cgsa.dl.base import DLBaseAnalyzer
 
 ##################################################################
 # Variables and Constants
@@ -16,26 +19,34 @@ from cgsa.base import BaseAnalyzer
 
 ##################################################################
 # Class
-class SeverynAnalyzer(BaseAnalyzer):
+class SeverynAnalyzer(DLBaseAnalyzer):
     """Class for DL-based sentiment analysis.
 
     Attributes:
 
     """
+    # it's actually filter width
+    _min_wdth = 3
+    _flt_wdth = 5
+    _n_filters = 300
 
-    def __init__(self, lexicons=[]):
-        """Class constructor.
-
-        Args:
-          lexicons (list[str]): list of lexicons to use for prediction
-
-        """
-        self._read_lexicons(lexicons)
-
-    def train(self, train_data, dev_data=None):
-        # no training is required for this method
-        raise NotImplementedError
-
-    def predict(self, msg):
-        # no training is required for this method
-        raise NotImplementedError
+    def _init_nn(self):
+        self.init_w_emb()
+        self._model = Sequential()
+        # add embedding layer
+        self._model.add(self.W_EMB)
+        self._model.add(BatchNormalization())
+        # add convolutional layer
+        self._model.add(Conv1D(
+            self._n_filters, self._flt_wdth,
+            activation="relu", kernel_initializer="he_normal"))
+        # add max-pooling
+        self._model.add(GlobalMaxPooling1D())
+        self._model.add(BatchNormalization())
+        # add final dense layer
+        self._model.add(Dense(self._n_y,
+                              activation="softmax",
+                              kernel_initializer="he_normal",
+                              bias_initializer="he_normal"))
+        self._model.compile(optimizer="rmsprop",
+                            loss="categorical_crossentropy")

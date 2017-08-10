@@ -32,6 +32,11 @@ SPACE_RE = re.compile(r' +')
 TAB_RE = re.compile(r'\t')
 
 MMAX = "mmax"
+# compatibility with newer mate versions
+VAL2KEY = {"1": "person", "2": "person", "3": "person",
+           "nom": "case", "gen": "case", "dat": "case",
+           "acc": "case", "sg": "number", "pl": "number",
+           "pres": "tense"}
 
 
 ##################################################################
@@ -56,7 +61,11 @@ class Features(object):
         if feats == '_':
             return
         for feat_i in BAR_RE.split(feats):
-            key, value = EQ_RE.split(feat_i)
+            if EQ_RE.search(feat_i):
+                key, value = EQ_RE.split(feat_i)
+            else:
+                value = feat_i
+                key = VAL2KEY.get(value, "UNKFEAT")
             key_parts = COLON_RE.split(key)
             if len(key_parts) == 3:
                 # parse MMAX feature
@@ -116,7 +125,10 @@ class Features(object):
             if mmax_feats:
                 return feats + '|' + mmax_feats
             return feats
-        return mmax_feats
+        elif mmax_feats:
+            return mmax_feats
+        else:
+            return '_'
 
 
 @python_2_unicode_compatible
@@ -203,6 +215,7 @@ class Tweet(object):
         self.label = None
         self.words = []
         self.iwords = iter(self.words)
+        self._logger = LOGGER
         self._parse(tweet)
 
     def __iter__(self):
@@ -210,7 +223,7 @@ class Tweet(object):
 
         """
         self.iwords = iter(self.words)
-        return self
+        return self.iwords
 
     def __next__(self):
         """Private method required for iteration.
@@ -262,11 +275,14 @@ class Tweet(object):
         n = len(toks)
         if n != len(lemmas) or n != len(tags) \
            or n != len(deps) or n != len(feats):
-            print(repr(n))
-            print(repr(len(lemmas)))
-            print(repr(len(tags)))
-            print(repr(len(deps)))
-            print(repr(len(feats)))
+            self._logger.error(repr(n))
+            self._logger.error(repr(len(lemmas)))
+            self._logger.error(repr(len(tags)))
+            self._logger.error(repr(len(deps)))
+            self._logger.error(repr(len(feats)))
+            for tok_i, lemma_i in zip(toks, lemmas):
+                if tok_i.lower() != lemma_i.lower():
+                    self._logger.error("{!r} <-> {!r}".format(tok_i, lemma_i))
             assert False, \
                 "Unequal number of attributes at line {!r}".format(
                     tweet)

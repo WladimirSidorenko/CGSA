@@ -42,23 +42,28 @@ def _add_cmn_options(a_parser):
         "files", help="input file(s)", type=str, nargs="+")
 
 
-def _read_data(files):
+def _read_data(files, train=False):
     """Read files and return an iterator over tweets.
 
     Args:
       files (list[str]): list of input files
+      train (bool): train mode (skip unknown labels)
 
     """
     if files is None:
         raise StopIteration
     for ifname in files:
         with codecs.open(ifname, 'r', ENCODING) as ifile:
-            for iline in ifile:
+            for i, iline in enumerate(ifile):
                 iline = iline.strip()
                 if not iline:
                     continue
-                tweet = Tweet(iline)
-                if tweet.label not in THREE_CLASS:
+                try:
+                    tweet = Tweet(iline)
+                except:
+                    print("Line #{:d}".format(i + 1), file=sys.stderr)
+                    raise
+                if tweet.label not in THREE_CLASS and train:
                     LOGGER.warn("Skipping tweet with label %s.",
                                 tweet.label)
                     continue
@@ -99,6 +104,12 @@ def main(argv):
                               help="manual lexicon(s) to use",
                               type=str, action="append",
                               default=DFLT_MANUAL_LEXICA)
+    w2v_group = parser_train.add_mutually_exclusive_group()
+    w2v_group.add_argument("--word2vec",
+                           help="use pre-trained word2vec")
+    w2v_group.add_argument("--lstsq-word2vec",
+                           help="use pre-trained word2vec "
+                           "with post-hoc least-square mapping")
     _add_cmn_options(parser_train)
 
     parser_test = subparsers.add_parser(
@@ -112,10 +123,10 @@ def main(argv):
     if args.mode == TRAIN:
         LOGGER.debug("Reading training set...")
         train_set = [tweet_i
-                     for tweet_i in _read_data(args.files)]
+                     for tweet_i in _read_data(args.files, True)]
         LOGGER.debug("Reading development set...")
         dev_set = [tweet_i
-                   for tweet_i in _read_data(args.dev)]
+                   for tweet_i in _read_data(args.dev, True)]
         LOGGER.debug("Initialining analyzer...")
         analyzer = SentimentAnalyzer(args.type,
                                      auto_lexicons=args.auto_lexicon,
@@ -133,14 +144,14 @@ def main(argv):
                                           on_demand=args.batch)
         if args.batch:
             tweets = [tweet_i
-                      for tweet_i in _read_data(args.files)]
+                      for tweet_i in _read_data(args.files, False)]
             analyzer.batch_predict(tweets)
             for tweet_i in tweets:
-                print(str(tweet_i).encode(ENCODING))
+                print(str(tweet_i))
         else:
             for tweet_i in _read_data(args.files):
                 tweet_i.label = analyzer.predict(tweet_i)
-                print(str(tweet_i).encode(ENCODING))
+                print(str(tweet_i))
 
 
 ##################################################################

@@ -15,12 +15,16 @@ Attributes:
 from __future__ import absolute_import
 
 import os
+import re
 
 
 ##################################################################
 # Variables and Constants
 ENCODING = "utf-8"
 NFOLDS = 3                      # default number of folds for cross-validation
+
+DIG_RE = re.compile(r"^[\d.]*\d[\d.]*$")
+IRR_RE = re.compile(r"[.,:;0-9]+$")
 
 DIRNAME = os.path.dirname(__file__)
 DATA_DIR = os.path.join(DIRNAME, "data")
@@ -40,7 +44,18 @@ KIM_HOVY_LEX = os.path.join(LEX_DIR,
                             "kim-hovy.turney-littman-seedset.txt")
 RR_MINCUT_LEX = os.path.join(LEX_DIR,
                              "rao-ravichandran.min-cut.remus-seedset.txt")
+TAKAMURA_LEX = os.path.join(LEX_DIR,
+                            "takamura.hu-liu-seedset.txt")
+TAKAMURA_LEX = os.path.join(LEX_DIR,
+                            "takamura.hu-liu-seedset.txt")
+KNN_LEX = os.path.join(LEX_DIR,
+                       "knn.word2vec.kim_hovy_seedset.txt")
+LINPROJ_LEX = os.path.join(LEX_DIR,
+                           "linproj.word2vec.kim_hovy_seedset.txt")
 DFLT_AUTO_LEXICA = [BG_LEX, HU_LIU_LEX, KIM_HOVY_LEX]
+
+# Embeddings
+DFLT_W2V_PATH = os.path.join(DATA_DIR, "vectors.word2vec")
 
 # Models
 MODEL_DIR = os.path.join(DATA_DIR, "models")
