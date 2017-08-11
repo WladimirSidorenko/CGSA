@@ -54,4 +54,4 @@ class SeverynAnalyzer(DLBaseAnalyzer):
                               bias_initializer="he_normal"))
         self._model.compile(optimizer="rmsprop",
                             metrics=["accuracy"],
-                            loss="categorical_crossentropy")
+                            loss="categorical_hinge")

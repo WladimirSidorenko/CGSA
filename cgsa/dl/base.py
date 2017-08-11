@@ -116,7 +116,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
             # start training
             self._model.fit(train_x, train_y,
                             validation_data=(dev_x, dev_y),
-                            epochs=2, callbacks=[early_stop, chck_point])
+                            epochs=24, callbacks=[early_stop, chck_point])
             self._model = load_model(ofname)
             self._trained = True
         finally:
