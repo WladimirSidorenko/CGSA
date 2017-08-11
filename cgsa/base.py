@@ -15,6 +15,7 @@ Attributes:
 from __future__ import absolute_import, print_function, unicode_literals
 
 from collections import defaultdict
+from csv import QUOTE_NONE
 from sklearn.model_selection import StratifiedKFold
 try:
     from cPickle import load
@@ -246,7 +247,9 @@ class BaseAnalyzer(object):
             )
             lexicon = pd.read_table(lexpath_i, header=None, names=LEX_CLMS,
                                     dtype=LEX_TYPES, encoding=a_encoding,
-                                    error_bad_lines=False, warn_bad_lines=True)
+                                    error_bad_lines=False, warn_bad_lines=True,
+                                    keep_default_na=False, na_values=[''],
+                                    quoting=QUOTE_NONE)
             for i, row_i in lexicon.iterrows():
                 term = USCORE_RE.sub(' ', row_i.term)
                 if NEG_SFX_RE.search(term):
