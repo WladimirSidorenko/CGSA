@@ -4,5 +4,5 @@ include requirements.txt
 include test-requirements.txt
 recursive-include cgsa/data *
 exclude cgsa/data/vectors.*
-exclude cgsa/data/models/*
+prune cgsa/data/models/
 global-exclude */.*
