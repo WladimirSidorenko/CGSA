@@ -24,7 +24,8 @@ import os
 
 from cgsa.base import BaseAnalyzer
 from cgsa.common import LOGGER
-from cgsa.constants import DFLT_MODEL_PATH, MOHAMMAD, SEVERYN, TABOADA
+from cgsa.constants import (DFLT_MODEL_PATH, BILSTM,
+                            MOHAMMAD, SEVERYN, TABOADA)
 from cgsa.dl.base import DLBaseAnalyzer
 from cgsa.judge import DefaultJudge
 
@@ -268,6 +269,9 @@ class SentimentAnalyzer(object):
             elif model_i == MOHAMMAD:
                 from cgsa.ml.mohammad import MohammadAnalyzer
                 self._models.append(MohammadAnalyzer(*a_args, **a_kwargs))
+            elif model_i == BILSTM:
+                from cgsa.dl.bilstm import BiLSTMAnalyzer
+                self._models.append(BiLSTMAnalyzer(*a_args, **a_kwargs))
             elif model_i == SEVERYN:
                 from cgsa.dl.severyn import SeverynAnalyzer
                 self._models.append(SeverynAnalyzer(*a_args, **a_kwargs))

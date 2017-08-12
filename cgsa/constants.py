@@ -46,8 +46,6 @@ RR_MINCUT_LEX = os.path.join(LEX_DIR,
                              "rao-ravichandran.min-cut.remus-seedset.txt")
 TAKAMURA_LEX = os.path.join(LEX_DIR,
                             "takamura.hu-liu-seedset.txt")
-TAKAMURA_LEX = os.path.join(LEX_DIR,
-                            "takamura.hu-liu-seedset.txt")
 KNN_LEX = os.path.join(LEX_DIR,
                        "knn.word2vec.kim_hovy_seedset.txt")
 LINPROJ_LEX = os.path.join(LEX_DIR,
@@ -64,6 +62,7 @@ DFLT_MODEL_PATH = os.path.join(MODEL_DIR, "cgsa.model")
 TABOADA = "taboada"
 MOHAMMAD = "mohammad"
 SEVERYN = "severyn"
+BILSTM = "bilstm"
 
 # labels
 POSITIVE = "positive"
