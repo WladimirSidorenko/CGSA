@@ -77,7 +77,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         self._model = None
         self._model_path = None
         self._trained = False
-
+        self._n_epochs = 24
         # mapping from word to its embedding index
         self.unk_w_i = 0
         self._aux_keys = set((0, 1))
@@ -116,7 +116,8 @@ class DLBaseAnalyzer(BaseAnalyzer):
             # start training
             self._model.fit(train_x, train_y,
                             validation_data=(dev_x, dev_y),
-                            epochs=24, callbacks=[early_stop, chck_point])
+                            epochs=self._n_epochs,
+                            callbacks=[early_stop, chck_point])
             self._model = load_model(ofname)
             self._trained = True
         finally:
@@ -170,6 +171,9 @@ class DLBaseAnalyzer(BaseAnalyzer):
 
         """
         raise NotImplementedError
+
+    def _extract_feats(self, a_tweet):
+        pass
 
     def _init_wemb_funcs(self):
         """Initialize functions for obtaining word embeddings.
@@ -372,13 +376,6 @@ class DLBaseAnalyzer(BaseAnalyzer):
                 return floatX(np.dot(self.w2v[a_word], self.w2emb))
             return self.W_EMB[self.unk_w_i]
         return self.W_EMB[emb_i]
-
-    def _init_w_emb(self):
-        """Initialize task-specific word embeddings.
-
-        """
-        self.W_EMB = Embedding(self.w_i, self.ndim,
-                               embeddings_initializer="he_uniform")
 
     def _prepare_data(self, train_x, train_y, dev_x, dev_y):
         """Provide train/test split and digitize the data.
