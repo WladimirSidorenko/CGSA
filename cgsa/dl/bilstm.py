@@ -30,7 +30,7 @@ class BiLSTMAnalyzer(DLBaseAnalyzer):
     def __init__(self, *args, **kwargs):
         super(BiLSTMAnalyzer, self).__init__(*args, **kwargs)
         self.name = "BiLSTM"
-        self._n_epochs = 16
+        self._n_epochs = 5
 
     def _init_nn(self):
         self.init_w_emb()

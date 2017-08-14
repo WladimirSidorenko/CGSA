@@ -30,7 +30,7 @@ class SeverynAnalyzer(DLBaseAnalyzer):
     def __init__(self, *args, **kwargs):
         super(SeverynAnalyzer, self).__init__(*args, **kwargs)
         self.name = "Severyn"
-        self._min_wdth = 3
+        self._min_wdth = 5
         self._flt_wdth = 5
         self._n_filters = 300
 
