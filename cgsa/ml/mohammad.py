@@ -8,6 +8,7 @@
 # Imports
 from __future__ import absolute_import, unicode_literals, print_function
 
+from bisect import bisect_left
 from collections import defaultdict
 from six import iteritems
 from six.moves import xrange
@@ -18,7 +19,7 @@ import numpy as np
 import re
 
 from cgsa.constants import DFLT_AUTO_LEXICA, DFLT_MANUAL_LEXICA
-from cgsa.ml.base import MLBaseAnalyzer
+from cgsa.ml.base import ALEX, MLBaseAnalyzer
 
 ##################################################################
 # Variables and Constants
@@ -39,7 +40,6 @@ HSHTAG = "%hshtag"
 UNI = "%uni"
 BI = "%bi"
 NONCONTIG = "%noncont"
-ALEX = "alex_"
 AFF_CTXT = "affirmative"
 NEG_CTXT = "negated"
 ALL_POL = "all"
@@ -538,27 +538,6 @@ class MohammadAnalyzer(MLBaseAnalyzer):
             print("_mnl_lex_feats: scores = {:s}".format(repr(scores)),
                   file=sys.stderr)
         a_feats.update(scores)
-
-    def _compute_tertiles(self, feats, n=10):
-        """Compute tertiles of feature values.
-
-        Args:
-          feats (list[dict]): list of extracted features
-          n (int): number of tertiles to split the feature ranges into
-
-        Returns:
-          void
-
-        """
-        feats2vals = defaultdict(list)
-        for feats_i in feats:
-            for k, v in iteritems(feats_i):
-                if isinstance(k, basestring) and k.startswith(ALEX):
-                    feats2vals[k].append(v)
-        marks = np.linspace(0, 100, num=n, endpoint=False)
-        self._feats2tertiles = {
-            k: np.percentile(v, marks, overwrite_input=True)
-            for k, v in iteritems(feats2vals)}
 
     def _get_tertile(self, val, tertiles):
         """Determine the tertile of the given value.

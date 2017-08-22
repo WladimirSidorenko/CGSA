@@ -8,15 +8,19 @@
 # Imports
 from __future__ import absolute_import, unicode_literals, print_function
 
+from collections import defaultdict
+from six import iteritems
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import f1_score, make_scorer
 import abc
+import numpy as np
 import pandas as pd
 
 from cgsa.base import BaseAnalyzer
 
 ##################################################################
 # Variables and Constants
+ALEX = "alex_"
 
 
 ##################################################################
@@ -52,6 +56,11 @@ class MLBaseAnalyzer(BaseAnalyzer):
         self._logger.debug("Training %s...", self.name)
         train_len = len(train_x)
         train_x = [self._extract_feats(t) for t in train_x]
+        # from now on, all newly extracted features will be tertilized
+        self._compute_tertiles(train_x)
+        # but we need to take care of the previously extracted ones
+        for feats_i in train_x:
+            self._tertilize_feats(feats_i)
         dev_x = [self._extract_feats(t) for t in dev_x]
         try:
             if a_grid_search:
@@ -101,3 +110,24 @@ class MLBaseAnalyzer(BaseAnalyzer):
 
         """
         raise NotImplementedError
+
+    def _compute_tertiles(self, feats, n=10):
+        """Compute tertiles of feature values.
+
+        Args:
+          feats (list[dict]): list of extracted features
+          n (int): number of tertiles to split the feature ranges into
+
+        Returns:
+          void
+
+        """
+        feats2vals = defaultdict(list)
+        for feats_i in feats:
+            for k, v in iteritems(feats_i):
+                if isinstance(k, basestring) and k.startswith(ALEX):
+                    feats2vals[k].append(v)
+        marks = np.linspace(0, 100, num=n, endpoint=False)
+        self._feats2tertiles = {
+            k: np.percentile(v, marks, overwrite_input=True)
+            for k, v in iteritems(feats2vals)}
