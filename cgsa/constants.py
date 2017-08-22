@@ -50,7 +50,8 @@ KNN_LEX = os.path.join(LEX_DIR,
                        "knn.word2vec.kim_hovy_seedset.txt")
 LINPROJ_LEX = os.path.join(LEX_DIR,
                            "linproj.word2vec.kim_hovy_seedset.txt")
-DFLT_AUTO_LEXICA = [BG_LEX, HU_LIU_LEX, KIM_HOVY_LEX]
+DFLT_AUTO_LEXICA = [BG_LEX, HU_LIU_LEX, KIM_HOVY_LEX,
+                    TAKAMURA_LEX, KNN_LEX, LINPROJ_LEX]
 
 # Embeddings
 DFLT_W2V_PATH = os.path.join(DATA_DIR, "vectors.word2vec")
