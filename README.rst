@@ -1,4 +1,5 @@
-# Coarse-Grained Sentiment Analysis
+Coarse-Grained Sentiment Analysis
+=================================
 
 *work in progress*
 
