@@ -59,11 +59,13 @@ def read_file(fname, germeval=False):
         ret = pd.read_table(
             fname,
             names=[ID, TOKS, RELEVANCE, POLARITY, ASPECT],
+            dtype=str,
             header=None, skipinitialspace=True, encoding=ENCODING)
     else:
         ret = pd.read_table(
             fname,
             names=[ID, POLARITY, TOKS, LEMMAS, TAGS, DEPS, FEATS],
+            dtype=str,
             header=None, skipinitialspace=True, encoding=ENCODING)
     # only leave data with labels (positive, negative, or neutral)
     ret = ret.loc[lambda df: df.polarity.isin(MICRO_CLASSES)]
@@ -135,7 +137,7 @@ def compute_stat(gold, pred, verbose):
 
     # Micro-Averaged F1 Score
     print(
-        "Micro-Averaged F1-Score (All Classes): {:.2%}".format(
+        "Micro-Averaged F1-Score (All Classes): {:.4%}".format(
             sklm.f1_score(y_gold, y_pred, average="micro")
         ), end="\n\n")
 
