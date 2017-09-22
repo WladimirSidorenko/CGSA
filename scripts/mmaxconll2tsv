@@ -4,7 +4,7 @@
 # Methods
 function reset() {
     tok_cnt = 0
-    msg_id = label = toks = lemmas = tags = deps = feats = ""
+    msg_id = toks = lemmas = tags = deps = feats = ""
 }
 
 function append(arr, tok) {
@@ -17,20 +17,23 @@ function append(arr, tok) {
 }
 
 function get_label(feats) {
-    tmp_label = ""
-    if (feats ~ /\<Sentiment::[^:]+::Polarity=Positive\>/)
-	tmp_label = "positive"
-    else if (feats ~ /\<Sentiment::[^:]+::Polarity=Negative\>/)
-	tmp_label = "negative"
+    pos_snt = (feats ~ /\<Sentiment::[^:]+::Polarity=Positive\>/)
+    neg_snt = (feats ~ /\<Sentiment::[^:]+::Polarity=Negative\>/)
+    pos_expr = (feats ~ /\<EmoExpression::[^:]+::Polarity=positive\>/)
+    neg_expr = (feats ~ /\<EmoExpression::[^:]+::Polarity=negative\>/)
 
-    if (tmp_label) {
-	if (label) {
-	    if (label != tmp_label)
-		label = "mixed"
-	} else {
-	    label = tmp_label
-	}
+    if (pos_snt) {
+	if (!neg_snt)
+	    return "positive"
+    } else if (neg_snt) {
+	return "negative"
+    } else if (pos_expr) {
+	if (!neg_expr)
+	    return "positive"
+    } else if (neg_expr) {
+	return "negative"
     }
+    return "neutral"
 }
 
 
@@ -43,8 +46,7 @@ function get_prnt_idx(tok_offset, prnt_id) {
 
 function output_tweet() {
     if (toks) {
-	if (label == "")
-	    label = "neutral"
+	label = get_label(feats)
 
 	printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n", msg_id,
 	       label, toks, lemmas, tags, deps, feats)
@@ -66,9 +68,6 @@ BEGIN {
     output_tweet()
     if ($2 == "id")
 	msg_id = $NF
-    # for GermEval data
-    else if ($2 == "polarity")
-	label = $NF
     next
 }
 
@@ -80,7 +79,6 @@ NF {
 
     feats_i = $8
     feats = append(feats, feats_i)
-    get_label(feats_i)
 
     prnt_id = $10
     rel_type = $12
