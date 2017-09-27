@@ -1,0 +1,125 @@
+#!/usr/bin/env python
+# -*- mode: python; coding: utf-8 -*-
+
+##################################################################
+# Imports
+from __future__ import absolute_import, unicode_literals, print_function
+
+from argparse import ArgumentParser
+from nltk.metrics.agreement import AnnotationTask
+from nltk.metrics import interval_distance
+import pandas as pd
+import glob
+import os
+import sys
+
+
+##################################################################
+# Variables and Constants
+ENCODING = "utf-8"
+ID = "id"
+POLARITY = "polarity"
+TOKS = "tokens"
+TOKS = "tokens"
+LEMMAS = "lemmas"
+TAGS = "tags"
+DEPS = "dependencies"
+FEATS = "features"
+POL2NUM = {
+    "positive": 2,
+    "neutral": 1,
+    "negative": 0,
+}
+
+
+##################################################################
+# Methods
+def read_annotations(annotations, skip_ids, fpath, annotator_id):
+    """Read content of a file.
+
+    Args:
+      annotations (list): target list with stored annotations
+      skip_ids (set): target list with stored annotations
+      fpath (str): path to the annotation file
+      annotator_id (str): id of the annotator
+
+    Returns:
+      pandas.DataFrame: read data
+
+    """
+    data = pd.read_table(
+        fpath,
+        names=[ID, POLARITY, TOKS, LEMMAS, TAGS, DEPS, FEATS],
+        dtype=str,
+        header=None, skipinitialspace=True, encoding=ENCODING)
+    for msg_id, msg_pol in zip(data.id, data.polarity):
+        if msg_pol == "mixed":
+            skip_ids.add(msg_id)
+            continue
+        annotations.append((annotator_id, msg_id, POL2NUM[msg_pol]))
+
+
+def main(argv):
+    """Main method for training and applying sentiment classifiers.
+
+    Args:
+      argv (list[str]): CLI arguments
+
+    Returns:
+      int: 0 on success, non-0 otherwise
+
+    """
+    argparser = ArgumentParser(
+        description="Measure agreement of the sentiment corpus.")
+    argparser.add_argument("dir1",
+                           help="directort containing annotations of the"
+                           " first expert")
+    argparser.add_argument("dir2",
+                           help="directort containing annotations of the"
+                           " second expert")
+    args = argparser.parse_args(argv)
+
+    def check_arg(arg):
+        if not os.path.isdir(args.dir1) or not os.access(args.dir1, os.R_OK):
+            print("Invalid argument {!r} should be a readable"
+                  " directory".format(arg), file=sys.stderr)
+
+    check_arg(args.dir1)
+    check_arg(args.dir2)
+    annotations = []
+    skip_ids = set()
+    for fpath1 in glob.iglob(os.path.join(args.dir1, "*.tsv")):
+        if not os.access(fpath1, os.R_OK):
+            print("WARNING: cannot read file {:s}".format(
+                fpath1
+            ), file=sys.stderr)
+            continue
+        base_fpath1 = os.path.basename(fpath1)
+        fpath2 = os.path.join(args.dir2, base_fpath1)
+        if not os.path.exists(fpath2):
+            print("WARNING: file {:s} not found".format(
+                fpath1
+            ), file=sys.stderr)
+            continue
+        elif not os.access(fpath2, os.R_OK):
+            print("WARNING: cannot read file {:s}".format(
+                fpath1
+            ), file=sys.stderr)
+            continue
+        read_annotations(annotations, skip_ids, fpath1, 1)
+        read_annotations(annotations, skip_ids, fpath2, 2)
+    annotations = [(coder, item, label)
+                   for (coder, item, label) in annotations
+                   if item not in skip_ids]
+    at = AnnotationTask(annotations, distance=interval_distance)
+    # print(at.avg_Ao())
+    # print(at.Ae_kappa())
+    print("Cohen's Kappa: {:.4f}\nKrippendorff's Alpha: {:4f}".format(
+        at.kappa(), at.alpha()
+    ))
+
+
+##################################################################
+# Main
+if __name__ == "__main__":
+    main(sys.argv[1:])
