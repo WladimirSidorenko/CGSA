@@ -1,0 +1,95 @@
+#!/usr/bin/gawk -f
+
+# Script used for converting raw CoNLL files (of the German Twitter
+# Snapshot) to TSV format suitable for CGSA.
+
+##################################################################
+# Methods
+function reset() {
+    tok_cnt = 0
+    msg_id = toks = lemmas = tags = deps = feats = ""
+}
+
+function append(arr, tok) {
+    if (arr)
+	arr = arr " " tok
+    else
+	arr = tok
+
+    return arr
+}
+
+function get_label(toks) {
+    pos = (toks ~ /%Pos(itive)?Smiley/)
+    neg = (toks ~ /%Neg(ative)?Smiley/)
+
+    if (pos) {
+	if (neg)
+	    return "mixed"
+	else
+	    return "positive"
+    } else if (neg) {
+	return "negative"
+    }
+    return "neutral"
+}
+
+
+function get_prnt_idx(tok_offset, prnt_id) {
+    if (prn_id == "_" || prn_id == "0")
+	return prnt_d
+
+    return tok_offset + prnt_id
+}
+
+function output_tweet() {
+    if (toks) {
+	label = get_label(toks)
+
+	printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n", msg_id,
+	       label, toks, lemmas, tags, deps, feats)
+	reset()
+    }
+}
+
+##################################################################
+# Begin
+BEGIN {
+    FS = OFS = "\t"
+    IGNORECASE = 1
+    reset()
+}
+
+##################################################################
+# Main
+/^/ {
+    output_tweet()
+    if ($2 == "id")
+	msg_id = $NF
+    next
+}
+
+NF {
+    ++tok_cnt
+    toks = append(toks, $2)
+    lemmas = append(lemmas, $3)
+    tags = append(tags, $5)
+
+    feats_i = $8
+    feats = append(feats, feats_i)
+
+    prnt_id = $10
+    rel_type = $12
+    deps = append(deps, get_prnt_idx(tok_offset, prnt_id) "/" rel_type)
+    next
+}
+
+1 {
+    tok_offset = tok_cnt
+}
+
+##################################################################
+# End
+END {
+    output_tweet()
+}
