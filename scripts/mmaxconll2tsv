@@ -25,11 +25,15 @@ function get_label(feats) {
     if (pos_snt) {
 	if (!neg_snt)
 	    return "positive"
+	else
+	    return "mixed"
     } else if (neg_snt) {
 	return "negative"
     } else if (pos_expr) {
 	if (!neg_expr)
 	    return "positive"
+	else
+	    return "mixed"
     } else if (neg_expr) {
 	return "negative"
     }
