@@ -27,7 +27,7 @@ import os
 import pandas as pd
 import re
 
-from cgsa.common import LOGGER
+from cgsa.utils.common import LOGGER
 from cgsa.constants import ENCODING, NFOLDS
 
 ##################################################################
@@ -122,7 +122,7 @@ class BaseAnalyzer(object):
         """Method for predicting sentiment propbablities of a single message.
 
         Args:
-          msg (cgsa.data.Tweet):
+          msg (cgsa.utils.data.Tweet):
             discourse relation whose sense should be predicted
           yvec (np.array): target array for storing the probabilities
 
@@ -152,7 +152,7 @@ class BaseAnalyzer(object):
         """Method for training the model.
 
         Args:
-          a_tweet (cgsa.data.Tweet):
+          a_tweet (cgsa.utils.data.Tweet):
             training instance to extract features from
 
         Returns:

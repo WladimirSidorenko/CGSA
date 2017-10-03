@@ -23,7 +23,7 @@ import numpy as np
 import os
 
 from cgsa.base import BaseAnalyzer
-from cgsa.common import LOGGER
+from cgsa.utils.common import LOGGER
 from cgsa.constants import (DFLT_MODEL_PATH, BILSTM,
                             MOHAMMAD, SEVERYN, TABOADA)
 from cgsa.dl.base import DLBaseAnalyzer
@@ -190,7 +190,7 @@ class SentimentAnalyzer(object):
         """Predict label of a single input instance.
 
         Args:
-          instance (cgsa.data.Tweet): input instance to classify
+          instance (cgsa.utils.data.Tweet): input instance to classify
 
         Returns:
           str: predicted label

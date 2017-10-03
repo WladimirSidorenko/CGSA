@@ -19,7 +19,7 @@ from future.utils import python_2_unicode_compatible
 from six import iteritems
 import re
 
-from cgsa.common import LOGGER
+from cgsa.utils.common import LOGGER
 from cgsa.constants import KNOWN_LABELS
 
 ##################################################################

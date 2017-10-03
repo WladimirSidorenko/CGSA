@@ -25,8 +25,8 @@ import numpy as np
 import os
 
 from cgsa.base import BaseAnalyzer
-from cgsa.common import is_relevant, normlex
-from cgsa.word2vec import Word2Vec
+from cgsa.utils.common import is_relevant, normlex
+from cgsa.utils.word2vec import Word2Vec
 
 
 ##################################################################

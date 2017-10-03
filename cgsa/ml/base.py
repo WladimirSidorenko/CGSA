@@ -102,7 +102,7 @@ class MLBaseAnalyzer(BaseAnalyzer):
         """Method for training the model.
 
         Args:
-          a_tweet (cgsa.data.Tweet):
+          a_tweet (cgsa.utils.data.Tweet):
             training instance to extract features from
 
         Returns:

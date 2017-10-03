@@ -15,7 +15,7 @@ from __future__ import absolute_import, print_function
 
 import gc
 
-from cgsa.common import LOGGER
+from cgsa.utils.common import LOGGER
 from cgsa.constants import DFLT_W2V_PATH
 
 

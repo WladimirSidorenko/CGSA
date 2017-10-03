@@ -10,12 +10,12 @@ import codecs
 import sys
 
 from cgsa.cgsa import SentimentAnalyzer
-from cgsa.common import LOGGER
+from cgsa.utils.common import LOGGER
 from cgsa.constants import (
     DFLT_MODEL_PATH, ENCODING, BILSTM, MOHAMMAD,
     SEVERYN, TABOADA, DFLT_AUTO_LEXICA, DFLT_MANUAL_LEXICA,
     THREE_CLASS)
-from cgsa.data import Tweet
+from cgsa.utils.data import Tweet
 
 
 ##################################################################
