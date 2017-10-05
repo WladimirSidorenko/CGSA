@@ -33,10 +33,11 @@ from cgsa.constants import ENCODING, NFOLDS
 ##################################################################
 # Variables and Constants
 TERM = "term"
-POLCLASS = "polclass"
+POS = "pos"                # part of speech tags
+POLARITY = "polarity"
 SCORE = "score"
-LEX_CLMS = (TERM, POLCLASS, SCORE)
-LEX_TYPES = {TERM: str, POLCLASS: str, SCORE: float}
+LEX_CLMS = (TERM, POS, POLARITY, SCORE)
+LEX_TYPES = {TERM: str, POS: str, POLARITY: str, SCORE: float}
 NEG_SFX = r"_NEG"
 NEG_SFX_RE = re.compile(re.escape(re.escape(NEG_SFX)
                                   + r"(:?FIRST)?'"))
@@ -219,7 +220,7 @@ class BaseAnalyzer(object):
         return folds, train_x, train_y
 
     def _read_lexicons(self, a_pos_term2polscore, a_neg_term2polscore,
-                       a_lexicons, a_encoding=ENCODING, a_cs_fallback=False):
+                       a_lexicons, a_encoding=ENCODING):
         """Load lexicons.
 
         Args:
@@ -229,7 +230,6 @@ class BaseAnalyzer(object):
             polarity scores
           a_lexicons (list): tags of the input instance
           a_encoding (str): input encoding
-          a_cs_fallback (bool): use case-sensitive fallback
 
         Returns:
           void:
@@ -259,15 +259,11 @@ class BaseAnalyzer(object):
                     trg_lex = a_pos_term2polscore
                 term = self._preprocess(term)
                 lex_key = (lexname, row_i.polclass)
-                if a_cs_fallback:
-                    term_key = CI_PRFX + term.lower()
-                    if lex_key not in trg_lex[term_key]:
-                        trg_lex[term_key][lex_key] = []
-                    trg_lex[term_key][lex_key].append(row_i.score)
+
+                term = term.lower()
+                if lex_key not in trg_lex[term]:
+                    trg_lex[term][lex_key] = [row_i.score]
                 else:
-                    term = term.lower()
-                    if lex_key not in trg_lex[term]:
-                        trg_lex[term][lex_key] = []
                     trg_lex[term][lex_key].append(row_i.score)
             LOGGER.debug(
                 "Lexicon %s read...", lexname

@@ -3,23 +3,25 @@
 
 """Implementation of Trie data structure
 
-Constants:
-SPACE_RE - regular expression matching continuous runs of space characters
-FINAL_SPACE_RE - regular expression matching leading and trailing white spaces
-ANEW - flag indicating that the search should start anew
-CONTINUE - flag indicating that the search should continue where it stopped
-
-Classes:
-  State - single trie state with associated transitions
-  Trie - implementation of Trie data structure
-
-@author = Uladzimir Sidarenka <sidarenk AT uni DASH potsdam DOT de>
+Attributes:
+  SPACE_RE (re): regular expression matching continuous runs of space
+    characters
+  FINAL_SPACE_RE (re): regular expression matching leading and trailing white
+    spaces
+  ANEW (re): flag indicating that the search should start anew
+  CONTINUE (re): flag indicating that the search should continue where it
+    stopped
+  State (class): single trie state with associated transitions
+  Trie (class): implementation of Trie data structure
 
 """
 
 ##################################################################
 # Imports
 from __future__ import unicode_literals, print_function
+from future.utils import python_2_unicode_compatible
+from six import iteritems
+
 import re
 
 
@@ -68,19 +70,18 @@ class MatchObject(object):
     """
 
     def __init__(self, a_start):
-        """
-        Class constructor
+        """Class constructor
 
         @param a_start - start index of match
+
         """
-        ## start index of match
+        # start index of match
         self.start = a_start
-        ## end index of match
+        # end index of match
         self.end = -1
 
     def update(self, a_end):
-        """
-        Class constructor
+        """Update information about match.
 
         @param a_end - new end index of match
 
@@ -90,8 +91,7 @@ class MatchObject(object):
 
 
 class State(object):
-    """
-    Single Trie state with associated transitions
+    """Single Trie state with associated transitions
 
     Instance variables:
     classes - custom classes associated with the current state
@@ -102,6 +102,7 @@ class State(object):
     __init__() - class constructor
     add_transition() - add new transition from that state
     check() - check transitions associated with the given character
+
     """
 
     def __init__(self, a_final=False, a_class=None):
@@ -112,54 +113,79 @@ class State(object):
                          final or not
         @param a_class - custom class associated with the final state
         """
-        ## custom classes associated with the current state
+        # custom classes associated with the current state
         self.classes = set([])
         if a_class is not None:
             self.classes.add(a_class)
-        ## boolean flag indicating whether the state is final
+        # boolean flag indicating whether the state is final
         self.final = a_final
-        ## set of transitions triggered by the given state
+        # set of transitions triggered by the given state
         self.transitions = dict()
 
-    def add_transition(self, a_char):
+    def add_transition(self, string, pos):
+        """Add new transition outgoing from this state.
+
+        Params:
+          string (str): string to be associated with transition
+          pos (str or None): string or part-of-speech tag associated with
+            transition
+
+        Returns:
+          address of the target state of that transition
+
         """
-        Add new transition outgoing from that state
+        if pos is None:
+            key = string
+        else:
+            key = (string, pos)
+        if key not in self.transitions:
+            self.transitions[key] = State()
+        return self.transitions[key]
 
-        @param a_char - character triggerring that trnasition
+    def check(self, istring, ipos):
+        """Check transitions associated with the given character.
 
-        @return address of the target state of that transition
+        Params:
+          istring (str): string to be associated with transition
+          ipos (str or None): string or part-of-speech tag associated with
+            transition
+
+        Returns:
+          set of target states triggered by character
+
         """
-        if a_char not in self.transitions:
-            self.transitions[a_char] = State()
-        return self.transitions[a_char]
-
-    def check(self, a_char):
-        """
-        Check transitions associated with the given character
-
-        @param a_char - character whose associated transitions should
-        be checked
-
-        @return \c set of target states triggered by character
-        """
-        if a_char in self.transitions:
-            return self.transitions[a_char]
+        ret = set()
+        if ipos is None:
+            for (string, _), trg_states in iteritems(self.transitions):
+                if string == istring:
+                    ret |= trg_states
+            return ret
+        else:
+            key = (istring, ipos)
+            if key in self.transitions:
+                self.transitions[key]
+            key = (istring, None)
+            if key in self.transitions:
+                self.transitions[key]
+        if ret:
+            return ret
         return None
 
 
+@python_2_unicode_compatible
 class Trie(object):
-    """
-    Implementation of trie data structure
+    """Implementation of trie data structure
 
-    Instance variables:
-    ignorecase - boolean flag indicating whether the case
-                 should be ignored
-    active_state - set of currently active Trie states
+    Attributes:
+      ignorecase (bool): boolean flag indicating whether the case
+                   should be ignored
+      active_state (set[State]): set of currently active Trie states
 
     Methods:
     __init__() - class constructor
     add() - add new string to the trie
     match() - compare given string against the trie
+
     """
 
     def __init__(self, a_ignorecase=False):
@@ -169,27 +195,33 @@ class Trie(object):
         @param a_ignorecase - boolean flag indicating whether the case
                               should be ignored
         """
-        ## boolean flag indicating whether character case should be ignored
+        # boolean flag indicating whether character case should be ignored
         self.ignorecase = a_ignorecase
         self._init_state = State()
-        ## set of currently active Trie states
+        # set of currently active Trie states
         self.active_states = set([])
 
-    def add(self, a_string, a_class=0):
-        """
-        Add new string to the trie
+    def add(self, strings, tags, a_class=0):
+        """Add new string to the trie
 
-        @param a_string - string to be added
-        @param a_class - optional custom class associated with that string
+        Args:
+          strings (list[str]): string to be added
+          tags (list[str]): list of part-of-speech tags corresponding to string
+          class (tuple): optional custom class associated with that string
 
-        @return \c void
+        Returns:
+          void
+
         """
-        # normalize string
-        a_string = normalize_string(a_string, self.ignorecase)
+        # normalize strings
+        strings = [normalize_string(istring, self.ignorecase)
+                   for istring in strings]
+        assert len(strings) == len(tags), \
+            "Unequal number of PoS tags and strings provided to automaton."
         # successively add states
         astate = self._init_state
-        for ichar in a_string:
-            astate = astate.add_transition(ichar)
+        for istring, itag in zip(strings, tags):
+            astate = astate.add_transition(istring, itag)
         astate.final = True
         astate.classes.add(a_class)
 
@@ -243,19 +275,23 @@ class Trie(object):
         self.active_states = ret
         return status
 
-    def __unicode__(self):
-        """
-        Return a unicode representation of the given trie
+    def __str__(self):
+        """Return a unicode representation of the given trie
 
-        @return unicode object representing the trie in graphviz format
+        Returns:
+          (unicode): unicode object representing the trie in graphviz format
+
         """
         ret = """digraph Trie {
-        size="6,6";
+        size="106,106";
         rankdir = "LR";
+        graph [fontname="fixed"];
+        node [fontname="fixed"];
+        edge [fontname="fixed"];
         {node [color=black,fillcolor=palegreen,style=filled,forcelabels=true];
         """
         istate = None
-        scnt = tcnt = rels = ""
+        scnt = rels = ""
         state_cnt = 0
         state2cnt = {self._init_state: str(state_cnt)}
         new_states = [self._init_state]
@@ -266,17 +302,20 @@ class Trie(object):
             if istate.final:
                 ret += '{:s} [shape=box,fillcolor=' \
                        'lightblue,label="{:s}"];\n'.format(
-                           scnt, ", ".join(istate.classes))
+                           scnt, ", ".join(
+                               "({:s})".format(iclass[0])
+                               for iclass in istate.classes))
             else:
-                ret += "{:s} [shape=circle];\n".format(scnt)
-            for jchar, jstate in istate.transitions.iteritems():
+                ret += "{:s} [shape=oval];\n".format(scnt)
+            for (jstring, jpos), jstate in iteritems(istate.transitions):
                 if jstate not in state2cnt:
                     state_cnt += 1
                     state2cnt[jstate] = str(state_cnt)
                 if jstate not in visited_states:
                     new_states.append(jstate)
                 rels += scnt + "->" + state2cnt[jstate] \
-                    + """[label="'{:s}'"];\n""".format(jchar)
+                    + """[label="'{:s} ({:s})'"];\n""".format(jstring,
+                                                              jpos)
             visited_states.add(istate)
         ret += "}\n" + rels + "}\n"
         return ret
