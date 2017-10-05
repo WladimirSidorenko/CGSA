@@ -8,6 +8,7 @@
 # Imports
 from __future__ import absolute_import, unicode_literals, print_function
 
+from itertools import chain
 import pandas as pd
 import os
 
@@ -48,22 +49,47 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
     def train(self, train_x, train_y, dev_x, dev_y,
               **kwargs):
         # no training is required for this method
-        # print(repr(train_x[0]))
-        # print(repr(train_y[1]))
-        raise NotImplementedError
+        scores = [self._compute_so(tweet_i)
+                  for tweet_i in chain(train_x, dev_x)]
+        labels = [label_i
+                  for label_i in chain(train_y, dev_y)]
+        self._optimize_thresholds(scores, labels)
 
     def predict(self, msg):
         # no training is required for this method
         raise NotImplementedError
 
-    def _predict_SO(self, tweet):
-        text_so = text_cnt = 0.
+    def _compute_so(self, tweet):
+        """Compute semantic orientation of a tweet.
+
+        Args:
+          tweet (cgsa.utils.data.Tweet): input message
+
+        Returns:
+          float: semantic orientation score
+
+        """
+        total_so = 0.
+        total_cnt = 0
         for so_func in (self._noun_so, self._verb_so,
                         self._adj_so, self._adv_so):
             so, cnt = so_func(tweet)
-            text_so += so
-            text_cnt += cnt
-        text_so = text_so / (float(text_cnt) or 1e10)
+            total_so += so
+            total_cnt += cnt
+        total_so = total_so / (float(total_cnt) or 1e10)
+
+    def _optimize_thresholds(self, scores, labels):
+        """Compute optimal thershold values
+
+        Args:
+          scores (list[float]): SO scores assigned to instances
+          labels (list[str]): gold labels
+
+        Returns:
+          void: optimizes instance attributes in place
+
+        """
+        raise NotImplementedError
 
     def _read_lexicons(self, a_pos_term2polscore, a_neg_term2polscore,
                        a_lexicons, a_encoding=ENCODING):
@@ -110,6 +136,3 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
             LOGGER.debug(
                 "Lexicon %s read...", lexname
             )
-            print(str(trg_lex))
-            import sys
-            sys.exit(66)

@@ -226,15 +226,17 @@ class Trie(object):
         astate.classes.add(a_class)
 
     def match(self, a_strings, a_start=-1, a_reset=ANEW):
-        """
-        Compare given strings against the Trie
+        """Compare given strings against the Trie
 
-        @param a_strings - list of strings to be matched
-        @param a_start - (optional) start index of the string
-        @param a_reset - (optional) flag indicating whether search
-                         should start anew or continue
+        Args:
+          a_strings (list[str]): list of strings to be matched
+          a_start (int): start index of the string
+          a_reset (int): flag indicating whether search
+            should start anew or continue
 
-        @return \c True if at least one match succeeded
+        Returns:
+          bool: True if at least one match succeeded
+
         """
         a_strings = [normalize_string(istring, self.ignorecase)
                      if istring != ' ' else istring
