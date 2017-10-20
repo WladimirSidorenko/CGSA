@@ -41,9 +41,10 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
         """
         assert lexicons, \
             "Provide at least one lexicon for lexicon-based method."
-        self._term2score = Trie()
-        self._neg_term2score = Trie()
-        self._read_lexicons(self._term2score, self._neg_term2score,
+        self._logger = LOGGER
+        self._term2score = Trie(a_ignorecase=True)
+        self._negterm2score = Trie(a_ignorecase=True)
+        self._read_lexicons(self._term2score, self._negterm2score,
                             lexicons, a_encoding=ENCODING)
 
     def train(self, train_x, train_y, dev_x, dev_y,
@@ -71,11 +72,20 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
         """
         total_so = 0.
         total_cnt = 0
-        for so_func in (self._noun_so, self._verb_so,
-                        self._adj_so, self._adv_so):
-            so, cnt = so_func(tweet)
-            total_so += so
-            total_cnt += cnt
+        toks = [self._preprocess(w_i.form) for w_i in tweet]
+        lemmas = [self._preprocess(w_i.lemma) for w_i in tweet]
+        tags = [w_i.tag for w_i in tweet]
+        assert len(toks) == len(lemmas), \
+            "Unmatching number of tokens and lemmas."
+        assert len(toks) == len(tags), "Unmatching number of tokens and tags."
+        term_matches = self._term2score.match(
+            zip(toks, lemmas, tags))
+        self._logger.debug("term_matches: %r", term_matches)
+        negterm_matches = self._negterm2score.match(
+            zip(toks, lemmas, tags))
+        self._logger.debug("negterm_matches: %r", negterm_matches)
+        import sys
+        sys.exit(66)
         total_so = total_so / (float(total_cnt) or 1e10)
 
     def _optimize_thresholds(self, scores, labels):
@@ -130,9 +140,20 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
                 else:
                     trg_lex = a_pos_term2polscore
                 term = self._preprocess(term)
-                term = term.lower()
                 trg_lex.add(SPACE_RE.split(term), SPACE_RE.split(row_i.pos),
                             (lexname, row_i.polarity, row_i.score))
             LOGGER.debug(
                 "Lexicon %s read...", lexname
             )
+
+    def _preprocess(self, a_txt):
+        """Overwrite parent's method lowercasing strings.
+
+        Args:
+          a_txt (str): text to be preprocessed
+
+        Returns:
+          str: preprocessed text
+
+        """
+        return super(TaboadaAnalyzer, self)._preprocess(a_txt).lower()

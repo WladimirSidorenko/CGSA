@@ -265,12 +265,6 @@ class SentimentAnalyzer(object):
         for model_i in a_models:
             if model_i == TABOADA:
                 from cgsa.lexicon.taboada import TaboadaAnalyzer
-                lexicons = a_kwargs.pop("auto_lexicons", []) \
-                    + a_kwargs.pop("manual_lexicons", [])
-                if "lexicons" in a_kwargs:
-                    a_kwargs["lexicons"] += lexicons
-                else:
-                    a_kwargs["lexicons"] = lexicons
                 self._models.append(TaboadaAnalyzer(*a_args, **a_kwargs))
             elif model_i == MOHAMMAD:
                 from cgsa.ml.mohammad import MohammadAnalyzer

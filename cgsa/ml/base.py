@@ -32,21 +32,16 @@ class MLBaseAnalyzer(BaseAnalyzer):
 
     """
 
-    def __init__(self, auto_lexicons=[], manual_lexicons=[], a_clf=None):
+    def __init__(self, lexicons=[], a_clf=None):
         """Class constructor.
 
         Args:
-          auto_lexicons (list[str]): list of automatically compiled
-            lexicons
-          manual_lexicons (list[str]): list of manually compiled lexicons
+          lexicons (list[str]): list of lexicons
           a_clf (None or Classifier Instance): classifier to use (None for
             default)
 
         """
-        super(MLBaseAnalyzer, self).__init__(
-            auto_lexicons=auto_lexicons,
-            manual_lexicons=manual_lexicons
-        )
+        super(MLBaseAnalyzer, self).__init__(lexicons=lexicons)
         self.name = "MLBaseAnalyzer"
         self._model = None
         self.N_JOBS = 1

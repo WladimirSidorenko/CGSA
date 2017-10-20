@@ -21,8 +21,9 @@ Attributes:
 from __future__ import unicode_literals, print_function
 from future.utils import python_2_unicode_compatible
 from six import iteritems
-
 import re
+
+from cgsa.utils.common import LOGGER
 
 
 ##################################################################
@@ -56,40 +57,6 @@ def normalize_string(a_string, a_ignorecase=False):
 
 ##################################################################
 # Classes
-class MatchObject(object):
-    """
-    Object returned by Trie class on successful match
-
-    Instance variables:
-    start - start index of the match
-    end - end index of the match
-
-    Methods:
-    __init__() - class constructor
-    update() - update end index of match
-    """
-
-    def __init__(self, a_start):
-        """Class constructor
-
-        @param a_start - start index of match
-
-        """
-        # start index of match
-        self.start = a_start
-        # end index of match
-        self.end = -1
-
-    def update(self, a_end):
-        """Update information about match.
-
-        @param a_end - new end index of match
-
-        @return \c void
-        """
-        self.end = a_end
-
-
 class State(object):
     """Single Trie state with associated transitions
 
@@ -134,27 +101,28 @@ class State(object):
           address of the target state of that transition
 
         """
-        if pos is None:
-            key = string
-        else:
-            key = (string, pos)
+        key = (string, pos)
         if key not in self.transitions:
             self.transitions[key] = State()
         return self.transitions[key]
 
-    def check(self, istring, ipos):
-        """Check transitions associated with the given character.
+    def check(self, istring, ipos=None, start=-1):
+        """Check transitions associated with the given input.
 
         Params:
           istring (str): string to be associated with transition
           ipos (str or None): string or part-of-speech tag associated with
             transition
+          start (int): start of the match
 
         Returns:
           set of target states triggered by character
 
         """
         ret = set()
+        # print("istring:", repr(istring))
+        # print("ipos:", repr(ipos))
+        # print("self.transitions:", repr(self.transitions))
         if ipos is None:
             for (string, _), trg_states in iteritems(self.transitions):
                 if string == istring:
@@ -163,13 +131,11 @@ class State(object):
         else:
             key = (istring, ipos)
             if key in self.transitions:
-                self.transitions[key]
+                ret.add((self.transitions[key], start))
             key = (istring, None)
             if key in self.transitions:
-                self.transitions[key]
-        if ret:
-            return ret
-        return None
+                ret.add((self.transitions[key], start))
+        return ret
 
 
 @python_2_unicode_compatible
@@ -181,31 +147,28 @@ class Trie(object):
                    should be ignored
       active_state (set[State]): set of currently active Trie states
 
-    Methods:
-    __init__() - class constructor
-    add() - add new string to the trie
-    match() - compare given string against the trie
-
     """
 
     def __init__(self, a_ignorecase=False):
-        """
-        Class constructor
+        """Class constructor
 
-        @param a_ignorecase - boolean flag indicating whether the case
-                              should be ignored
+        Args:
+          a_ignorecase (bool): boolean flag indicating whether the case should
+            be ignored
+
         """
         # boolean flag indicating whether character case should be ignored
         self.ignorecase = a_ignorecase
         self._init_state = State()
         # set of currently active Trie states
         self.active_states = set([])
+        self._logger = LOGGER
 
-    def add(self, strings, tags, a_class=0):
+    def add(self, toks, tags, a_class=0):
         """Add new string to the trie
 
         Args:
-          strings (list[str]): string to be added
+          toks (list[str]): string(s) to be added
           tags (list[str]): list of part-of-speech tags corresponding to string
           class (tuple): optional custom class associated with that string
 
@@ -214,68 +177,79 @@ class Trie(object):
 
         """
         # normalize strings
-        strings = [normalize_string(istring, self.ignorecase)
-                   for istring in strings]
-        assert len(strings) == len(tags), \
+        toks = [normalize_string(itok, self.ignorecase)
+                for itok in toks]
+        assert len(toks) == len(tags), \
             "Unequal number of PoS tags and strings provided to automaton."
         # successively add states
         astate = self._init_state
-        for istring, itag in zip(strings, tags):
-            astate = astate.add_transition(istring, itag)
+        for itok, itag in zip(toks, tags):
+            astate = astate.add_transition(itok, itag)
         astate.final = True
         astate.classes.add(a_class)
 
-    def match(self, a_strings, a_start=-1, a_reset=ANEW):
-        """Compare given strings against the Trie
+    def match(self, a_input):
+        """Find Trie entries in the given string.
 
         Args:
-          a_strings (list[str]): list of strings to be matched
-          a_start (int): start index of the string
-          a_reset (int): flag indicating whether search
-            should start anew or continue
+          a_input (list[tuple]): lemmas, forms, and tokens to be matched
 
         Returns:
           bool: True if at least one match succeeded
 
         """
-        a_strings = [normalize_string(istring, self.ignorecase)
-                     if istring != ' ' else istring
-                     for istring in a_strings if istring is not None]
-        if a_reset == ANEW and a_strings:
-            self.active_states = set([(self._init_state, a_start, -1)])
-        else:
-            self.active_states.add((self._init_state, a_start, -1))
+        # a match state comprises information about current Trie's state, the
+        # begin of the match, and the ength of the match
+        result = set()
+        new_states = set()
+        crnt_states = set()
+        for i, (form_i, lemma_i, pos_i) in enumerate(a_input):
+            crnt_states.add((self._init_state, i))
+            for state_j, start_j in crnt_states:
+                # add match object if the state is final
+                new_states |= state_j.check(form_i, pos_i, start_j)
+                new_states |= state_j.check(lemma_i, pos_i, start_j)
+            for state_j, start_j in new_states:
+                if state_j.final:
+                    result.add((state_j, start_j, i))
+            crnt_states, new_states = new_states, crnt_states
+            new_states.clear()
+        # leave leftmost longest matches
+        self._logger.debug("result: %r", result)
+        return [(state.classes, start, end)
+                for state, start, end in self._select_llongest(result)]
+
+    def _select_llongest(self, result):
+        """Find Trie entries in the given string.
+
+        Args:
+          result (set[tuple]): matched states, start, and end positions of
+            matches
+
+        Returns:
+          bool: True if at least one match succeeded
+
+        """
         # set of tuples with states and associated match objects
-        ret = set()
-        status = False
-        # print("active_states =", repr(self.active_states), file = sys.stderr)
-        for istring in a_strings:
-            # print("istring =", repr(istring), file = sys.stderr)
-            if istring is None:
-                continue
-            for istate, istart, iend in self.active_states:
-                for ichar in istring:
-                    # print("matching char:", repr(ichar), file = sys.stderr)
-                    # print("istate.transitions:", repr(istate.transitions),
-                    # file = sys.stderr)
-                    istate = istate.check(ichar)
-                    if istate is None:
-                        break
-                    # print("char matched", file = sys.stderr)
-                    # print("istate =", repr(istate), file = sys.stderr)
+        result = list(result)
+        result.sort(key=lambda x: (x[-2], x[-1]))
+        match2delete = []
+        prev_i = prev_start = prev_end = -1
+        for i, (match_i, start_i, end_i) in enumerate(result):
+            if start_i == prev_start:
+                if end_i == prev_end:
+                    continue
+                # since the matches are sorted in ascending order, longest
+                # match will necessarily be on the right
                 else:
-                    if istate.final:
-                        status = True
-                    # print("adding istate to ret:", repr(ret), file =
-                    # sys.stderr)
-                    ret.add((istate, istart,
-                             a_start if a_start >= 0 else iend))
-                    # print("istate added:", repr(ret), file = sys.stderr)
-            # if ret:
-            #     break
-            # print("ret =", repr(ret), file = sys.stderr)
-        self.active_states = ret
-        return status
+                    match2delete.append(prev_i)
+            elif start_i <= prev_end:
+                match2delete.append(i)
+                continue
+            prev_i, prev_start, prev_end = i, start_i, end_i
+        for i in reversed(match2delete):
+            del result[i]
+        return result
 
     def __str__(self):
         """Return a unicode representation of the given trie

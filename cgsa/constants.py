@@ -38,7 +38,6 @@ LEX_DIR = os.path.join(DATA_DIR, "lexicons")
 GPC_LEX = os.path.join(LEX_DIR, "gpc.txt")
 SWS_LEX = os.path.join(LEX_DIR, "sws.txt")
 ZRCH_LEX = os.path.join(LEX_DIR, "zrch.txt")
-DFLT_MANUAL_LEXICA = []
 
 BG_LEX = os.path.join(LEX_DIR,
                       "blair-goldensohn.kim-hovy-seedset.txt")
@@ -54,7 +53,6 @@ KNN_LEX = os.path.join(LEX_DIR,
                        "knn.word2vec.kim_hovy_seedset.txt")
 LINPROJ_LEX = os.path.join(LEX_DIR,
                            "linproj.word2vec.kim_hovy_seedset.txt")
-DFLT_AUTO_LEXICA = []
 
 # Embeddings
 DFLT_W2V_PATH = os.path.join(DATA_DIR, "vectors.word2vec")

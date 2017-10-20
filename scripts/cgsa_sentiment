@@ -13,8 +13,7 @@ from cgsa.cgsa import SentimentAnalyzer
 from cgsa.utils.common import LOGGER
 from cgsa.constants import (
     DFLT_MODEL_PATH, ENCODING, BILSTM, MOHAMMAD,
-    SEVERYN, TABOADA, DFLT_AUTO_LEXICA, DFLT_MANUAL_LEXICA,
-    THREE_CLASS)
+    SEVERYN, TABOADA, THREE_CLASS)
 from cgsa.utils.data import Tweet
 
 
@@ -99,13 +98,8 @@ def main(argv):
     parser_train.add_argument("-g", "--grid-search",
                               help="determine best hyper-parameters using"
                               " grid search", action="store_true")
-    parser_train.add_argument("--auto-lexicon",
-                              help="automatic lexicon(s) to use",
-                              action="append", default=DFLT_AUTO_LEXICA)
-    parser_train.add_argument("--manual-lexicon",
-                              help="manual lexicon(s) to use",
-                              type=str, action="append",
-                              default=DFLT_MANUAL_LEXICA)
+    parser_train.add_argument("-l", "--lexicon", help="lexicon(s) to use",
+                              type=str, action="append", default=[])
     w2v_group = parser_train.add_mutually_exclusive_group()
     w2v_group.add_argument("--word2vec",
                            help="use pre-trained word2vec")
@@ -131,8 +125,7 @@ def main(argv):
                    for tweet_i in _read_data(args.dev, True)]
         LOGGER.debug("Initialining analyzer...")
         analyzer = SentimentAnalyzer(args.type,
-                                     auto_lexicons=args.auto_lexicon,
-                                     manual_lexicons=args.manual_lexicon
+                                     lexicons=args.lexicon
                                      )
         LOGGER.debug("Training analyzer...")
         analyzer.train(train_set, dev_set,

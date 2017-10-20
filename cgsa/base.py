@@ -86,14 +86,10 @@ class BaseAnalyzer(object):
         """
         self.name = "BaseAnalyzer"
         self._logger = LOGGER
-        self._term2mnl = defaultdict(dict)
-        self._neg_term2mnl = defaultdict(dict)
-        self._term2auto = defaultdict(dict)
-        self._neg_term2auto = defaultdict(dict)
-        self._read_lexicons(self._term2mnl, self._neg_term2mnl,
-                            kwargs.get("manual_lexicons", []))
-        self._read_lexicons(self._term2auto, self._neg_term2auto,
-                            kwargs.get("auto_lexicons", []))
+        self._term2lex = defaultdict(dict)
+        self._neg_term2lex = defaultdict(dict)
+        self._read_lexicons({"any": (self._term2lex, self._neg_term2lex)},
+                            kwargs.get("lexicons", []))
 
     @abc.abstractmethod
     def train(self, train_x, train_y, dev_x, dev_y, grid_search=True):
@@ -219,15 +215,12 @@ class BaseAnalyzer(object):
         train_y += dev_y
         return folds, train_x, train_y
 
-    def _read_lexicons(self, a_pos_term2polscore, a_neg_term2polscore,
-                       a_lexicons, a_encoding=ENCODING):
+    def _read_lexicons(self, a_lextype2lex, a_lexicons, a_encoding=ENCODING):
         """Load lexicons.
 
         Args:
-          a_pos_term2polscore (dict): mapping from terms to their polarity
-            scores
-          a_neg_term2polscore (dict): mapping from negated terms to their
-            polarity scores
+          a_lextype2lex (dict: lextype -> (dict, dict)): mapping from
+            lexicon type to target dictionaries for storing terms
           a_lexicons (list): tags of the input instance
           a_encoding (str): input encoding
 
@@ -239,12 +232,24 @@ class BaseAnalyzer(object):
 
         """
         for lexpath_i in a_lexicons:
-            lexname = os.path.splitext(os.path.basename(
+            fname = os.path.splitext(os.path.basename(
                 lexpath_i
-            ))[0]
+            ))
+            lexname = fname[0]
+            lextype = fname[-2] if len(fname) > 1 else ""
             LOGGER.debug(
                 "Reading lexicon %s...", lexname
             )
+            if lextype not in a_lextype2lex:
+                if "any" in a_lextype2lex:
+                    pos_term2polscore, neg_term2polscore = a_lextype2lex["any"]
+                else:
+                    self._logger.error("Unknown lexicon type: {:s}." % lextype)
+                    raise NotImplementedError
+            else:
+                # determine target dictionaries for storing positive and
+                # negative terms
+                pos_term2polscore, neg_term2polscore = a_lextype2lex[lextype]
             lexicon = pd.read_table(lexpath_i, header=None, names=LEX_CLMS,
                                     dtype=LEX_TYPES, encoding=a_encoding,
                                     error_bad_lines=False, warn_bad_lines=True,
@@ -254,9 +259,9 @@ class BaseAnalyzer(object):
                 term = USCORE_RE.sub(' ', row_i.term)
                 if NEG_SFX_RE.search(term):
                     term = NEG_SFX_RE.sub("", term)
-                    trg_lex = a_neg_term2polscore
+                    trg_lex = neg_term2polscore
                 else:
-                    trg_lex = a_pos_term2polscore
+                    trg_lex = pos_term2polscore
                 term = self._preprocess(term)
                 lex_key = (lexname, row_i.polclass)
 
