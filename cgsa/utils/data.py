@@ -268,7 +268,7 @@ class Tweet(object):
             "Unknown sentiment label: {!r}".format(fields[1])
         self.label = fields[1]
         toks = SPACE_RE.split(fields[2])
-        lemmas = SPACE_RE.split(fields[3])
+        lemmas = SPACE_RE.split(fields[3].lower())
         tags = SPACE_RE.split(fields[4])
         deps = SPACE_RE.split(fields[5])
         feats = SPACE_RE.split(fields[6])

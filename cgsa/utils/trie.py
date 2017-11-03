@@ -188,7 +188,7 @@ class Trie(object):
         astate.final = True
         astate.classes.add(a_class)
 
-    def match(self, a_input):
+    def search(self, a_input):
         """Find Trie entries in the given string.
 
         Args:
@@ -215,11 +215,10 @@ class Trie(object):
             crnt_states, new_states = new_states, crnt_states
             new_states.clear()
         # leave leftmost longest matches
-        self._logger.debug("result: %r", result)
         return [(state.classes, start, end)
-                for state, start, end in self._select_llongest(result)]
+                for state, start, end in self.select_llongest(result)]
 
-    def _select_llongest(self, result):
+    def select_llongest(self, result):
         """Find Trie entries in the given string.
 
         Args:
@@ -235,7 +234,7 @@ class Trie(object):
         result.sort(key=lambda x: (x[-2], x[-1]))
         match2delete = []
         prev_i = prev_start = prev_end = -1
-        for i, (match_i, start_i, end_i) in enumerate(result):
+        for i, (_, start_i, end_i) in enumerate(result):
             if start_i == prev_start:
                 if end_i == prev_end:
                     continue

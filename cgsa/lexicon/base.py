@@ -14,23 +14,31 @@ Attributes:
 # Imports
 from __future__ import absolute_import, print_function, unicode_literals
 
-from cgsa.constants import PUNCT_RE
-from cgsa.base import BaseAnalyzer
+from csv import QUOTE_NONE
 import abc
+import pandas as pd
+
+from cgsa.constants import INTENSIFIERS, SPACE_RE, USCORE_RE
+from cgsa.base import BaseAnalyzer, ENCODING, SCORE
+from cgsa.utils.trie import Trie
 
 
 ##################################################################
 # Variables and Constants
-BOUNDARY_WORDS = set(["aber", "und", "oder", "weil", "denn", "während",
-                      "nachdem", "bevor", "als", "wenn", "obwohl",
-                      "jedoch", "obgleich", "wenngleich", "immerhin",
-                      "ob", "falls", "sofern", "wann", "welche", "welcher",
-                      "welchem", "welchen", "welches", "trotz", "dadurch",
-                      "damit", "daher", "deswegen", "dann", "folglich",
-                      "dementsprechend", "demnach", "deshalb", "somit",
-                      "somit", "daher", "hierdurch", "wo", "wobei", "dabei",
-                      "wohingegen", "wogegen", "bis",
-                      "außer", "dass"])
+BOUNDARIES = ["aber", "und", "oder", "weil", "denn", "während",
+              "nachdem", "bevor", "als", "wenn", "obwohl",
+              "jedoch", "obgleich", "wenngleich", "immerhin",
+              "ob", "falls", "sofern", "wann", "welche", "welcher",
+              "welchem", "welchen", "welches", "trotz", "dadurch",
+              "damit", "daher", "deswegen", "dann", "folglich",
+              "dementsprechend", "demnach", "deshalb", "somit",
+              "somit", "daher", "hierdurch", "wo", "wobei", "dabei",
+              "wohingegen", "wogegen", "bis",
+              "außer", "dass"]
+NEGATIONS = ["nicht", "kein", "keine", "keiner", "keinem", "keines", "keins",
+             "weder", "nichts", "nie", "niemals", "niemand",
+             "entbehren", "vermissen", "ohne", "Abwesenheit", "Fehlen",
+             "Mangel", "frei von"]
 
 
 ##################################################################
@@ -43,27 +51,68 @@ class LexiconBaseAnalyzer(BaseAnalyzer):
     """
     __metaclass__ = abc.ABCMeta
 
-    def at_boundary(snt, idx):
-        ret = (idx == len(snt) - 1
-               or PUNCT_RE.match(snt[idx])
-               or snt[idx] in BOUNDARY_WORDS)
-        return ret
-
-    def find_negation(index, word_type):
-        """Look for negations appearing in tweet.
-
+    def __init__(self):
+        """Class constructor.
 
         """
-        search = True
-        found = -1
-        while search and not at_boundary(index) and index >= 0:
-            current = get_word(text[index]).lower()
-            if current in negators:
-                search = False
-                found = index
-                if restricted_neg[word_type] \
-                   and current not in skipped[word_type] \
-                   and get_tag(text[index]) not in skipped[word_type]:
-                    search = False
-            index -= 1
-        return found
+        self._intensifiers = self._read_intensifiers(INTENSIFIERS)
+        self._boundaries = self._words2trie(BOUNDARIES)
+        self._negations = self._words2trie(NEGATIONS)
+
+    def _read_intensifiers(self, int_fname=INTENSIFIERS, encoding=ENCODING):
+        """Read intensifiers from file.
+
+        Args:
+          int_fname (str): path to the file containing intensifiers
+          encoding (str): input encoding
+
+        Returns:
+          Trie: intensifier trie
+
+        """
+        INTENSIFIER = "intensifier"
+        INT_TYPES = {INTENSIFIER: str, SCORE: float}
+
+        int_list = pd.read_table(int_fname, header=None,
+                                 names=(INTENSIFIER, SCORE),
+                                 dtype=INT_TYPES, encoding=encoding,
+                                 error_bad_lines=False, warn_bad_lines=True,
+                                 keep_default_na=False, na_values=[''],
+                                 quoting=QUOTE_NONE)
+        intensifiers = Trie()
+        for i, row_i in int_list.iterrows():
+            term = USCORE_RE.sub(' ', row_i.intensifier)
+            terms = SPACE_RE.split(self._preprocess(term))
+            intensifiers.add(terms,
+                             [None] * len(terms),
+                             row_i.score)
+        return intensifiers
+
+    def _words2trie(self, words):
+        """Convert collection of words to a trie.
+
+        Args:
+          words (iterable): collection of untagged words
+
+        Returns:
+          (cgsa.utils.trie.Trie): trie
+
+        """
+        ret = Trie()
+        for w_i in words:
+            term = USCORE_RE.sub(' ', w_i)
+            terms = SPACE_RE.split(self._preprocess(term))
+            ret.add(terms, [None] * len(terms), 1.)
+        return ret
+
+    def _preprocess(self, a_txt):
+        """Overwrite parent's method lowercasing strings.
+
+        Args:
+          a_txt (str): text to be preprocessed
+
+        Returns:
+          str: preprocessed text
+
+        """
+        return super(LexiconBaseAnalyzer, self)._preprocess(a_txt).lower()

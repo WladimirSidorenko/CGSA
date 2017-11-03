@@ -28,7 +28,7 @@ import pandas as pd
 import re
 
 from cgsa.utils.common import LOGGER
-from cgsa.constants import ENCODING, NFOLDS
+from cgsa.constants import ENCODING, NFOLDS, SSPACE_RE, USCORE_RE
 
 ##################################################################
 # Variables and Constants
@@ -41,8 +41,6 @@ LEX_TYPES = {TERM: str, POS: str, POLARITY: str, SCORE: float}
 NEG_SFX = r"_NEG"
 NEG_SFX_RE = re.compile(re.escape(re.escape(NEG_SFX)
                                   + r"(:?FIRST)?'"))
-USCORE_RE = re.compile(r'_')
-SPACE_RE = re.compile(r"\s\s+")
 AT_RE = re.compile(r"\b@\w+", re.U)
 URI_RE = re.compile(
     r"\b((?:[\w]{3,5}://?|(?:www|bit)[.]|(?:\w[-\w]+[.])+"
@@ -284,7 +282,7 @@ class BaseAnalyzer(object):
           str: preprocessed text
 
         """
-        a_txt = SPACE_RE.sub(' ', a_txt).strip()
+        a_txt = SSPACE_RE.sub(' ', a_txt).strip()
         a_txt = AT_RE.sub("@someuser", a_txt)
         a_txt = URI_RE.sub("http://someuri", a_txt)
         return a_txt

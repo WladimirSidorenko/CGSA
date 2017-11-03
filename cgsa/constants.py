@@ -29,6 +29,8 @@ IRR_RE = re.compile(r"[.,:;0-9]+$")
 PUNCT_RE = re.compile(r"^(" + '|'.join(
     re.escape(c) for c in punctuation) + ")+$")
 SPACE_RE = re.compile(r" +")
+USCORE_RE = re.compile(r'_')
+SSPACE_RE = re.compile(r"\s\s+")
 
 DIRNAME = os.path.dirname(__file__)
 DATA_DIR = os.path.join(DIRNAME, "data")
@@ -53,6 +55,8 @@ KNN_LEX = os.path.join(LEX_DIR,
                        "knn.word2vec.kim_hovy_seedset.txt")
 LINPROJ_LEX = os.path.join(LEX_DIR,
                            "linproj.word2vec.kim_hovy_seedset.txt")
+# Additional Sentiment Resources
+INTENSIFIERS = os.path.join(DATA_DIR, "intensifiers.tsv")
 
 # Embeddings
 DFLT_W2V_PATH = os.path.join(DATA_DIR, "vectors.word2vec")
