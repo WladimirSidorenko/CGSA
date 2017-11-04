@@ -200,21 +200,28 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
         boundaries = self._find_boundaries(match_input)
         self._logger.debug("boundaries: %r", boundaries)
         # compute semantic orientations (SO) of nouns
-        noun_so, noun_cnt = self._compute_noun_so(
+        noun_so, noun_cnt = self._compute_terms_so(
             forms, lemmas, tags,
             polterm_matches.nouns, int_matches,
-            neg_matches, boundaries
+            neg_matches, boundaries, "noun"
         )
         self._logger.debug("noun_so: %r; noun_cnt: %r;",
                            noun_so, noun_cnt)
-        raise NotImplementedError
+        # compute semantic orientations of verbs
+        verb_so, verb_cnt = self._compute_terms_so(
+            forms, lemmas, tags,
+            polterm_matches.nouns, int_matches,
+            neg_matches, boundaries, "verb"
+        )
+        self._logger.debug("verb_so: %r; verb_cnt: %r;",
+                           verb_so, verb_cnt)
         total_so = total_so / (float(total_cnt) or 1e10)
         return total_so
 
-    def _compute_noun_so(self, forms, lemmas, tags,
-                         term_matches, intensifiers,
-                         negations, boundaries):
-        """Compute semantic orientation of nouns.
+    def _compute_terms_so(self, forms, lemmas, tags,
+                          term_matches, intensifiers,
+                          negations, boundaries, pos):
+        """Compute semantic orientation of nouns or verbs.
 
         Args:
           forms (list[str]): tokens of the analyzed message
@@ -224,6 +231,7 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
           intensifiers (dict): intensifier matches
           negations (list[tuple]): negation matches
           boundaries (list[tuple]): boundary matches
+          pos (str): part-of-speech of the analyzed term
 
         Returns:
           2-tuple: overall SO score and count of polar terms
@@ -241,10 +249,21 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
                 if forms[int_start] and forms[int_start][0].isupper():
                     int_score *= 2  # `capital_modifier` in Taboada et al.
                 prev_pos = int_start - 1
+            if pos == "verb":
+                right_boundary = self._find_next_boundary(end_i, boundaries,
+                                                          left=False)
+                if right_boundary > 0:
+                    right_boundary -= 1
+                    if right_boundary in intensifiers:
+                        # this is apparently a bug, but we need to reproduce
+                        # Taboada's method as is
+                        istart, int_score = intensifiers.pop(
+                            right_boundary
+                        )
             # determine tokens, which come into consideration as negation
             neg_start, neg_end = self._find_negation(
                 prev_pos, negations, boundaries,
-                forms, lemmas, tags, "noun"
+                forms, lemmas, tags, pos
             )
             # determine negation intensification
             if neg_start >= 0:
@@ -263,7 +282,7 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
                 boundary = self._find_next_boundary(start_i,
                                                     boundaries)
                 # look for a blocker up to the next boundary
-                if self._find_blocker(score_i, boundary, start_i, "noun",
+                if self._find_blocker(score_i, boundary, start_i, pos,
                                       term_indices, term_matches,
                                       forms, lemmas, tags):
                     self._logger.debug("semantic orientation blocked")
@@ -449,12 +468,14 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
             i -= 1
         return False
 
-    def _find_next_boundary(self, index, boundaries):
+    def _find_next_boundary(self, index, boundaries, left=True):
         """Find nearest boundary on the left
 
         Args:
           index (int): position to find the nearest boundary for
           boundaries (list[tuple]): positions of boundaries
+          left (bool): find left-most boundary (otherwise, right-most boundary
+            is searched)
 
         Return:
           int: position of the nearest boundary on the left from index
@@ -465,8 +486,9 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
             boundary_start, boundary_end = boundaries[boundary_idx]
             if boundary_start <= index <= boundary_end:
                 return index
-        boundary_idx -= 1
-        if boundary_idx >= 0:
+        if left:
+            boundary_idx -= 1
+        if 0 <= boundary_idx < len(boundaries):
             _, boundary_end = boundaries[boundary_idx]
             return boundary_end
         return -1
