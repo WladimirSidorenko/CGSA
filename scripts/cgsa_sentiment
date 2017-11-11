@@ -7,6 +7,7 @@ from __future__ import absolute_import, unicode_literals, print_function
 
 from argparse import ArgumentParser
 import codecs
+import logging
 import sys
 
 from cgsa.cgsa import SentimentAnalyzer
@@ -64,7 +65,7 @@ def _read_data(files, train=False):
                 except:
                     print("Line #{:d}".format(i + 1), file=sys.stderr)
                     raise
-                if tweet.label not in THREE_CLASS and train:
+                if tweet.label not in THREE_CLASS:
                     LOGGER.warn("Skipping tweet with label %s.",
                                 tweet.label)
                     continue
@@ -83,6 +84,8 @@ def main(argv):
     """
     argparser = ArgumentParser(
         description="Determine polarity of the given messages.")
+    argparser.add_argument("-v", "--verbose", help="debug mode",
+                           action="store_true")
     subparsers = argparser.add_subparsers(
         help="type of operation to perform", dest="mode")
 
@@ -116,6 +119,9 @@ def main(argv):
     _add_cmn_options(parser_test)
 
     args = argparser.parse_args()
+    if args.verbose:
+        LOGGER.setLevel(logging.DEBUG)
+
     if args.mode == TRAIN:
         LOGGER.debug("Reading training set...")
         train_set = [tweet_i

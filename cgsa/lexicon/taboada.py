@@ -290,7 +290,9 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
         elif self._use_cnt_so:
             score = total_cnt
         else:
-            score = total_cnt
+            score = avg_so
+        self._logger.debug("score: %f, thresholds: %r;",
+                           score, self._thresholds)
         label = bisect_left(self._thresholds, score)
         self._logger.debug("score: %f, label: %d, yvec: %r;",
                            score, label, yvec)
@@ -380,6 +382,8 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
         total_so = noun_so + verb_so + adj_so + adv_so
         total_cnt = noun_cnt + verb_cnt + adj_cnt + adv_cnt
         avg_so = total_so / (float(total_cnt) or 1e10)
+        self._logger.debug("total_so: %f; total_cnt: %f; avg_so: %f",
+                           total_so, total_cnt, avg_so)
         return total_so, total_cnt, avg_so
 
     def _compute_terms_so(self,
