@@ -22,7 +22,7 @@ from cgsa.constants import DIG_RE, IRR_RE
 
 ##################################################################
 # Variables and Constants
-LOG_LVL = logging.DEBUG
+LOG_LVL = logging.INFO
 LOGGER = logging.getLogger("CGSA")
 LOGGER.setLevel(LOG_LVL)
 formatter = logging.Formatter(

@@ -173,7 +173,7 @@ class Trie(object):
           class (tuple): optional custom class associated with that string
 
         Returns:
-          void
+          State:
 
         """
         # normalize strings
@@ -187,6 +187,7 @@ class Trie(object):
             astate = astate.add_transition(itok, itag)
         astate.final = True
         astate.classes.add(a_class)
+        return astate
 
     def search(self, a_input):
         """Find Trie entries in the given string.
@@ -249,6 +250,18 @@ class Trie(object):
         for i in reversed(match2delete):
             del result[i]
         return result
+
+    def reset(self):
+        """Remove members which cannot be serialized.
+
+        """
+        self._logger = None
+
+    def restore(self):
+        """Restore members which could not be serialized.
+
+        """
+        self._logger = LOGGER
 
     def __str__(self):
         """Return a unicode representation of the given trie

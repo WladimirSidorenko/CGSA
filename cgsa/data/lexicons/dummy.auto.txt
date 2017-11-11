@@ -1,9 +1,0 @@
-schwach 	JJ	negative	-1
-gut	JJ	positive	1.000000
-sehen	VB	positive	0.250000
-fehlschlagen	VB	negative	-0.25
-Mut	NN	positive	0.25
-Angst	NN	negative	0.25
-naja das	NN PDS	negative	0.75
-naja	NN	negative	0.15
-das war	PDS VAFIN	positive	0.45

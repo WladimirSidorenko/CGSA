@@ -66,6 +66,8 @@ class Features(object):
             else:
                 value = feat_i
                 key = VAL2KEY.get(value, "UNKFEAT")
+            if value.lower() == "true" or value.lower() == "false":
+                value = bool(value)
             key_parts = COLON_RE.split(key)
             if len(key_parts) == 3:
                 # parse MMAX feature
@@ -73,6 +75,15 @@ class Features(object):
                 self._feats[MMAX][markable][markable_id][attr] = value
             else:
                 self._feats[key] = value
+
+    def get(self, key):
+        """Return feaure's value if it is present.
+
+        Args:
+          key (str): feature's name
+
+        """
+        return self._feats.get(key)
 
     def __getitem__(self, key):
         """Return feaure's value.
@@ -114,11 +125,11 @@ class Features(object):
             return '_'
         mmax_feats = '|'.join([
             mkbl + "::" + markable_id + "::"
-            + attr + '=' + value
+            + attr + '=' + str(value)
             for mkbl, mkbl_val in iteritems(self._feats[MMAX])
             for markable_id in mkbl_val
             for attr, value in iteritems(mkbl_val[markable_id])])
-        feats = '|'.join([k + '-' + v
+        feats = '|'.join([k + '-' + str(v)
                           for k, v in iteritems(self._feats)
                           if k != MMAX])
         if feats:

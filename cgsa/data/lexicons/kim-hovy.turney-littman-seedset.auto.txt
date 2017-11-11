@@ -1,356 +1,372 @@
-überlegen	positive	1.
-ausgezeichnet	positive	1.
-glücklich	positive	1.
-schön	positive	1.
-positiv	positive	1.
-korrekt	positive	1.
-richtig	positive	1.
-gut	positive	1.
-hochwertig	positive	1.
-nett	positive	1.
-ekelhaft	negative	-1.
-unglücklich	negative	-1.
-negativ	negative	-1.
-schlecht	negative	-1.
-lästig	negative	-1.
-hässlich	negative	-1.
-minderwertig	negative	-1.
-gemein	negative	-1.
-falsch	negative	-1.
-arm	negative	-1.
-anrüchig	negative	-7e-06
-unecht	negative	-7e-06
-irregulär	negative	-7e-06
-wünschenswert	positive	0.000007
-drittklassig	negative	-7e-06
-sinnlich	positive	0.000007
-unprofessionell	negative	-7e-06
-abgeschlagen	negative	-7e-06
-gefällig	positive	0.000007
-mustergültig	positive	0.000007
-unrecht	negative	-7e-06
-unangemessen	negative	-7e-06
-sagenhaft	positive	0.000007
-vitaminarm	negative	-7e-06
-neuwertig	positive	0.000007
-edel	positive	0.000014
-bettelarm	negative	-7e-06
-gewissenhaft	positive	0.000007
-nutzbringend	positive	0.000007
-lausig	negative	-7e-06
-feingeschnitten	positive	0.000007
-ungünstig	negative	-7e-06
-qualitätsvoll	positive	0.000007
-zweitklassig	negative	-7e-06
-fair	positive	0.000007
-blank	negative	-7e-06
-angriffslustig	negative	-7e-06
-froh gestimmt	positive	0.000007
-fälschlich	negative	-7e-06
-beispielhaft	positive	0.000007
-regelgemäss	positive	0.000007
-unfreundlich	negative	-7e-06
-ordnungsliebend	positive	0.000007
-verschlagen	negative	-7e-06
-berauschend	positive	0.000007
-chancenlos	negative	-7e-06
-erfolgreich	positive	0.000007
-gutherzig	positive	0.000007
-beknackt	negative	-7e-06
-lieb	positive	0.000007
-nützlich	positive	0.000007
-gehoben	positive	0.000007
-begrüssenswert	positive	0.000007
-glimpflich	positive	0.000007
-friedliebend	positive	0.000007
-peinlich	positive	0.000007
-boshaft	negative	-7e-06
-tugendlich	positive	0.000007
-unnütz	negative	-7e-06
-bedürftig	negative	-7e-06
-schadenfroh	negative	-7e-06
-irrtümlich	negative	-7e-06
-unedel	negative	-7e-06
-gutartig	positive	0.000007
-glücklos	negative	-7e-06
-herzensgut	positive	0.000007
-freundlich	positive	0.000007
-verlogen	negative	-7e-06
-graziös	positive	0.000007
-frohgestimmt	positive	0.000007
-endgeil	positive	0.000007
-tugendreich	positive	0.000007
-eiweissarm	negative	-7e-06
-sensationell	positive	0.000007
-zweckfrei	negative	-7e-06
-fettarm	negative	-7e-06
-wohlgeformt	positive	0.000007
-sittlich	positive	0.000007
-friedlich	positive	0.000007
-mythisch	positive	0.000007
-fein geschnitten	positive	0.000007
-unvorteilhaft	negative	-7e-06
-vorbildlich	positive	0.000007
-perfekt	positive	0.000007
-nutzlos	negative	-7e-06
-mau	negative	-1.4e-05
-pickelig	negative	-7e-06
-himmlisch	positive	0.000007
-entstellt	negative	-7e-06
-unattraktiv	negative	-7e-06
-stümperhaft	negative	-7e-06
-gerecht	positive	0.000007
-legendär	positive	0.000007
-böse	negative	-7e-06
-laienhaft	negative	-7e-06
-glückstrahlend	positive	0.000007
-phantastisch	positive	0.000007
-chancenreich	positive	0.000007
-elendig	negative	-7e-06
-preisgekrönt	positive	0.000007
-schurkisch	negative	-7e-06
-grundfalsch	negative	-7e-06
-anmutig	positive	0.000007
-gewalttätig	negative	-7e-06
-gelungen	positive	0.000007
-prima	positive	0.000007
-unkorrekt	negative	-7e-06
-vorbildhaft	positive	0.000007
-unfehlbar	positive	0.000007
-märchenhaft	positive	0.000007
-deformiert	negative	-7e-06
-nichtsnutzig	negative	-7e-06
-geraten	positive	0.000007
-stilsicher	positive	0.000007
-okay	positive	0.000007
-edelmütig	positive	0.000007
-fantastisch	positive	0.000007
-bös	negative	-7e-06
-exzeptionell	positive	0.000007
-eifrig	positive	0.000007
-sinnhaft	positive	0.000007
-penibel	positive	0.000007
-glückreich	positive	0.000007
-imageträchtig	positive	0.000007
-genehm	positive	0.000007
-unzweckmässig	negative	-7e-06
-adäquat	positive	0.000007
-vermeintlich	negative	-7e-06
-seelig	positive	0.000007
-ungerecht	negative	-7e-06
-stilgerecht	positive	0.000007
-idyllisch	positive	0.000007
-pejorativ	negative	-7e-06
-verarmt	negative	-7e-06
-blutarm	negative	-7e-06
-ungut	negative	-7e-06
-zwecklos	negative	-7e-06
-feinschmeckerisch	positive	0.000007
-sorgsam	positive	0.000007
-grandios	positive	0.000007
-irrig	negative	-7e-06
-günstig	positive	0.000007
-erstklassig	positive	0.000007
-matt	negative	-7e-06
-mistig	negative	-7e-06
-regulär	positive	0.000007
-bedenkenswert	positive	0.000007
-fleischarm	negative	-7e-06
-legendenhaft	positive	0.000007
-paradigmatisch	positive	0.000007
-unakzeptabel	negative	-7e-06
-bildschön	positive	0.000007
-charakterlos	negative	-7e-06
-faul	negative	-7e-06
-wasserarm	negative	-7e-06
-kampfeslustig	negative	-7e-06
-regelrecht	positive	0.000007
-umgekehrt	negative	-7e-06
-ausserordentlich	positive	0.000007
-kampflustig	negative	-7e-06
-achtsam	positive	0.000007
-traumhaft	positive	0.000007
-zweckmässig	positive	0.000007
-lügnerisch	negative	-7e-06
-bestmöglich	positive	0.000007
-spitzenmässig	positive	0.000007
-schwindlig	negative	-7e-06
-erfolgversprechend	positive	0.000007
-leidig	negative	-7e-06
-prächtig	positive	0.000014
-grossherzig	positive	0.000007
-spitze	positive	0.000007
-viertklassig	negative	-7e-06
-übel	negative	-1.4e-05
-unschädlich	positive	0.000007
-nährstoffarm	negative	-7e-06
-unfair	negative	-7e-06
-herrlich	positive	0.000007
-klasse	positive	0.000007
-geschmackvoll	positive	0.000007
-meisterhaft	positive	0.000007
-unschuldig	positive	0.000007
-fragwürdig	negative	-7e-06
-flau	negative	-7e-06
-oll	negative	-7e-06
-unsinnig	negative	-7e-06
-elefantös	positive	0.000007
-erfolglos	negative	-7e-06
-verbraucht	negative	-7e-06
-insolvent	negative	-7e-06
-verformt	negative	-7e-06
-nichtig	negative	-7e-06
-herausragend	positive	0.000007
-bitterarm	negative	-7e-06
-garstig	negative	-7e-06
-regelgerecht	positive	0.000007
-hübsch	positive	0.000007
-richtiggehend	positive	0.000007
-hochklassig	positive	0.000007
-arbeitsam	positive	0.000007
-ätzend	negative	-7e-06
-verdorben	negative	-7e-06
-ruiniert	negative	-7e-06
-schädigend	negative	-7e-06
-beschissen	negative	-7e-06
-strahlend	positive	0.000007
-ideal	positive	0.000007
-förmlich	positive	0.000007
-wunderschön	positive	0.000007
-besser	positive	0.000007
-ineffektiv	negative	-7e-06
-meisterlich	positive	0.000007
-ordentlich	positive	0.000007
-widerwärtig	negative	-7e-06
-verdriesslich	negative	-7e-06
-fehlerhaft	negative	-7e-06
-potthässlich	negative	-7e-06
-erbärmlich	negative	-7e-06
-prestigeträchtig	positive	0.000007
-pleite	negative	-7e-06
-vorschriftsmässig	positive	0.000007
-bescheiden	negative	-7e-06
-sinnlos	negative	-7e-06
-verlebt	negative	-7e-06
-unförmig	negative	-7e-06
-unaufrichtig	negative	-7e-06
-ordnungsgemäss	positive	0.000007
-eingängig	positive	0.000007
-schmuck	positive	0.000007
-armselig	negative	-7e-06
-unübertrefflich	positive	0.000007
-zufrieden	positive	0.000007
-ekelerregend	negative	-7e-06
-ergebnisreich	positive	0.000007
-unwahr	negative	-7e-06
-qualitätvoll	positive	0.000007
-zuträglich	positive	0.000007
-kalorienarm	negative	-7e-06
-ergebnislos	negative	-7e-06
-widrig	negative	-7e-06
-exzellent	positive	0.000014
-moralisch	positive	0.000007
-superior	positive	0.000007
-wohl geformt	positive	0.000007
-ekel erregend	negative	0.000007
-paradiesisch	positive	0.000007
-hervorragend	positive	0.000007
-intrigant	negative	-7e-06
-unansehnlich	negative	-7e-06
-grottig	negative	-7e-06
-tugendhaft	positive	0.000007
-misslungen	negative	-7e-06
-brutal	negative	-7e-06
-schlimm	negative	-7e-06
-ehrenvoll	positive	0.000007
-inadäquat	negative	-7e-06
-unnützlich	negative	-7e-06
-grauslich	negative	-7e-06
-zutreffend	positive	0.000007
-ehrlos	negative	-7e-06
-unrichtig	negative	-7e-06
-verträglich	positive	0.000007
-blendend	positive	0.000007
-übermächtig	positive	0.000007
-sinnig	positive	0.000007
-inakzeptabel	negative	-7e-06
-kulinarisch	positive	0.000007
-strafwürdig	negative	-7e-06
-läppisch	negative	-7e-06
-kriminell	negative	-7e-06
-überglücklich	positive	0.000007
-froh	positive	0.000007
-elend	negative	-7e-06
-grossartig	positive	0.000007
-schäbig	negative	-7e-06
-unehrenhaft	negative	-7e-06
-sinnvoll	positive	0.000007
-anziehend	positive	0.000007
-angeblich	negative	-7e-06
-abträglich	negative	-7e-06
-optimal	positive	0.000007
-widerlich	negative	-7e-06
-grottenschlecht	negative	-7e-06
-scheiss	negative	-7e-06
-schädlich	negative	-7e-06
-fies	negative	-7e-06
-amoralisch	negative	-7e-06
-fleissig	positive	0.000007
-recht	positive	0.000007
-akzeptabel	positive	0.000007
-wertig	positive	0.000007
-ethisch	positive	0.000007
-dekorativ	positive	0.000007
-schuldig	negative	-7e-06
-dilettantisch	negative	-7e-06
-erfolg versprechend	positive	0.000007
-überragend	positive	0.000007
-kontrafaktisch	negative	-7e-06
-verfehlt	negative	-7e-06
-unzutreffend	negative	-7e-06
-wahr	positive	0.000007
-tüchtig	positive	0.000007
-miserabel	negative	-7e-06
-niederträchtig	negative	-7e-06
-erledigt	negative	-7e-06
-gutmütig	positive	0.000007
-phänomenal	positive	0.000007
-nervig	negative	-7e-06
-pedantisch	positive	0.000007
-link	negative	-7e-06
-rohstoffarm	negative	-7e-06
-unästhetisch	negative	-7e-06
-angemessen	positive	0.000007
-nervtötend	negative	-7e-06
-aussergewöhnlich	positive	0.000007
-wundervoll	positive	0.000007
-barmherzig	positive	0.000007
-attraktiv	positive	0.000014
-geringwertig	negative	-7e-06
-angenehm	positive	0.000007
-prachtvoll	positive	0.000014
-zahlungsunfähig	negative	-7e-06
-unschön	negative	-7e-06
-stilvoll	positive	0.000007
-leid	negative	-7e-06
-emsig	positive	0.000007
-verkehrt	negative	-7e-06
-bankrott	negative	-7e-06
-ärmlich	negative	-7e-06
-fein	positive	0.000014
-wunderbar	positive	0.000007
-mies	negative	-7e-06
-verteufelt	negative	-7e-06
-ungeeignet	negative	-7e-06
-glückselig	positive	0.000007
-schwarz	negative	-7e-06
-ungetrübt	positive	0.000007
-abgebrannt	negative	-7e-06
-sorgfältig	positive	0.000007
-sinnreich	positive	0.000007
-preussisch	positive	0.000007
-toll	positive	0.000007
-vorschriftsgemäss	positive	0.000007
-missraten	negative	-7e-06
-geeignet	positive	0.000007
-aggressiv	negative	-7e-06
+überlegen	ADJD	positive	1.
+ausgezeichnet	ADJD	positive	1.
+glücklich	ADJD	positive	1.
+schön	ADJD	positive	1.
+positiv	ADJD	positive	1.
+korrekt	ADJD	positive	1.
+richtig	ADJD	positive	1.
+gut	ADJD	positive	1.
+hochwertig	ADJD	positive	1.
+nett	ADJD	positive	1.
+ekelhaft	ADJD	negative	-1.
+unglücklich	ADJD	negative	-1.
+negativ	ADJD	negative	-1.
+schlecht	ADJD	negative	-1.
+lästig	ADJD	negative	-1.
+hässlich	ADJD	negative	-1.
+minderwertig	ADJD	negative	-1.
+gemein	ADJD	negative	-1.
+falsch	ADJD	negative	-1.
+arm	ADJD	negative	-1.
+anrüchig	ADJD	negative	-7e-06
+unecht	ADJD	negative	-7e-06
+irregulär	ADJD	negative	-7e-06
+wünschenswert	ADJD	positive	0.000007
+drittklassig	ADJD	negative	-7e-06
+sinnlich	ADJD	positive	0.000007
+unprofessionell	ADJD	negative	-7e-06
+abgeschlagen	ADJD	negative	-7e-06
+gefällig	ADJD	positive	0.000007
+mustergültig	ADJD	positive	0.000007
+unrecht	ADJD	negative	-7e-06
+unangemessen	ADJD	negative	-7e-06
+sagenhaft	ADJD	positive	0.000007
+vitaminarm	ADJD	negative	-7e-06
+neuwertig	ADJD	positive	0.000007
+edel	ADJD	positive	0.000014
+bettelarm	ADJD	negative	-7e-06
+gewissenhaft	ADJD	positive	0.000007
+nutzbringend	ADJD	positive	0.000007
+lausig	ADJD	negative	-7e-06
+feingeschnitten	ADJA	positive	0.000007
+ungünstig	ADJD	negative	-7e-06
+qualitätsvoll	ADJD	positive	0.000007
+zweitklassig	ADJD	negative	-7e-06
+fair	ADJD	positive	0.000007
+blank	ADJD	negative	-7e-06
+angriffslustig	ADJD	negative	-7e-06
+froh gestimmt	ADJA	positive	0.000007
+fälschlich	ADJD	negative	-7e-06
+beispielhaft	ADJD	positive	0.000007
+regelgemäss	ADJD	positive	0.000007
+unfreundlich	ADJD	negative	-7e-06
+ordnungsliebend	ADJD	positive	0.000007
+verschlagen	VVFIN	negative	-7e-06
+berauschend	ADJD	positive	0.000007
+chancenlos	ADJD	negative	-7e-06
+erfolgreich	ADJD	positive	0.000007
+gutherzig	ADJD	positive	0.000007
+beknackt	ADJA	negative	-7e-06
+lieb	ADJD	positive	0.000007
+nützlich	ADJD	positive	0.000007
+gehoben	ADJD	positive	0.000007
+begrüssenswert	ADJD	positive	0.000007
+glimpflich	ADJD	positive	0.000007
+friedliebend	ADJD	positive	0.000007
+peinlich	ADJD	positive	0.000007
+boshaft	ADJD	negative	-7e-06
+tugendlich	ADJD	positive	0.000007
+unnütz	ADJD	negative	-7e-06
+bedürftig	ADJD	negative	-7e-06
+schadenfroh	ADJD	negative	-7e-06
+irrtümlich	ADJD	negative	-7e-06
+unedel	ADJD	negative	-7e-06
+gutartig	ADJD	positive	0.000007
+glücklos	ADJD	negative	-7e-06
+herzensgut	ADJD	positive	0.000007
+freundlich	ADJD	positive	0.000007
+verlogen	ADJD	negative	-7e-06
+graziös	ADJD	positive	0.000007
+frohgestimmt	ADJD	positive	0.000007
+endgeil	ADJD	positive	0.000007
+tugendreich	ADJD	positive	0.000007
+eiweissarm	ADJD	negative	-7e-06
+sensationell	ADJD	positive	0.000007
+zweckfrei	ADJD	negative	-7e-06
+fettarm	ADJD	negative	-7e-06
+wohlgeformt	VVPP	positive	0.000007
+sittlich	ADJD	positive	0.000007
+friedlich	ADJD	positive	0.000007
+mythisch	ADJD	positive	0.000007
+fein geschnitten	ADJA	positive	0.000007
+unvorteilhaft	ADJD	negative	-7e-06
+vorbildlich	ADJD	positive	0.000007
+perfekt	ADJD	positive	0.000007
+nutzlos	ADJD	negative	-7e-06
+mau	NN	negative	-1.4e-05
+mau	NE	negative	-1.4e-05
+pickelig	ADJD	negative	-7e-06
+himmlisch	ADJD	positive	0.000007
+entstellt	VVPP	negative	-7e-06
+unattraktiv	ADJD	negative	-7e-06
+stümperhaft	ADJD	negative	-7e-06
+gerecht	ADJD	positive	0.000007
+legendär	ADJD	positive	0.000007
+böse	ADJA	negative	-7e-06
+laienhaft	ADJD	negative	-7e-06
+glückstrahlend	ADJD	positive	0.000007
+phantastisch	ADJD	positive	0.000007
+chancenreich	ADJD	positive	0.000007
+elendig	ADJD	negative	-7e-06
+preisgekrönt	ADJD	positive	0.000007
+schurkisch	ADJD	negative	-7e-06
+grundfalsch	ADJD	negative	-7e-06
+anmutig	ADJD	positive	0.000007
+gewalttätig	ADJD	negative	-7e-06
+gelungen	VVPP	positive	0.000007
+prima	ADJA	positive	0.000007
+unkorrekt	ADJD	negative	-7e-06
+vorbildhaft	ADJD	positive	0.000007
+unfehlbar	ADJD	positive	0.000007
+märchenhaft	ADJD	positive	0.000007
+deformiert	VVPP	negative	-7e-06
+deformiert	VVFIN	negative	-7e-06
+nichtsnutzig	ADJD	negative	-7e-06
+geraten	VVPP	positive	0.000007
+geraten	VVFIN	positive	0.000007
+stilsicher	ADJD	positive	0.000007
+okay	NE	positive	0.000007
+edelmütig	ADJD	positive	0.000007
+edelmütig	ADJA	positive	0.000007
+fantastisch	ADJD	positive	0.000007
+bös	ADJD	negative	-7e-06
+exzeptionell	ADJD	positive	0.000007
+eifrig	ADJD	positive	0.000007
+sinnhaft	ADJD	positive	0.000007
+penibel	ADJD	positive	0.000007
+glückreich	NN	positive	0.000007
+imageträchtig	ADJD	positive	0.000007
+genehm	ADJD	positive	0.000007
+unzweckmässig	ADJD	negative	-7e-06
+adäquat	ADJD	positive	0.000007
+vermeintlich	ADJD	negative	-7e-06
+seelig	ADJD	positive	0.000007
+ungerecht	ADJD	negative	-7e-06
+stilgerecht	ADJD	positive	0.000007
+idyllisch	ADJD	positive	0.000007
+pejorativ	ADJD	negative	-7e-06
+verarmt	VVFIN	negative	-7e-06
+blutarm	ADJD	negative	-7e-06
+ungut	ADJD	negative	-7e-06
+zwecklos	ADJD	negative	-7e-06
+feinschmeckerisch	ADJD	positive	0.000007
+sorgsam	ADJD	positive	0.000007
+grandios	ADJD	positive	0.000007
+irrig	ADJD	negative	-7e-06
+günstig	ADJD	positive	0.000007
+erstklassig	ADJD	positive	0.000007
+matt	ADJD	negative	-7e-06
+mistig	ADJD	negative	-7e-06
+regulär	ADJD	positive	0.000007
+bedenkenswert	ADJD	positive	0.000007
+fleischarm	ADJD	negative	-7e-06
+legendenhaft	ADJD	positive	0.000007
+paradigmatisch	ADJD	positive	0.000007
+unakzeptabel	ADJA	negative	-7e-06
+bildschön	ADJD	positive	0.000007
+charakterlos	ADJD	negative	-7e-06
+faul	ADJD	negative	-7e-06
+wasserarm	ADJD	negative	-7e-06
+kampfeslustig	ADJD	negative	-7e-06
+regelrecht	ADJD	positive	0.000007
+umgekehrt	ADJD	negative	-7e-06
+ausserordentlich	ADJD	positive	0.000007
+kampflustig	ADJD	negative	-7e-06
+achtsam	ADJD	positive	0.000007
+traumhaft	ADJD	positive	0.000007
+zweckmässig	ADJD	positive	0.000007
+lügnerisch	ADJD	negative	-7e-06
+bestmöglich	ADJD	positive	0.000007
+spitzenmässig	ADJD	positive	0.000007
+schwindlig	ADJD	negative	-7e-06
+erfolgversprechend	ADJD	positive	0.000007
+leidig	ADJD	negative	-7e-06
+prächtig	ADJD	positive	0.000014
+grossherzig	ADJD	positive	0.000007
+spitze	ADJA	positive	0.000007
+viertklassig	ADJD	negative	-7e-06
+übel	ADJD	negative	-1.4e-05
+unschädlich	ADJD	positive	0.000007
+nährstoffarm	ADJD	negative	-7e-06
+unfair	ADJD	negative	-7e-06
+herrlich	ADJD	positive	0.000007
+klasse	ADJA	positive	0.000007
+geschmackvoll	ADJD	positive	0.000007
+meisterhaft	ADJD	positive	0.000007
+unschuldig	ADJD	positive	0.000007
+fragwürdig	ADJD	negative	-7e-06
+flau	ADJD	negative	-7e-06
+oll	NE	negative	-7e-06
+unsinnig	ADJD	negative	-7e-06
+elefantös	ADJD	positive	0.000007
+elefantös	ADJA	positive	0.000007
+erfolglos	ADJD	negative	-7e-06
+verbraucht	VVFIN	negative	-7e-06
+verbraucht	VVPP	negative	-7e-06
+insolvent	ADJD	negative	-7e-06
+verformt	ADJD	negative	-7e-06
+verformt	VVFIN	negative	-7e-06
+nichtig	ADJD	negative	-7e-06
+herausragend	ADJD	positive	0.000007
+bitterarm	ADJD	negative	-7e-06
+garstig	ADJD	negative	-7e-06
+regelgerecht	ADJD	positive	0.000007
+hübsch	ADJD	positive	0.000007
+richtiggehend	ADJD	positive	0.000007
+hochklassig	ADJD	positive	0.000007
+arbeitsam	ADJD	positive	0.000007
+ätzend	ADJD	negative	-7e-06
+verdorben	ADJD	negative	-7e-06
+ruiniert	VVFIN	negative	-7e-06
+schädigend	ADJD	negative	-7e-06
+beschissen	ADJD	negative	-7e-06
+beschissen	VVPP	negative	-7e-06
+beschissen	VVFIN	negative	-7e-06
+strahlend	ADJD	positive	0.000007
+ideal	ADJD	positive	0.000007
+förmlich	ADJD	positive	0.000007
+wunderschön	ADJD	positive	0.000007
+besser	ADJD	positive	0.000007
+ineffektiv	ADJD	negative	-7e-06
+meisterlich	ADJD	positive	0.000007
+ordentlich	ADJD	positive	0.000007
+widerwärtig	ADJD	negative	-7e-06
+verdriesslich	ADJD	negative	-7e-06
+fehlerhaft	ADJD	negative	-7e-06
+potthässlich	ADJD	negative	-7e-06
+erbärmlich	ADJD	negative	-7e-06
+prestigeträchtig	ADJD	positive	0.000007
+pleite	ADJA	negative	-7e-06
+vorschriftsmässig	ADJD	positive	0.000007
+bescheiden	ADJD	negative	-7e-06
+sinnlos	ADJD	negative	-7e-06
+verlebt	VVFIN	negative	-7e-06
+unförmig	ADJD	negative	-7e-06
+unaufrichtig	ADJD	negative	-7e-06
+ordnungsgemäss	ADJD	positive	0.000007
+eingängig	ADJD	positive	0.000007
+schmuck	ADJD	positive	0.000007
+armselig	ADJD	negative	-7e-06
+unübertrefflich	ADJD	positive	0.000007
+zufrieden	ADJD	positive	0.000007
+ekelerregend	ADJD	negative	-7e-06
+ergebnisreich	ADJD	positive	0.000007
+unwahr	ADJD	negative	-7e-06
+qualitätvoll	ADJD	positive	0.000007
+zuträglich	ADJD	positive	0.000007
+kalorienarm	ADJD	negative	-7e-06
+ergebnislos	ADJD	negative	-7e-06
+widrig	ADJD	negative	-7e-06
+exzellent	ADJD	positive	0.000014
+moralisch	ADJD	positive	0.000007
+superior	ADJA	positive	0.000007
+wohl geformt	ADJD	positive	0.000007
+wohl geformt	VVFIN	positive	0.000007
+ekel erregend	ADJD	negative	0.000007
+paradiesisch	ADJD	positive	0.000007
+hervorragend	ADJD	positive	0.000007
+intrigant	ADJD	negative	-7e-06
+unansehnlich	ADJD	negative	-7e-06
+grottig	ADJD	negative	-7e-06
+tugendhaft	ADJD	positive	0.000007
+misslungen	VVPP	negative	-7e-06
+brutal	ADJD	negative	-7e-06
+schlimm	ADJD	negative	-7e-06
+ehrenvoll	ADJD	positive	0.000007
+inadäquat	ADJD	negative	-7e-06
+unnützlich	ADJD	negative	-7e-06
+grauslich	ADJD	negative	-7e-06
+zutreffend	ADJD	positive	0.000007
+ehrlos	ADJD	negative	-7e-06
+unrichtig	ADJD	negative	-7e-06
+verträglich	ADJD	positive	0.000007
+blendend	ADJD	positive	0.000007
+übermächtig	ADJD	positive	0.000007
+sinnig	ADJD	positive	0.000007
+inakzeptabel	ADJD	negative	-7e-06
+kulinarisch	ADJD	positive	0.000007
+strafwürdig	ADJD	negative	-7e-06
+läppisch	ADJD	negative	-7e-06
+kriminell	ADJD	negative	-7e-06
+überglücklich	ADJD	positive	0.000007
+froh	ADJD	positive	0.000007
+elend	ADJD	negative	-7e-06
+grossartig	ADJD	positive	0.000007
+schäbig	ADJD	negative	-7e-06
+unehrenhaft	ADJD	negative	-7e-06
+sinnvoll	ADJD	positive	0.000007
+anziehend	ADJD	positive	0.000007
+angeblich	ADJD	negative	-7e-06
+abträglich	ADJD	negative	-7e-06
+optimal	ADJD	positive	0.000007
+widerlich	ADJD	negative	-7e-06
+grottenschlecht	ADJD	negative	-7e-06
+scheiss	VVIMP	negative	-7e-06
+schädlich	ADJD	negative	-7e-06
+fies	ADJD	negative	-7e-06
+amoralisch	ADJD	negative	-7e-06
+fleissig	ADJD	positive	0.000007
+recht	ADJD	positive	0.000007
+akzeptabel	ADJD	positive	0.000007
+wertig	ADJD	positive	0.000007
+ethisch	ADJD	positive	0.000007
+dekorativ	ADJD	positive	0.000007
+schuldig	ADJD	negative	-7e-06
+dilettantisch	ADJD	negative	-7e-06
+erfolg versprechend	ADJD	positive	0.000007
+überragend	ADJD	positive	0.000007
+kontrafaktisch	ADJD	negative	-7e-06
+verfehlt	ADJD	negative	-7e-06
+unzutreffend	ADJD	negative	-7e-06
+wahr	ADJD	positive	0.000007
+tüchtig	ADJD	positive	0.000007
+miserabel	ADJD	negative	-7e-06
+niederträchtig	ADJD	negative	-7e-06
+erledigt	VVPP	negative	-7e-06
+erledigt	VVFIN	negative	-7e-06
+erledigt	ADJD	negative	-7e-06
+gutmütig	ADJD	positive	0.000007
+phänomenal	ADJD	positive	0.000007
+nervig	ADJD	negative	-7e-06
+pedantisch	ADJD	positive	0.000007
+link	ADJA	negative	-7e-06
+rohstoffarm	ADJD	negative	-7e-06
+unästhetisch	ADJD	negative	-7e-06
+angemessen	VVPP	positive	0.000007
+angemessen	ADJD	positive	0.000007
+nervtötend	ADJD	negative	-7e-06
+aussergewöhnlich	ADJD	positive	0.000007
+wundervoll	ADJD	positive	0.000007
+barmherzig	ADJD	positive	0.000007
+attraktiv	ADJD	positive	0.000014
+geringwertig	ADJD	negative	-7e-06
+angenehm	ADJD	positive	0.000007
+prachtvoll	ADJD	positive	0.000014
+zahlungsunfähig	ADJD	negative	-7e-06
+unschön	ADJD	negative	-7e-06
+stilvoll	ADJD	positive	0.000007
+leid	ADJD	negative	-7e-06
+emsig	ADJD	positive	0.000007
+verkehrt	VVFIN	negative	-7e-06
+verkehrt	ADJD	negative	-7e-06
+bankrott	ADJD	negative	-7e-06
+ärmlich	ADJD	negative	-7e-06
+fein	ADJD	positive	0.000014
+wunderbar	ADJD	positive	0.000007
+mies	ADJD	negative	-7e-06
+verteufelt	VVFIN	negative	-7e-06
+verteufelt	VVPP	negative	-7e-06
+ungeeignet	ADJD	negative	-7e-06
+glückselig	ADJD	positive	0.000007
+schwarz	ADJD	negative	-7e-06
+ungetrübt	ADJD	positive	0.000007
+abgebrannt	VVPP	negative	-7e-06
+sorgfältig	ADJD	positive	0.000007
+sinnreich	ADJD	positive	0.000007
+preussisch	ADJD	positive	0.000007
+toll	ADJD	positive	0.000007
+vorschriftsgemäss	ADJD	positive	0.000007
+missraten	VVINF	negative	-7e-06
+missraten	VVPP	negative	-7e-06
+geeignet	ADJD	positive	0.000007
+aggressiv	ADJD	negative	-7e-06

@@ -14,8 +14,11 @@ Attributes:
 # Imports
 from __future__ import absolute_import
 
+from csv import QUOTE_NONE
+from six import iteritems
 from string import punctuation
 import os
+import pandas as pd
 import re
 
 
@@ -56,8 +59,15 @@ KNN_LEX = os.path.join(LEX_DIR,
 LINPROJ_LEX = os.path.join(LEX_DIR,
                            "linproj.word2vec.kim_hovy_seedset.txt")
 # Additional Sentiment Resources
-INTENSIFIERS = os.path.join(DATA_DIR, "intensifiers.tsv")
-
+INTENSIFIER_PATH = os.path.join(DATA_DIR, "intensifiers.tsv")
+INTENSIFIERS = pd.read_table(INTENSIFIER_PATH, header=None,
+                             names=("intensifier", "score"),
+                             dtype={"intensifier": str,
+                                    "score": float},
+                             encoding=ENCODING,
+                             error_bad_lines=False, warn_bad_lines=True,
+                             keep_default_na=False, na_values=[''],
+                             quoting=QUOTE_NONE)
 # Embeddings
 DFLT_W2V_PATH = os.path.join(DATA_DIR, "vectors.word2vec")
 
@@ -79,3 +89,5 @@ MIXED = "mixed"
 TWO_CLASS = set([POSITIVE, NEGATIVE])
 THREE_CLASS = set([POSITIVE, NEGATIVE, NEUTRAL])
 KNOWN_LABELS = set([POSITIVE, NEGATIVE, UNKNOWN, NEUTRAL, MIXED])
+CLS2IDX = {NEGATIVE: 0, NEUTRAL: 1, POSITIVE: 2}
+IDX2CLS = {v: k for k, v in iteritems(CLS2IDX)}

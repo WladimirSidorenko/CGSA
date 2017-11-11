@@ -13,11 +13,11 @@ Attributes:
 ##################################################################
 # Imports
 from __future__ import absolute_import, print_function, unicode_literals
-
 try:
     from cPickle import dump, load
 except ImportError:
     from _pickle import dump, load
+
 import gc
 import numpy as np
 import os
@@ -25,7 +25,8 @@ import os
 from cgsa.base import BaseAnalyzer
 from cgsa.utils.common import LOGGER
 from cgsa.constants import (DFLT_MODEL_PATH, BILSTM,
-                            MOHAMMAD, SEVERYN, TABOADA)
+                            MOHAMMAD, SEVERYN, TABOADA,
+                            CLS2IDX, IDX2CLS)
 from cgsa.dl.base import DLBaseAnalyzer
 from cgsa.judge import DefaultJudge
 
@@ -61,7 +62,6 @@ class SentimentAnalyzer(object):
         # load paths to serialized models
         with open(a_path, "rb") as ifile:
             analyzer = load(ifile)
-        analyzer._logger = LOGGER
         # normalize paths to serialized models
         analyzer._dirname = os.path.dirname(a_path)
         if not on_demand:
@@ -87,7 +87,9 @@ class SentimentAnalyzer(object):
         for mpath_i in a_analyzer._model_paths:
             with open(os.path.join(a_analyzer._dirname,
                                    mpath_i), "rb") as ifile:
-                yield BaseAnalyzer.load(ifile)
+                model_i = BaseAnalyzer.load(ifile)
+                model_i.restore()
+                yield model_i
 
     def __init__(self, a_models, *args, **kwargs):
         """Class constructor.
@@ -103,8 +105,6 @@ class SentimentAnalyzer(object):
 
         self._dirname = None
         self._n_cls = 0
-        self._cls2idx = {}
-        self._idx2cls = {}
         self._wbench = None
         self._logger = LOGGER
         self._model_paths = []
@@ -156,9 +156,11 @@ class SentimentAnalyzer(object):
                     self._save_model(model_i, dirname)
                     self._models[i] = None
         if a_path:
+            LOGGER.debug("Saving analyzer...")
             self._reset()
             with open(a_path, "wb") as ofile:
                 dump(self, ofile)
+            LOGGER.debug("Analyzer saved...")
 
     def batch_predict(self, a_instances):
         """Predict multiple input instances at once.
@@ -172,7 +174,7 @@ class SentimentAnalyzer(object):
         # create a workspace for doing the predictions
         probs = np.zeros((len(a_instances),
                           len(self._model_paths),
-                          len(self._cls2idx)
+                          len(CLS2IDX)
                           ))
         # load each trained model and let it predict the classes
         for i, model_i in enumerate(SentimentAnalyzer._load_models(self)):
@@ -184,7 +186,7 @@ class SentimentAnalyzer(object):
         # let judge merge the decisions
         for inst_j, y_j in zip(a_instances, probs):
             lbl_idx, _ = self.judge.predict(y_j)
-            inst_j.label = self._idx2cls[lbl_idx]
+            inst_j.label = IDX2CLS[lbl_idx]
 
     def predict(self, instance):
         """Predict label of a single input instance.
@@ -200,7 +202,7 @@ class SentimentAnalyzer(object):
 
         """
         if self._wbench is None:
-            self._wbench = np.zeros((len(self._models), len(self._cls2idx)))
+            self._wbench = np.zeros((len(self._models), len(CLS2IDX)))
         else:
             self._wbench *= 0
         # let each trained model predict the probabilities of classes
@@ -208,7 +210,7 @@ class SentimentAnalyzer(object):
             model_i.predict_proba(instance, self._wbench[i])
         # let the judge unite the decisions
         lbl_idx, _ = self.judge.predict(self._wbench)
-        return self._idx2cls[lbl_idx]
+        return IDX2CLS[lbl_idx]
 
     def save(self, a_path):
         """Dump model to disc.
@@ -287,11 +289,6 @@ class SentimentAnalyzer(object):
             lists of input features and expected classes
 
         """
-        def _check(i, max_i):
-            assert i <= max_i, \
-                "Number of classes in the data set exceeds maimum number" \
-                " of slots."
-
         x, y = [], []
         if not a_data:
             return (x, y)
@@ -300,12 +297,12 @@ class SentimentAnalyzer(object):
                 continue
             x.append(msg_i)
             y_i = msg_i.label
-            if y_i not in self._cls2idx:
-                n = len(self._cls2idx)
-                self._idx2cls[n] = y_i
-                self._cls2idx[y_i] = n
-                _check(len(self._idx2cls), self._n_cls)
-            y_i = self._cls2idx[y_i]
+            # we use a pre-defined mapping of symbolic labels to integers, as
+            # we need these labels to be sorted proportionally to the
+            # subjective scores they get assigned when optimizing threshold of
+            # lexicon-based methods
+            assert y_i in CLS2IDX, "Unknown label {:s}".format(y_i)
+            y_i = CLS2IDX[y_i]
             y.append(y_i)
         return (x, y)
 
@@ -323,7 +320,7 @@ class SentimentAnalyzer(object):
 
         """
         if self._wbench is None:
-            self._wbench = np.zeros((len(self._models), len(self._cls2idx)))
+            self._wbench = np.zeros((len(self._models), len(CLS2IDX)))
         else:
             self._wbench *= 0
         for i, model_i in enumerate(self._models):
@@ -360,9 +357,10 @@ class SentimentAnalyzer(object):
         else:
             with open(abspath, "wb") as ofile:
                 dump(a_model, ofile)
-        self._logger.info("Model %s saved to %s...",
-                          a_model.name, abspath
-                          )
+        self._logger.info(
+            "Model %s saved to %s...",
+            a_model.name, abspath
+        )
         self._model_paths.append(
             os.path.relpath(abspath, a_path)
         )

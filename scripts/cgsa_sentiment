@@ -132,8 +132,7 @@ def main(argv):
                        a_path=args.model,
                        a_grid_search=args.grid_search
                        )
-        LOGGER.debug("Saving analyzer...")
-        LOGGER.debug("Finished.")
+        LOGGER.debug("Analyzer trained.")
     else:
         analyzer = SentimentAnalyzer.load(args.model,
                                           on_demand=args.batch)
