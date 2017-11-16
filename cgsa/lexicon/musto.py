@@ -141,6 +141,17 @@ class MustoAnalyzer(LexiconBaseAnalyzer):
                         continue
                     phr_idx = w_idx2phr_idx[w_idx]
                     phrase_scores[phr_idx] += score_i * coeff
+        # inverse scores of micro-phrases if they have a negation
+        negated_phrases = set()  # every phrase can be negated only once
+        for _, start, end in self._negations.search(match_input):
+            for w_idx in range(start, end + 1):
+                if w_idx in w_idx2phr_idx:
+                    phr_idx = w_idx2phr_idx[w_idx]
+                    if phr_idx in negated_phrases:
+                        continue
+                    phrase_scores[phr_idx] *= -1.
+                    negated_phrases.add(phr_idx)
+                    break
         # normalize scores by the lengths of the micro-phrases
         self._logger.debug("phrase_scores: %r; phrase_lengths: %r;",
                            phrase_scores, phrase_lengths)
