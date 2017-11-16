@@ -19,10 +19,12 @@ from six import iterkeys
 import abc
 import numpy as np
 import pandas as pd
+import os
 
-from cgsa.constants import (INTENSIFIERS, SPACE_RE, USCORE_RE,
-                            CLS2IDX, IDX2CLS)
-from cgsa.base import BaseAnalyzer, ENCODING, SCORE
+from cgsa.constants import (IDX2CLS, INTENSIFIERS, PUNCT_RE,
+                            SPACE_RE, USCORE_RE)
+from cgsa.base import (BaseAnalyzer, ENCODING, LEX_CLMS, LEX_TYPES,
+                       NEG_SFX_RE, QUOTE_NONE)
 from cgsa.utils.common import LOGGER
 from cgsa.utils.trie import Trie
 
@@ -55,15 +57,50 @@ class LexiconBaseAnalyzer(BaseAnalyzer):
     """
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self):
-        """Class constructor.
+    class PolTermMatches(object):
+        """Class comprising matches pertaining to specific parts of speech.
 
         """
+        def __init__(self):
+            """Class constructor."""
+            self.adjectives = []
+            self.adverbs = []
+            self.nouns = []
+            self.verbs = []
+            # odered mapping from part-of-speech tags to corresponding
+            # containers for matches
+            self.TAGS2CONTAINER = [
+                (set(["VAFIN", "VAIMP", "VAIMP", "VAINF", "VAPP",
+                      "VMFIN", "VMINF", "VVFIN", "VVIMP", "VVINF",
+                      "VVIZU", "VVPP"]), self.verbs),
+                (set(["NE", "NN", "FM", "XY"]), self.nouns),
+                (set(["ADJA", "ADJD"]), self.adjectives)
+                # adverbs will be used by default for all remaining cases
+            ]
+
+        def __repr__(self):
+            ret = ("<{:s}: adjectives: {!r}; adverbs: {!r};"
+                   " nouns: {!r}; verbs: {!r}>").format(
+                       self.__class__.__name__,
+                       self.adjectives, self.adverbs,
+                       self.nouns, self.verbs)
+            return ret
+
+    def __init__(self, lexicons=[]):
+        """Class constructor.
+
+        Args:
+          lexicons (list[str]): list of sentiment lexicons
+
+        """
+        assert lexicons, \
+            "Provide at least one lexicon for lexicon-based method."
         self._logger = LOGGER
         self._intensifiers = self._read_intensifiers(INTENSIFIERS)
         self._boundaries = self._words2trie(BOUNDARIES)
         self._negations = self._words2trie(NEGATIONS)
-        self._polar_terms = Trie(a_ignorecase=True)
+        self._polar_terms = self._read_lexicons(lexicons,
+                                                a_encoding=ENCODING)
 
     def reset(self):
         """Remove members which cannot be serialized.
@@ -85,6 +122,54 @@ class LexiconBaseAnalyzer(BaseAnalyzer):
         self._boundaries.restore()
         self._negations.restore()
         self._polar_terms.restore()
+
+    @abc.abstractmethod
+    def _compute_so(self, tweet):
+        """Compute semantic orientation of a tweet.
+
+        Args:
+          tweet (cgsa.utils.data.Tweet): input message
+
+        Returns:
+          tuple: total SO score, total SO count, average SO value
+
+        """
+        raise NotImplementedError
+
+    def _find_boundaries(self, match_input):
+        """Determine boundaries which block propagation.
+
+        Args:
+          match_input (list[tuple]): list of tuples comprising forms, lemmas,
+            and part-of-speech tags
+
+        Returns:
+          list[tuple]: indices of matched boundaries
+
+        """
+        boundaries = self._boundaries.search(match_input)
+        for i, (tok_i, _, _) in enumerate(match_input):
+            if PUNCT_RE.search(tok_i):
+                boundaries.append((None, i, i))
+        boundaries = [(start, end)
+                      for _, start, end
+                      in self._boundaries.select_llongest(boundaries)]
+        return boundaries
+
+    def _join_scores(self, matches):
+        """Sum scores of all matches.
+
+        Args:
+          matches (list[tuple]): list of scores, starting and ending positions
+            of matches
+
+        Returns:
+          list[tuple]: the same matches, but with all scores for a single match
+            summed
+
+        """
+        return [(sum(res[-1] for res in results), start, end)
+                for results, start, end in matches]
 
     def _read_intensifiers(self, intensifiers=INTENSIFIERS):
         """Read intensifiers from file.
@@ -110,6 +195,45 @@ class LexiconBaseAnalyzer(BaseAnalyzer):
         for state_i in final_states:
             state_i.classes = sum(state_i.classes)
         return itrie
+
+    def _read_lexicons(self, a_lexicons, a_encoding=ENCODING):
+        """Load lexicons.
+
+        Args:
+          a_lexicons (list): tags of the input instance
+          a_encoding (str): input encoding
+
+        Returns:
+          cgsa.utils.trie.Trie: constructed polar terms trie
+
+        """
+        ret = Trie(a_ignorecase=True)
+        for lexpath_i in a_lexicons:
+            lexname = os.path.splitext(os.path.basename(
+                lexpath_i
+            ))[0]
+            self._logger.debug(
+                "Reading lexicon %s...", lexname
+            )
+            lexicon = pd.read_table(lexpath_i, header=None, names=LEX_CLMS,
+                                    dtype=LEX_TYPES, encoding=a_encoding,
+                                    error_bad_lines=False, warn_bad_lines=True,
+                                    keep_default_na=False, na_values=[''],
+                                    quoting=QUOTE_NONE)
+            for i, row_i in lexicon.iterrows():
+                term = USCORE_RE.sub(' ', row_i.term)
+                if NEG_SFX_RE.search(term):
+                    # Taboada's method explicitly accounts for negations, so we
+                    # skip negated entries from the lexicon altogether
+                    continue
+                term = self._preprocess(term)
+                ret.add(SPACE_RE.split(term),
+                        SPACE_RE.split(row_i.pos),
+                        (lexname, row_i.polarity, row_i.score))
+            self._logger.debug(
+                "Lexicon %s read...", lexname
+            )
+        return ret
 
     def _optimize_thresholds(self, scores, gold_labels):
         """Exhaustively search for the best threshold values.
@@ -179,6 +303,41 @@ class LexiconBaseAnalyzer(BaseAnalyzer):
             prev_threshold_idx = best_threshold_idx
         return (best_f1, thresholds)
 
+    def _preprocess(self, a_txt):
+        """Overwrite parent's method lowercasing strings.
+
+        Args:
+          a_txt (str): text to be preprocessed
+
+        Returns:
+          str: preprocessed text
+
+        """
+        return super(LexiconBaseAnalyzer, self)._preprocess(a_txt).lower()
+
+    def _split_polterm_matches(self, tags, term_matches):
+        """Separate polterm matches according to their leading parts of speech.
+
+        Args:
+          tags (list[str]): PoS tags of tweet
+          polterm_matches (list[tuple]): matches of polar terms
+
+        Returns:
+          PolTermMatches: matches separated by parts of speech
+
+        """
+        ret = self.PolTermMatches()
+        for match_i in term_matches:
+            score_i, start_i, end_i = match_i
+            tags_i = set(tags[start_i:end_i + 1])
+            for tags_j, contaier in ret.TAGS2CONTAINER:
+                if tags_i & tags_j:
+                    contaier.append(match_i)
+                    break
+            else:
+                ret.adverbs.append(match_i)
+        return ret
+
     def _words2trie(self, words):
         """Convert collection of words to a trie.
 
@@ -195,15 +354,3 @@ class LexiconBaseAnalyzer(BaseAnalyzer):
             terms = SPACE_RE.split(self._preprocess(term))
             ret.add(terms, [None] * len(terms), 1.)
         return ret
-
-    def _preprocess(self, a_txt):
-        """Overwrite parent's method lowercasing strings.
-
-        Args:
-          a_txt (str): text to be preprocessed
-
-        Returns:
-          str: preprocessed text
-
-        """
-        return super(LexiconBaseAnalyzer, self)._preprocess(a_txt).lower()

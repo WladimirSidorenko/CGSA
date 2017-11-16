@@ -14,17 +14,10 @@ from collections import Counter
 from itertools import chain
 from operator import mod
 from six import itervalues
-import pandas as pd
-import os
 import re
 
-from cgsa.base import (LEX_CLMS, LEX_TYPES, NEG_SFX_RE,
-                       USCORE_RE, QUOTE_NONE)
-from cgsa.constants import (ENCODING, INTENSIFIERS, PUNCT_RE, SPACE_RE,
-                            CLS2IDX)
+from cgsa.constants import (INTENSIFIERS, CLS2IDX)
 from cgsa.lexicon.base import LexiconBaseAnalyzer
-from cgsa.utils.common import LOGGER
-from cgsa.utils.trie import Trie
 
 ##################################################################
 # Variables and Constants
@@ -169,41 +162,11 @@ SECONDARY_LABEL_SCORES = (1. - PRIMARY_LABEL_SCORE) / float(len(CLS2IDX) - 1)
 ##################################################################
 # Classes
 class TaboadaAnalyzer(LexiconBaseAnalyzer):
-    """Class for lexicon-based sentiment analysis.
+    """Lexicon-based sentiment analysis using the SO-CAL method of Taboada et al.
 
     Attributes:
 
     """
-
-    class PolTermMatches(object):
-        """Class comprising matches pertaining to specific parts of speech.
-
-        """
-        def __init__(self):
-            """Class constructor."""
-            self.adjectives = []
-            self.adverbs = []
-            self.nouns = []
-            self.verbs = []
-            # odered mapping from part-of-speech tags to corresponding
-            # containers for matches
-            self.TAGS2CONTAINER = [
-                (set(["VAFIN", "VAIMP", "VAIMP", "VAINF", "VAPP",
-                      "VMFIN", "VMINF", "VVFIN", "VVIMP", "VVINF",
-                      "VVIZU", "VVPP"]), self.verbs),
-                (set(["NE", "NN", "FM", "XY"]), self.nouns),
-                (set(["ADJA", "ADJD"]), self.adjectives)
-                # adverbs will be used by default for all remaining cases
-            ]
-
-        def __repr__(self):
-            ret = ("<{:s}: adjectives: {!r}; adverbs: {!r};"
-                   " nouns: {!r}; verbs: {!r}>").format(
-                       self.__class__.__name__,
-                       self.adjectives, self.adverbs,
-                       self.nouns, self.verbs)
-            return ret
-
     def __init__(self, lexicons=[]):
         """Class constructor.
 
@@ -211,12 +174,8 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
           lexicons (list[str]): list of sentiment lexicons
 
         """
-        assert lexicons, \
-            "Provide at least one lexicon for lexicon-based method."
-        super(TaboadaAnalyzer, self).__init__()
+        super(TaboadaAnalyzer, self).__init__(lexicons)
         self.name = "taboada"
-        self._logger = LOGGER
-        self._read_lexicons(self._polar_terms, lexicons, a_encoding=ENCODING)
         self._use_abs_so = False
         self._use_cnt_so = False
         self._use_mean_so = False
@@ -301,15 +260,6 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
         self._logger.debug("resulting yvec: %r;", yvec)
 
     def _compute_so(self, tweet):
-        """Compute semantic orientation of a tweet.
-
-        Args:
-          tweet (cgsa.utils.data.Tweet): input message
-
-        Returns:
-          tuple: total SO score, total SO count, average SO value
-
-        """
         total_so = 0.
         total_cnt = 0
         orig_forms = [w_i.form for w_i in tweet]
@@ -321,14 +271,10 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
             "Unmatching number of tokens and lemmas."
         assert len(forms) == len(tags), "Unmatching number of tokens and tags."
 
-        def join_matches(matches):
-            """Sum scores of all matches."""
-            return [(sum(res[-1] for res in results), start, end)
-                    for results, start, end in matches]
-
         match_input = [(f, l, t) for f, l, t in zip(forms, lemmas, tags)]
         # match all polar terms
-        polterm_matches = join_matches(self._polar_terms.search(match_input))
+        polterm_matches = self._join_scores(
+            self._polar_terms.search(match_input))
         # split matches according to their leading parts of speech
         polterm_matches = self._split_polterm_matches(tags, polterm_matches)
         self._logger.debug("matched polar terms: %r", polterm_matches)
@@ -604,26 +550,6 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
                 return True
         return False
 
-    def _find_boundaries(self, match_input):
-        """Determine boundaries which block propagation.
-
-        Args:
-          match_input (list[tuple]): list of tuples comprising forms, lemmas,
-            and part-of-speech tags
-
-        Returns:
-          list[tuple]: indices of matched boundaries
-
-        """
-        boundaries = self._boundaries.search(match_input)
-        for i, (tok_i, _, _) in enumerate(match_input):
-            if PUNCT_RE.search(tok_i):
-                boundaries.append((None, i, i))
-        boundaries = [(start, end)
-                      for _, start, end
-                      in self._boundaries.select_llongest(boundaries)]
-        return boundaries
-
     def _find_negation(self, index,
                        neg_matches, boundaries,
                        forms, lemmas, tags, word_type):
@@ -812,10 +738,8 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
           bool: Trie if the index is within a quaoted passage
 
         """
-        found = False
         quotes_left = 0
         quotes_right = 0
-        current = ""
         for tok_i in toks[:index + 1]:
             if SENT_PUNCT_RE.match(tok_i):
                 break
@@ -834,68 +758,3 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
             if mod(quotes_right, 2) == 1:
                 return True
         return False
-
-    def _read_lexicons(self, a_term2polscore, a_lexicons, a_encoding=ENCODING):
-        """Load lexicons.
-
-        Args:
-          a_term2polscore (cgsa.utils.trie.Trie): mapping from terms to
-            their polarity scores
-          a_lexicons (list): tags of the input instance
-          a_encoding (str): input encoding
-
-        Returns:
-          void:
-
-        Note:
-          populates `a_pos_term2polscore` and `a_neg_term2polscore` in place
-
-        """
-        for lexpath_i in a_lexicons:
-            lexname = os.path.splitext(os.path.basename(
-                lexpath_i
-            ))[0]
-            LOGGER.debug(
-                "Reading lexicon %s...", lexname
-            )
-            lexicon = pd.read_table(lexpath_i, header=None, names=LEX_CLMS,
-                                    dtype=LEX_TYPES, encoding=a_encoding,
-                                    error_bad_lines=False, warn_bad_lines=True,
-                                    keep_default_na=False, na_values=[''],
-                                    quoting=QUOTE_NONE)
-            for i, row_i in lexicon.iterrows():
-                term = USCORE_RE.sub(' ', row_i.term)
-                if NEG_SFX_RE.search(term):
-                    # Taboada's method explicitly accounts for negations, so we
-                    # skip negated entries from the lexicon altogether
-                    continue
-                term = self._preprocess(term)
-                a_term2polscore.add(SPACE_RE.split(term),
-                                    SPACE_RE.split(row_i.pos),
-                                    (lexname, row_i.polarity, row_i.score))
-            LOGGER.debug(
-                "Lexicon %s read...", lexname
-            )
-
-    def _split_polterm_matches(self, tags, term_matches):
-        """Separate polterm matches according to their leading parts of speech.
-
-        Args:
-          tags (list[str]): PoS tags of tweet
-          polterm_matches (list[tuple]): matches of polar terms
-
-        Returns:
-          PolTermMatches: matches separated by parts of speech
-
-        """
-        ret = self.PolTermMatches()
-        for match_i in term_matches:
-            score_i, start_i, end_i = match_i
-            tags_i = set(tags[start_i:end_i + 1])
-            for tags_j, contaier in ret.TAGS2CONTAINER:
-                if tags_i & tags_j:
-                    contaier.append(match_i)
-                    break
-            else:
-                ret.adverbs.append(match_i)
-        return ret

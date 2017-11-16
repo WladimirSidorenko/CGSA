@@ -77,6 +77,7 @@ DFLT_MODEL_PATH = os.path.join(MODEL_DIR, "cgsa.model")
 
 TABOADA = "taboada"
 MOHAMMAD = "mohammad"
+MUSTO = "musto"
 SEVERYN = "severyn"
 BILSTM = "bilstm"
 

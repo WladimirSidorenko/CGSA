@@ -25,8 +25,8 @@ import os
 from cgsa.base import BaseAnalyzer
 from cgsa.utils.common import LOGGER
 from cgsa.constants import (DFLT_MODEL_PATH, BILSTM,
-                            MOHAMMAD, SEVERYN, TABOADA,
-                            CLS2IDX, IDX2CLS)
+                            MOHAMMAD, MUSTO, SEVERYN,
+                            TABOADA, CLS2IDX, IDX2CLS)
 from cgsa.dl.base import DLBaseAnalyzer
 from cgsa.judge import DefaultJudge
 
@@ -268,6 +268,9 @@ class SentimentAnalyzer(object):
             if model_i == TABOADA:
                 from cgsa.lexicon.taboada import TaboadaAnalyzer
                 self._models.append(TaboadaAnalyzer(*a_args, **a_kwargs))
+            elif model_i == MUSTO:
+                from cgsa.lexicon.musto import MustoAnalyzer
+                self._models.append(MustoAnalyzer(*a_args, **a_kwargs))
             elif model_i == MOHAMMAD:
                 from cgsa.ml.mohammad import MohammadAnalyzer
                 self._models.append(MohammadAnalyzer(*a_args, **a_kwargs))
@@ -277,6 +280,8 @@ class SentimentAnalyzer(object):
             elif model_i == SEVERYN:
                 from cgsa.dl.severyn import SeverynAnalyzer
                 self._models.append(SeverynAnalyzer(*a_args, **a_kwargs))
+            else:
+                raise NotImplementedError
 
     def _generate_ts(self, a_data):
         """Generate training set.
