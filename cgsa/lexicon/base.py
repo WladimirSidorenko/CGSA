@@ -14,6 +14,7 @@ Attributes:
 # Imports
 from __future__ import absolute_import, print_function, unicode_literals
 
+from bisect import bisect_left
 from sklearn.metrics import f1_score
 from six import iterkeys
 import abc
@@ -21,7 +22,7 @@ import numpy as np
 import pandas as pd
 import os
 
-from cgsa.constants import (IDX2CLS, INTENSIFIERS, PUNCT_RE,
+from cgsa.constants import (CLS2IDX, IDX2CLS, INTENSIFIERS, PUNCT_RE,
                             SPACE_RE, USCORE_RE)
 from cgsa.base import (BaseAnalyzer, ENCODING, LEX_CLMS, LEX_TYPES,
                        NEG_SFX_RE, QUOTE_NONE)
@@ -45,6 +46,8 @@ NEGATIONS = ["nicht", "kein", "keine", "keiner", "keinem", "keines", "keins",
              "weder", "nichts", "nie", "niemals", "niemand",
              "entbehren", "vermissen", "ohne", "Abwesenheit", "Fehlen",
              "Mangel", "frei von"]
+PRIMARY_LABEL_SCORE = 0.51
+SECONDARY_LABEL_SCORE = (1. - PRIMARY_LABEL_SCORE) / float(len(CLS2IDX) - 1)
 
 
 ##################################################################
@@ -101,6 +104,31 @@ class LexiconBaseAnalyzer(BaseAnalyzer):
         self._negations = self._words2trie(NEGATIONS)
         self._polar_terms = self._read_lexicons(lexicons,
                                                 a_encoding=ENCODING)
+
+    def predict_proba(self, msg, yvec):
+        """Method for predicting sentiment propbablities of a single message.
+
+        Args:
+          msg (cgsa.utils.data.Tweet):
+            discourse relation whose sense should be predicted
+          yvec (np.array): target array for storing the probabilities
+
+        Returns:
+          void
+
+        Note:
+          modifies `'
+
+        """
+        score = self._compute_so(msg)
+        self._logger.debug("score: %f, thresholds: %r;",
+                           score, self._thresholds)
+        label = bisect_left(self._thresholds, score)
+        self._logger.debug("score: %f, label: %d, yvec: %r;",
+                           score, label, yvec)
+        yvec[:] = SECONDARY_LABEL_SCORE
+        yvec[label] = PRIMARY_LABEL_SCORE
+        self._logger.debug("resulting yvec: %r;", yvec)
 
     def reset(self):
         """Remove members which cannot be serialized.

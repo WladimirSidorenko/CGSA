@@ -16,8 +16,9 @@ from operator import mod
 from six import itervalues
 import re
 
-from cgsa.constants import (INTENSIFIERS, CLS2IDX)
-from cgsa.lexicon.base import LexiconBaseAnalyzer
+from cgsa.constants import INTENSIFIERS
+from cgsa.lexicon.base import (LexiconBaseAnalyzer, PRIMARY_LABEL_SCORE,
+                               SECONDARY_LABEL_SCORE)
 
 ##################################################################
 # Variables and Constants
@@ -155,8 +156,6 @@ NOT_WANTED_ADV = set(["wirklich", "echt", "ganz",
                       "typisch", "normalerweise", "typischerweise",
                       "üblicherweise", "auch"])
 CMP_COEFF = INTENSIFIERS.loc[INTENSIFIERS["intensifier"] == "mehr"].score.max()
-PRIMARY_LABEL_SCORE = 0.51
-SECONDARY_LABEL_SCORES = (1. - PRIMARY_LABEL_SCORE) / float(len(CLS2IDX) - 1)
 
 
 ##################################################################
@@ -255,7 +254,7 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
         label = bisect_left(self._thresholds, score)
         self._logger.debug("score: %f, label: %d, yvec: %r;",
                            score, label, yvec)
-        yvec[:] = SECONDARY_LABEL_SCORES
+        yvec[:] = SECONDARY_LABEL_SCORE
         yvec[label] = PRIMARY_LABEL_SCORE
         self._logger.debug("resulting yvec: %r;", yvec)
 
