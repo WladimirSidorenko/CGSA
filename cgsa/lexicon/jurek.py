@@ -9,8 +9,7 @@
 from __future__ import absolute_import, unicode_literals, print_function
 
 from cgsa.base import LEX_CLMS, LEX_TYPES, NEG_SFX_RE
-from cgsa.lexicon.base import (LexiconBaseAnalyzer, PRIMARY_LABEL_SCORE,
-                               SECONDARY_LABEL_SCORE)
+from cgsa.lexicon.base import LexiconBaseAnalyzer
 from cgsa.constants import (COND_PROB_FILE, ENCODING,
                             SPACE_RE, USCORE_RE, QUOTE_NONE)
 from cgsa.utils.trie import Trie
@@ -199,14 +198,10 @@ class JurekAnalyzer(LexiconBaseAnalyzer):
           float: final sentiment score
 
         """
-        # Below is the original threshold procedure of Jurek et al.  However,
-        # we found it working worse than our exhaustive threshold optimization.
         if abs(F) > 25 or abs(e) > 0.5:
             F /= 100.
         else:
             F = 0.
-        # F *= e
-        # F /= 100.
         self._logger.debug("final sentiment score: %f;", F)
         return F
 
