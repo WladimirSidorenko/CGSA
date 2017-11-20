@@ -166,7 +166,7 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
     Attributes:
 
     """
-    def __init__(self, lexicons=[]):
+    def __init__(self, lexicons=[], **kwargs):
         """Class constructor.
 
         Args:

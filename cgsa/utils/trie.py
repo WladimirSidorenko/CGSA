@@ -180,7 +180,8 @@ class Trie(object):
         toks = [normalize_string(itok, self.ignorecase)
                 for itok in toks]
         assert len(toks) == len(tags), \
-            "Unequal number of PoS tags and strings provided to automaton."
+            "Unequal number of PoS tags and strings provided to" \
+            " the automaton: {!r} vs. {!r}".format(toks, tags)
         # successively add states
         astate = self._init_state
         for itok, itag in zip(toks, tags):

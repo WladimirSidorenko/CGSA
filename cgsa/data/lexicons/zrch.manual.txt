@@ -170,9 +170,11 @@ achtbar	ADJD	positive	1
 achten	ADJA	positive	1
 achten	VVFIN	positive	1
 achtgeben	VVFIN	negative	-1
-Acht_geben	NN	negative	-1
+Acht geben	NN VVINF	negative	-1
+Acht geben	NN VVFIN	negative	-1
 achthaben	ADJA	negative	-1
-Acht_haben	NN	negative	-1
+Acht haben	NN VAINF	negative	-1
+Acht haben	NN VAFIN	negative	-1
 achtlos	ADJD	negative	-0.7
 achtsam	ADJD	positive	0.7
 Ächtung	NN	negative	-1
@@ -338,13 +340,14 @@ angriffslustig	ADJD	negative	-1
 Angriffslust	NN	negative	-1
 ängsten	ADJA	negative	-1
 angsterregend	ADJD	negative	-1
-Angst_erregend	NN	negative	-1
+Angst erregend	NN ADJA	negative	-1
 angstfrei	ADJD	positive	1
 ängstigen	VVFIN	negative	-1
 Ängstlichkeit	NN	negative	-1
 ängstlich	ADJD	negative	-0.7
 angstlos	ADJD	negative	-0.7
-Angst_machen	NN	negative	-1
+Angst machen	NN VVINF	negative	-1
+Angst machen	NN VVFIN	negative	-1
 Angst	NN	negative	-1
 Angstneurose	NN	negative	-1
 angstvoll	ADJD	negative	-0.7
@@ -579,7 +582,7 @@ Aufsässigkeit	NN	negative	-1
 aufsässig	ADJD	negative	-0.7
 Aufschwung	NN	positive	0.7
 aufsehenerregend	ADJD	positive	0.7
-Aufsehen_erregend	NN	positive	0.7
+Aufsehen erregend	NN ADJA	positive	0.7
 aufstacheln	VVFIN	negative	-1
 aufständisch	ADJD	negative	-0.7
 Aufstand	NN	negative	-0.7
@@ -597,7 +600,7 @@ aufwiegelnd	ADJD	negative	-1
 Aufwiegelung	NN	negative	-0.7
 aufwieglerisch	ADJD	negative	-1
 aufwühlen	VVFIN	negative	-1
-auf_Zack	NE	positive	1
+auf Zack	APPR NE	positive	1
 aufziehen	VVFIN	negative	-1
 aufzwingen	VVINF	negative	-1
 Augendienerei	NN	positive	1
@@ -622,9 +625,10 @@ Ausdauer	NN	positive	0.7
 ausdrucksstark	ADJD	positive	1
 ausdrucksvoll	ADJD	positive	1
 auseinanderdriften	VVINF	negative	-0.7
-auseinander_driften	VVFIN	negative	-1
-auseinander_leben	NN	negative	-1
-auseinanderleben	VVFIN	negative	-1
+auseinander driften	ADV VVFIN	negative	-1
+auseinander driften	ADV VVINF	negative	-1
+auseinander leben	ADV VVFIN	negative	-1
+auseinander leben	ADV VVINF	negative	-1
 auseinanderleben	ADJA	negative	-1
 auserkoren	ADJD	positive	1
 auserkoren	VVPP	positive	1
@@ -737,8 +741,8 @@ authentisch	ADJD	positive	1
 authentisieren	ADJA	positive	0.7
 Authentizität	NN	positive	0.7
 Autismus	NN	negative	-1
-autistische_Störung	ADJA	negative	-1
-autistische_Störung	ADJD	negative	-1
+autistische Störung	ADJA NN	negative	-1
+autistische Störung	ADJD NN	negative	-1
 Autonomie	NN	positive	0.7
 autonom	ADJD	positive	0.7
 autorisieren	VVFIN	positive	0.7
@@ -757,7 +761,8 @@ Bänderriss	NN	negative	-0.7
 Bänderriß	NN	negative	-0.7
 bändigen	VVFIN	positive	1
 Bandscheibenvorfall	NN	negative	-1
-Bange_machen	ADJA	negative	-1
+Bange machen	ADJA VVFIN	negative	-1
+Bange machen	ADJA VVINF	negative	-1
 bange	ADJA	negative	-0.7
 bangen	ADJA	negative	-1
 bang	VVIMP	negative	-0.7
@@ -1089,7 +1094,8 @@ Besorgnis	NN	negative	-1
 besorgt	ADJD	negative	-1
 bespucken	VVFIN	negative	-1
 bessern	VVFIN	positive	0.7
-besser_stellen	ADJA	positive	0.7
+besser stellen	ADJD VVFIN	positive	0.7
+besser stellen	ADJD VVINF	positive	0.7
 Besserung	NN	positive	0.7
 besserwisserisch	ADJD	negative	-1
 Beständigkeit	NN	positive	1
@@ -1156,7 +1162,7 @@ bevorrechtigen	VVFIN	positive	0.7
 bevorschussen	NN	positive	0.7
 bevorzugen	VVFIN	positive	0.7
 bevorzugen	VVFIN	positive	1
-bewaffneter_Kampf	NN	negative	-0.7
+bewaffneter Kampf	ADJA NN	negative	-0.7
 bewahrheiten	VVINF	positive	0.7
 bewährt	VVFIN	positive	1
 bewährt	ADJD	positive	1
@@ -1266,8 +1272,10 @@ Blickfang	NN	positive	0.7
 Blinddarmentzündung	NN	negative	-1
 Blindheit	NN	negative	-1
 blind	ADJD	negative	-1
-blind_werden	ADJA	negative	-1
-blind_werden	NN	negative	-1
+blind werden	ADJA VAINF	negative	-1
+blind werden	ADJA VAFINF	negative	-1
+blind werden	ADJA VAINF	negative	-1
+blind werden	ADJA VAFIN	negative	-1
 Blitzkrieg	NN	negative	-1
 blocken	VVFIN	negative	-0.7
 blockieren	VVFIN	negative	-0.7
@@ -1395,7 +1403,7 @@ chauvinistisch	ADJD	negative	-1
 chauvinistisch	ADJA	negative	-1
 Chemotherapie	NN	positive	0.7
 Cholera	NN	negative	-1
-cholerischer_Anfall	NN	negative	-1
+cholerischer Anfall	ADJA NN	negative	-1
 cholerisch	ADJD	negative	-1
 Claustrophobie	NN	negative	-1
 clean	NE	positive	0.7
@@ -1418,8 +1426,8 @@ dämonisch	ADJD	negative	-1
 dämonisieren	VVINF	negative	-1
 Dämonisierung	NN	negative	-0.7
 danebengegangen	VVPP	negative	-1
-daneben_liegen	ADJA	negative	-0.7
-daneben_liegen	VVFIN	negative	-0.7
+daneben liegen	PAV VVFIN	negative	-0.7
+daneben liegen	PAV VVINF	negative	-0.7
 danebenliegen	VVFIN	negative	-0.7
 danebenliegen	VVINF	negative	-0.7
 Dankbarkeit	NN	positive	1
@@ -1431,7 +1439,8 @@ Dankgefühl	NN	positive	1
 Dank	APPR	positive	0.7
 Dank	APPR	positive	1
 danksagen	ADJA	positive	0.7
-Dank_sagen	NN	positive	0.7
+Dank sagen	NN VVFIN	positive	0.7
+Dank sagen	NN VVINF	positive	0.7
 darben	VVFIN	negative	-1
 Darmkrebs	NN	negative	-1
 Darmpilz	NN	negative	-0.7
@@ -1536,11 +1545,11 @@ devitalisieren	ADJA	negative	-0.7
 devot	NN	negative	-1
 devot	NE	negative	-1
 devot	ADJA	negative	-1
-Diabetes_mellitus	NN	negative	-1
+Diabetes mellitus	NN ADJA	negative	-1
 Diabetes	NN	negative	-1
 diabolisch	ADJD	negative	-1
 diabolisieren	ADJA	negative	-1
-Diamantene_Hochzeit	NN	positive	0.7
+Diamantene Hochzeit	ADJA NN	positive	0.7
 Diamanthochzeit	NN	positive	0.7
 Diätenerhöhung	NN	positive	0.7
 Diättherapie	NN	positive	0.7
@@ -1566,7 +1575,8 @@ dilettantisch	ADJD	negative	-1
 Dilettantismus	NN	negative	-1
 Diphterie	NN	negative	-1
 direkt	ADJD	positive	0.7
-direkt_sagen	ADJA	positive	0.7
+direkt sagen	ADJD VVFIN	positive	0.7
+direkt sagen	ADJD VVINF	positive	0.7
 disharmonisch	ADJD	negative	-0.7
 diskeditieren	NN	negative	-1
 Diskretion	NN	positive	0.7
@@ -1653,9 +1663,11 @@ dünnhäutig	ADJD	negative	-1
 düpieren	VVFIN	negative	-0.7
 Durchblutungsstörung	NN	negative	-1
 durchdrehen	VVFIN	negative	-0.7
-durcheinander_bringen	ADJA	negative	-0.7
+durcheinander bringen	ADV VVFIN	negative	-0.7
+durcheinander bringen	ADV VVINF	negative	-0.7
 durcheinanderbringen	VVFIN	negative	-0.7
-durcheinander_bringen	ADJA	negative	-1
+durcheinander bringen	ADV VVFIN	negative	-1
+durcheinander bringen	ADV VVINF	negative	-1
 durcheinanderbringen	VVFIN	negative	-1
 durcheinander	ADV	negative	-1
 Durcheinander	NN	negative	-1
@@ -1838,7 +1850,7 @@ Einzeltherapie	NN	positive	0.7
 Einzigartigkeit	NN	positive	0.7
 eisenhart	ADJD	negative	-0.7
 Eisenhochzeit	NN	positive	0.7
-Eiserne_Hochzeit	NN	positive	0.7
+Eiserne Hochzeit	ADJA NN	positive	0.7
 eitel	ADJD	negative	-1
 Eiterbeule	NN	negative	-1
 Eitergeschwür	NN	negative	-1
@@ -1846,7 +1858,8 @@ eiternd	ADJD	negative	-1
 eitrig	ADJD	negative	-1
 Eiweißallergie	NN	negative	-1
 ekelerregend	ADJD	negative	-1
-Ekel_erregend	NN	negative	-1
+Ekel erregend	NN ADJA	negative	-1
+Ekel erregend	NN ADJD	negative	-1
 Ekelgefühl	NN	negative	-1
 ekelhaft	ADJD	negative	-1
 Ekel	NN	negative	-1
@@ -2054,7 +2067,8 @@ erfolgsgewöhnt	ADJA	positive	1
 erfolgsverwöhnt	ADJA	positive	1
 Erfolgszwang	NN	negative	-0.7
 erfolgversprechend	ADJD	positive	1
-Erfolg_versprechend	ADJD	positive	1
+Erfolg versprechend	NN ADJA	positive	1
+Erfolg versprechend	NN ADJD	positive	1
 erfrechen	ADJD	negative	-1
 erfrechen	ADJA	negative	-1
 erfrechen	VVFIN	negative	-1
@@ -2341,7 +2355,8 @@ feindselig	ADJD	negative	-1
 feinfühlig	ADJD	negative	-1
 Feingefühl	NN	positive	1
 feingeistig	ADJD	positive	1
-fein_geschnitten	ADJA	positive	0.7
+fein geschnitten	ADJD VVPP	positive	0.7
+fein geschnitten	ADJD ADJA	positive	0.7
 feingeschnitten	ADJA	positive	0.7
 feingründig	ADJD	positive	1
 Feinnervigkeit	NN	positive	1
@@ -2355,7 +2370,8 @@ Feldverweis	NN	negative	-1
 felsenfest	ADJD	positive	0.7
 fernhalten	VVFIN	negative	-1
 fernhalten	VVINF	negative	-1
-fertig_machen	ADJA	negative	-1
+fertig machen	ADJA VVFIN	negative	-1
+fertig machen	ADJA VVINF	negative	-1
 fertigmachen	VVFIN	negative	-1
 fertigmachen	VVINF	negative	-1
 fertig	ADJD	negative	-1
@@ -2546,7 +2562,7 @@ frigide	ADJD	negative	-0.7
 frigid	ADJD	negative	-0.7
 frivol	ADJD	negative	-1
 frohgemut	ADJD	positive	1
-froh_gestimmt	ADJA	positive	1
+froh gestimmt	ADJD VVFIN	positive	1
 frohgestimmt	ADJD	positive	1
 Fröhlichkeit	NN	positive	1
 fröhlich	ADJD	positive	1
@@ -2585,7 +2601,8 @@ furchtbar	ADJD	negative	-1
 fürchten	VVFIN	negative	-1
 fürchterlich	ADJD	negative	-1
 furchterregend	ADJD	negative	-1
-Furcht_erregend	NN	negative	-1
+Furcht erregend	NN ADJA	negative	-1
+Furcht erregend	NN ADJD	negative	-1
 Furchtlosigkeit	NN	positive	1
 furchtlos	ADJD	negative	-0.7
 Furcht	NN	negative	-1
@@ -2665,8 +2682,8 @@ Gefälligkeit	NN	positive	0.7
 gefällig	ADJD	positive	1
 gefälscht	ADJD	negative	-1
 Gefangennahme	NN	negative	-0.7
-gefangen_nehmen	ADJA	negative	-1
-gefangen_nehmen	NN	negative	-1
+gefangen nehmen	PTKVZ VVFIN	negative	-1
+gefangen nehmen	PTKVZ VVINF	negative	-1
 gefangennehmen	VVFIN	negative	-1
 Gefangenschaft	NN	negative	-1
 Gefängnishaft	NN	negative	-1
@@ -2698,7 +2715,8 @@ gehaltvoll	ADJD	positive	1
 Gehässigkeit	NN	negative	-1
 gehässig	ADJD	negative	-1
 Gehbehinderung	NN	negative	-1
-geheim_halten	ADJA	negative	-0.7
+geheim halten	ADJD VVFIN	negative	-0.7
+geheim halten	ADJD VVINF	negative	-0.7
 geheimhalten	VVFIN	negative	-0.7
 geheimhalten	VVINF	negative	-0.7
 geheimnisvoll	ADJD	positive	0.7
@@ -2726,7 +2744,8 @@ geistesklar	ADJD	positive	1
 Geisteskrankheit	NN	negative	-1
 geisteskrank	ADJD	negative	-1
 Geistesverwandtschaft	NN	positive	0.7
-geistig_behindert	ADJA	negative	-1
+geistig behindert	ADJD VVFIN	negative	-1
+geistig behindert	ADJD VVINF	negative	-1
 geistlos	ADJD	negative	-0.7
 geistreich	ADJD	positive	1
 geisttötend	ADJD	negative	-1
@@ -2826,7 +2845,8 @@ gepflegt	VVPP	positive	1
 geplagt	VVPP	negative	-1
 Geplänkel	NN	negative	-0.7
 gequält	ADJD	negative	-1
-gerade_stehen	ADJA	negative	-1
+gerade stehen	ADV VVFIN	negative	-1
+gerade stehen	ADV VVINF	negative	-1
 Geradlinigkeit	NN	positive	0.7
 geradlinig	ADJD	positive	1
 Gerangel	NN	negative	-0.7
@@ -2924,7 +2944,8 @@ geübt	ADJD	positive	0.7
 geübt	VVPP	positive	0.7
 gewähren	VVINF	positive	0.7
 gewährleisten	VVFIN	positive	0.7
-Gewähr_leisten	NN	positive	0.7
+Gewähr leisten	NN VVFIN	positive	0.7
+Gewähr leisten	NN VVINF	positive	0.7
 Gewährung	NN	positive	0.7
 Gewährung	NN	positive	1
 Gewaltakt	NN	negative	-1
@@ -2946,7 +2967,8 @@ Gewerbefreiheit	NN	positive	0.7
 Gewichtsproblem	NN	negative	-1
 gewieft	ADJD	positive	1
 gewinnbringend	ADJD	positive	1
-Gewinn_bringend	ADJD	positive	1
+Gewinn bringend	NN ADJA	positive	1
+Gewinn bringend	NN ADJD	positive	1
 gewinnend	ADJD	positive	0.7
 gewinnen	VVFIN	positive	1
 Gewinnerseite	NN	positive	0.7
@@ -3018,7 +3040,7 @@ Gnade	NN	positive	0.7
 gnädig	ADJD	positive	0.7
 gnomenhaft	ADJD	negative	-1
 göbeln	VVFIN	negative	-0.7
-Goldene_Hochzeit	NN	positive	0.7
+Goldene Hochzeit	ADJA NN	positive	0.7
 Goldgräberstimmung	NN	positive	1
 Goldhochzeit	NN	positive	0.7
 goldig	ADJD	positive	0.7
@@ -3028,7 +3050,7 @@ Golfkrieg	NN	negative	-1
 gönnen	VVFIN	positive	1
 gönnerhaft	ADJD	positive	0.7
 Gotteslästerung	NN	negative	-0.7
-göttliche_Gnade	NN	positive	0.7
+göttliche Gnade	ADJA NN	positive	0.7
 göttlich	ADJD	positive	0.7
 gottlos	ADJD	negative	-1
 Gottvertrauen	NN	positive	1
@@ -3038,7 +3060,8 @@ Gradlinigkeit	NN	positive	0.7
 gradlinig	ADJD	positive	1
 graduieren	VVFIN	positive	0.7
 graduieren	ADJD	positive	0.7
-graduiert_werden	VVFIN	positive	0.7
+graduiert werden	VVPP VAFIN	positive	0.7
+graduiert werden	VVPP VAINF	positive	0.7
 grämen	VVINF	negative	-1
 Gram	NN	negative	-1
 grandios	ADJD	positive	1
@@ -3049,12 +3072,13 @@ grässlich	ADJD	negative	-1
 gräßlich	ADJD	negative	-1
 gratulieren	VVFIN	positive	1
 grauenerregend	ADJD	negative	-1
-Grauen_erregend	ADJD	negative	-1
+Grauen erregend	NN ADJA	negative	-1
+Grauen erregend	NN ADJD	negative	-1
 grauenhaft	ADJD	negative	-1
 grauen	ADJA	negative	-0.7
 Grauen	NN	negative	-1
 grauenvoll	ADJD	negative	-1
-grauer_Star	NN	negative	-0.7
+grauer Star	ADJA NN	negative	-0.7
 grau	ADJD	negative	-0.7
 Grausamkeit	NN	negative	-1
 grausam	ADJD	negative	-1
@@ -3108,9 +3132,7 @@ grundlos	ADJD	negative	-0.7
 grundlos	ADJD	negative	-1
 Grundrecht	NN	negative	-1
 Gründung	NN	positive	0.7
-grüner_Star	NN	negative	-0.7
-grüner_Star	ADJD	negative	-0.7
-grüner_Star	ADJA	negative	-0.7
+grüner Star	ADJA NN	negative	-0.7
 Gruppentherapie	NN	positive	0.7
 gruselig	ADJD	negative	-1
 Grusel	VVIMP	negative	-1
@@ -3120,19 +3142,17 @@ günstig	ADJD	positive	0.7
 günstig	ADJD	positive	1
 Gunst	NN	positive	1
 Gürtelrose	NN	negative	-0.7
-gut_aufgelegt	ADJD	positive	1
-gut_betucht	ADJA	positive	0.7
+gut aufgelegt	ADJD VVPP	positive	1
+gut betucht	ADJD VVPP	positive	0.7
 gutbetucht	ADJA	positive	0.7
 Güte	NN	positive	0.7
 Güte	NN	positive	1
-guter_Mut	NN	positive	1
-guter_Mut	NE	positive	1
-guter_Mut	ADJD	positive	1
-gutes_Gewissen	ADJA	positive	1
-gut_gelaunt	ADJD	positive	1
+guter Mut	ADJA NN	positive	1
+gutes Gewissen	ADJA NN	positive	1
+gut gelaunt	ADJD ADJA	positive	1
 gutgelaunt	ADJD	positive	1
 gutgemeint	ADJD	positive	0.7
-gut_geraten	ADJA	positive	1
+gut geraten	ADJD ADJA	positive	1
 gutgeschrieben	VVPP	positive	0.7
 gutgläubig	ADJD	negative	-0.7
 gutheißen	VVFIN	positive	0.7
@@ -3144,12 +3164,14 @@ Gutmütigkeit	NN	positive	1
 gutmütig	ADJD	positive	1
 gut	ADJD	positive	1
 gutsituiert	ADJA	positive	0.7
-gut_tun	ADJA	positive	0.7
+gut tun	ADJA VVFIN	positive	0.7
+gut tun	ADJA VVINF	positive	0.7
 guttun	VVFIN	positive	0.7
 Habenseite	NN	positive	0.7
 Habgier	NN	negative	-1
 habilitieren	VVFIN	positive	0.7
-habilitiert_werden	NN	positive	0.7
+habilitiert werden	VVPP VAFIN	positive	0.7
+habilitiert werden	VVPP VAINF	positive	0.7
 Hader	NN	negative	-0.7
 Haftentlassung	NN	positive	0.7
 Haft	NN	negative	-1
@@ -3235,7 +3257,7 @@ hedonistisch	ADJD	negative	-0.7
 Hehlerei	NN	negative	-0.7
 hehr	ADJA	positive	1
 heilfroh	ADJD	positive	1
-Heiliger_Krieg	NN	negative	-1
+Heiliger Krieg	ADJA NN	negative	-1
 Heiligkeit	NN	positive	0.7
 Heilkraft	NN	positive	0.7
 heillos	ADJD	negative	-0.7
@@ -3396,12 +3418,11 @@ hinwegsetzen	VVINF	negative	-0.7
 Hinwendung	NN	positive	0.7
 Hirnhautentzündung	NN	negative	-1
 hirnlos	ADJD	negative	-1
-historischer_Krieg	ADJA	negative	-1
-historischer_Krieg	NN	negative	-1
+historischer Krieg	ADJA NN	negative	-1
 hitzig	ADJD	negative	-1
 HIV	NE	negative	-1
 hochachten	ADJA	positive	1
-hoch_begabt	ADJD	positive	1
+hoch begabt	ADJA ADJD	positive	1
 hochbegabt	VVFIN	positive	1
 hochfliegend	ADJD	negative	-0.7
 Hochform	NN	positive	0.7
@@ -3412,7 +3433,8 @@ Hochgenuß	NN	positive	1
 hochkarätig	ADJD	positive	0.7
 hochkarätig	ADJD	positive	1
 hochklassig	ADJD	positive	1
-hochleben_lassen	ADJA	positive	1
+hochleben lassen	VVINF VVINF	positive	1
+hochleben lassen	VVINF VVFIN	positive	1
 hochnäsig	ADJD	negative	-0.7
 hoch	ADJD	positive	0.7
 hochrangig	ADJD	positive	0.7
@@ -3497,7 +3519,7 @@ Hyperaktivität	NN	negative	-0.7
 hypernervös	ADJD	negative	-1
 hypersensiblisieren	ADJA	positive	1
 Hysterie	NN	negative	-1
-hysterischer_Anfall	NN	negative	-1
+hysterischer Anfall	ADJA NN	negative	-1
 hysterisch	ADJD	negative	-1
 idealistisch	ADJD	positive	1
 ideal	ADJD	positive	1
@@ -3563,8 +3585,8 @@ Inflationsquote	NN	negative	-0.7
 Inflationsrate	NN	negative	-0.7
 informiert	ADJD	positive	0.7
 infragestellen	ADJA	negative	-0.7
-in_Frage_stellen	NN	negative	-0.7
-in_Frage_stellen	ADJA	negative	-0.7
+in Frage stellen	APPR NN VVFIN	negative	-0.7
+in Frage stellen	APPR NN VVINF	negative	-0.7
 Infragestellung	NN	negative	-1
 Inhaftierung	NN	negative	-0.7
 Inhaftnahme	NN	negative	-0.7
@@ -3575,10 +3597,8 @@ inhuman	ADJD	negative	-1
 inkompetent	ADJD	negative	-1
 inkonsequent	ADJD	negative	-1
 inkorrekt	ADJD	negative	-1
-innerer_Kampf	ADJA	negative	-0.7
-innerer_Kampf	NN	negative	-0.7
-innerer_Konflikt	ADJA	negative	-0.7
-innerer_Konflikt	NN	negative	-0.7
+innerer Kampf	ADJA NN	negative	-0.7
+innerer Konflikt	ADJA NN	negative	-0.7
 Innigkeit	NN	positive	1
 innig	ADJD	positive	1
 Innovation	NN	positive	1
@@ -3748,12 +3768,8 @@ kindisch	ADJD	negative	-0.7
 Kindlichkeit	NN	negative	-1
 Kinogenuss	NN	positive	1
 Kinogenuß	NN	positive	1
-kirchliche_Hochzeit	ADJA	positive	0.7
-kirchliche_Hochzeit	NN	positive	0.7
-kirchliche_Hochzeit	ADJD	positive	0.7
-kirchliche_Trauung	NN	positive	0.7
-kirchliche_Trauung	ADJA	positive	0.7
-kirchliche_Trauung	ADJD	positive	0.7
+kirchliche Hochzeit	ADJA NN	positive	0.7
+kirchliche Trauung	ADJA NN	positive	0.7
 Kitsch	NN	negative	-1
 kläffen	VVINF	negative	-1
 kläffen	VVFIN	negative	-1
@@ -3888,11 +3904,11 @@ Kopfverletzung	NN	negative	-0.7
 Kopfweh	NN	negative	-1
 körperbehindert	ADJD	negative	-1
 Körperbehinderung	NN	negative	-1
-körperlich_beeinträchtigt	ADJD	negative	-1
-körperlich_behindert	ADJA	negative	-1
-körperliche_Beeinträchtigung	ADJA	negative	-1
-körperliche_Beeinträchtigung	NN	negative	-1
-körperliches_Wohlgefühl	ADJD	positive	1
+körperlich beeinträchtigt	ADJD VVFIN	negative	-1
+körperlich behindert	ADJD ADJA	negative	-1
+körperlich behindert	ADJD VVFIN	negative	-1
+körperliche Beeinträchtigung	ADJA NN	negative	-1
+körperliches Wohlgefühl	ADJD NN	positive	1
 Körperproblem	NN	negative	-1
 Körperverletzung	NN	negative	-0.7
 Körperverletzung	NN	negative	-1
@@ -3981,9 +3997,7 @@ kriminalisieren	VVINF	negative	-1
 Kriminalität	NN	negative	-1
 kriminalitätsfrei	ADJD	positive	0.7
 Kriminalitätsrate	NN	negative	-1
-kriminelle_Handlung	ADJD	negative	-0.7
-kriminelle_Handlung	ADJA	negative	-0.7
-kriminelle_Handlung	NN	negative	-0.7
+kriminelle Handlung	ADJA NN	negative	-0.7
 kriminell	ADJD	negative	-1
 Krisenausschuss	NN	positive	1
 Krise	NN	negative	-1
@@ -3999,7 +4013,8 @@ Krisenstimmung	NN	negative	-1
 Krisis	NN	negative	-1
 kritisieren	VVFIN	negative	-1
 krümmen	VVFIN	negative	-1
-krumm_nehmen	NN	negative	-1
+krumm nehmen	ADJD VVFIN	negative	-1
+krumm nehmen	ADJD VVINF	negative	-1
 krummnehmen	ADJA	negative	-1
 krüppelhaft	ADJD	negative	-0.7
 krüppelig	ADJD	negative	-0.7
@@ -4176,9 +4191,12 @@ leidgeprüft	ADJA	negative	-1
 leidig	ADJD	negative	-1
 Leid	NN	negative	-1
 leidtragend	ADJD	negative	-1
-Leid_tragend	ADJD	negative	-1
-leid_tun	ADJA	negative	-1
-Leid_tun	NN	negative	-1
+Leid tragend	ADJD ADJA	negative	-1
+Leid tragend	ADJD ADJD	negative	-1
+leid tun	ADJD VVFIN	negative	-1
+leid tun	ADJD VVINF	negative	-1
+Leid tun	ADJD VVFIN	negative	-1
+Leid tun	ADJD VVINF	negative	-1
 leidvoll	ADJD	negative	-1
 leimen	VVFIN	negative	-0.7
 Leistungsanspruch	NN	positive	0.7
@@ -4289,7 +4307,8 @@ Lungenstiche	NN	negative	-1
 Lungentuberkulose	NN	negative	-1
 lustbetont	ADJD	positive	1
 lüstern	ADJD	negative	-0.7
-lustig_machen	ADJA	negative	-1
+lustig machen	ADJA VVFIN	negative	-1
+lustig machen	ADJA VVINF	negative	-1
 lustig	ADJD	positive	1
 Lustlosigkeit	NN	negative	-1
 lustlos	ADJD	negative	-0.7
@@ -4345,7 +4364,7 @@ manierlich	ADJD	positive	0.7
 Manipulation	NN	negative	-0.7
 Manipulierung	NN	negative	-0.7
 manisch-depressiv	ADJD	negative	-1
-manische_Depression	NN	negative	-1
+manische Depression	ADJA NN	negative	-1
 manisch	ADJD	negative	-1
 Männerfeindlichkeit	NN	negative	-1
 Männerfreundschaft	NN	positive	0.7
@@ -4389,7 +4408,7 @@ Mattigkeit	NN	negative	-0.7
 matt	ADJD	negative	-0.7
 maulen	VVFIN	negative	-1
 Maulkorb	NN	negative	-0.7
-Maul-_und_Klauenseuche	NN	negative	-0.7
+Maul - und Klauenseuche	NN $( KON NN	negative	-0.7
 mau	NN	negative	-1
 mau	NE	negative	-1
 Mauschelei	NN	negative	-0.7
@@ -4462,8 +4481,7 @@ Milderung	NN	positive	0.7
 mild	ADJD	positive	1
 Mildtätigkeit	NN	positive	1
 militant	ADJD	negative	-1
-militärischer_Schlag	NN	negative	-0.7
-militärischer_Schlag	NN	negative	-1
+militärischer Schlag	ADJA NN	negative	-1
 Militarisierung	NN	negative	-1
 Militärputsch	NN	negative	-0.7
 Militärsanktion	NN	negative	-1
@@ -4563,7 +4581,8 @@ mithelfen	VVFIN	positive	0.7
 mitleidend	ADJD	positive	1
 Mitleidenschaft	NN	negative	-0.7
 mitleiderregend	ADJD	negative	-1
-Mitleid_erregend	NN	negative	-1
+Mitleid erregend	NN ADJA	negative	-1
+Mitleid erregend	NN ADJD	negative	-1
 Mitleidlosigkeit	NN	negative	-1
 mitleidlos	ADJD	negative	-1
 Mitleid	NN	positive	1
@@ -4629,12 +4648,10 @@ Müllentsorgung	NN	negative	-1
 müllfrei	ADJD	positive	0.7
 Müllverbrennung	NN	negative	-1
 Müllwirtschaft	NN	negative	-1
-mulmiges_Gefühl	NN	negative	-1
-mulmiges_Gefühl	ADJA	negative	-1
+mulmiges Gefühl	ADJA NN	negative	-1
 mulmig	ADJD	negative	-1
-multiple_Persönlichkeitsspaltung	ADJD	negative	-1
-multiple_Persönlichkeitsspaltung	ADJA	negative	-1
-Multiple_Sklerose	NN	negative	-1
+multiple Persönlichkeitsspaltung	ADJA NN	negative	-1
+Multiple Sklerose	ADJA NN	negative	-1
 Mumm	NN	positive	0.7
 Mumps	NN	negative	-1
 Mündigkeit	NN	positive	0.7
@@ -4714,8 +4731,7 @@ Naturschutzaktion	NN	positive	0.7
 Naturschutzaktion	NN	positive	1
 nebligtrüb	ADJD	negative	-0.7
 necken	VVFIN	negative	-1
-negativer_Besitz	NN	negative	-0.7
-negativer_Besitz	ADJD	negative	-0.7
+negativer Besitz	ADJA NN	negative	-0.7
 negativ	ADJD	negative	-1
 negieren	VVFIN	negative	-1
 neiden	VVFIN	negative	-1
@@ -4756,7 +4772,7 @@ Neueinstellung	NN	positive	0.7
 Neuentwicklung	NN	positive	0.7
 Neuerung	NN	positive	0.7
 Neuerwerbung	NN	positive	0.7
-neu_gestalten	NN	positive	0.7
+neu gestalten	ADJD ADJA	positive	0.7
 neugestalten	ADJA	positive	0.7
 Neugierde	NN	positive	0.7
 Neugier	NN	positive	0.7
@@ -4773,9 +4789,11 @@ Neuverteilung	NN	positive	0.7
 Nichteinhaltung	NN	negative	-1
 Nichterfüllung	NN	negative	-1
 Nichtsein	NN	negative	-0.7
-nicht_seßhaft	ADJD	negative	-1
+nicht seßhaft	PTKNEG ADJA	negative	-1
+nicht seßhaft	PTKNEG ADJD	negative	-1
 Nichts	NN	negative	-0.7
-nichts_sagend	ADJD	negative	-1
+nichts sagend	PIAT ADJDA	negative	-1
+nichts sagend	PIAT ADJDD	negative	-1
 nichtssagend	ADJD	negative	-1
 niederdrücken	VVFIN	negative	-1
 niedergedrückt	VVPP	negative	-0.7
@@ -4818,7 +4836,8 @@ Notbremse	NN	negative	-1
 notdürftig	ADJD	negative	-1
 nötigen	ADJA	negative	-1
 notleidend	ADJD	negative	-0.7
-Not_leidend	ADJD	negative	-0.7
+Not leidend	NN ADJA	negative	-0.7
+Not leidend	NN ADJD	negative	-0.7
 Not	NN	negative	-1
 Notstand	NN	negative	-0.7
 Notstand	NN	negative	-1
@@ -4884,8 +4903,7 @@ orientierungslos	ADJD	negative	-0.7
 originalgetreu	ADJD	positive	1
 Originalität	NN	positive	1
 originell	ADJD	positive	1
-orthopädische_Krankheit	NN	negative	-1
-orthopädische_Krankheit	ADJA	negative	-1
+orthopädische Krankheit	ADJA NN	negative	-1
 Osteoporose	NN	negative	-1
 osteuropäisch	ADJD	negative	-0.7
 packend	ADJD	positive	0.7
@@ -4960,7 +4978,7 @@ Pest	NN	negative	-1
 Petersilienhochzeit	NN	positive	0.7
 petzen	VVFIN	negative	-1
 pfeifen	VVFIN	negative	-1
-Pfeifersches_Drüsenfieber	NN	negative	-1
+Pfeifersches Drüsenfieber	ADJA NN	negative	-1
 pfiffig	ADJD	positive	0.7
 Pfiff	NN	positive	1
 Pflanzenkrankheit	NN	negative	-0.7
@@ -5089,7 +5107,8 @@ Profilneurose	NN	negative	-1
 Projektbetreuung	NN	negative	-1
 Projektleitung	NN	negative	-1
 promovieren	VVFIN	positive	0.7
-promoviert_werden	NN	positive	0.7
+promoviert werden	VVPP VAFIN	positive	0.7
+promoviert werden	VVPP VAINF	positive	0.7
 Propaganda	NN	negative	-0.7
 Propaganda	NN	positive	1
 propagandistisch	ADJD	negative	-0.7
@@ -5114,9 +5133,9 @@ prunkhaft	ADJD	positive	1
 Prunk	NN	positive	0.7
 prunkvoll	ADJD	positive	1
 Pseudokrupp	NE	negative	-1
-psychische_Störung	ADJA	negative	-1
-psychische_Störung	NN	negative	-1
-psychisch_krank	ADJD	negative	-1
+psychische Störung	ADJA NN	negative	-1
+psychisch krank	ADJD ADJA	negative	-1
+psychisch krank	ADJD ADJD	negative	-1
 Psychoanalyse	NN	positive	0.7
 psychopathisch	ADJD	negative	-1
 Psychose	NN	negative	-1
@@ -5147,14 +5166,12 @@ Quarantäne	NN	negative	-0.7
 quengelig	ADJD	negative	-1
 quengeln	VVFIN	negative	-1
 Querele	NN	negative	-0.7
-quer_legen	VVFIN	negative	-1
-quer_legen	NN	negative	-1
-quer_legen	ADJD	negative	-1
+quer legen	ADJD VVFIN	negative	-1
+quer legen	ADJD VVINF	negative	-1
 querlegen	VVFIN	negative	-1
 querlegen	VVINF	negative	-1
-quer_stellen	ADJA	negative	-1
-quer_stellen	VVFIN	negative	-1
-quer_stellen	NN	negative	-1
+quer stellen	ADJD VVFIN	negative	-1
+quer stellen	ADJD VVINF	negative	-1
 querstellen	VVFIN	negative	-1
 querstellen	VVINF	negative	-1
 quetschen	VVFIN	negative	-0.7
@@ -5370,7 +5387,8 @@ Revolution	NN	negative	-0.7
 Rheuma	NN	negative	-1
 Richtigkeit	NN	positive	1
 richtig	ADJD	positive	1
-richtig_stellen	ADJA	positive	0.7
+richtig stellen	ADJD VVFIN	positive	0.7
+richtig stellen	ADJD VVINF	positive	0.7
 richtigstellen	VVFIN	positive	0.7
 richtungslos	ADJD	negative	-0.7
 rigide	ADJA	negative	-1
@@ -5551,7 +5569,8 @@ Schiebung	NN	negative	-0.7
 Schiebung	NN	negative	-1
 schiefgegangen	VVPP	negative	-1
 schiefgelaufen	VVPP	negative	-1
-schief_liegen	ADJA	negative	-0.7
+schief liegen	ADJA VVFIN	negative	-0.7
+schief liegen	ADJD VVFIN	negative	-0.7
 schiefliegen	ADJA	negative	-0.7
 schiefliegen	VVFIN	negative	-0.7
 Schießen	NN	negative	-1
@@ -5588,9 +5607,11 @@ Schlangenbiß	NN	negative	-1
 Schlappheit	NN	negative	-0.7
 schlapp	ADJD	negative	-0.7
 schlau	ADJD	positive	1
-schlechter_stellen	ADJA	negative	-0.7
-schlechtes_Gewissen	ADJA	negative	-1
-schlecht_gelaunt	ADJD	negative	-1
+schlechter stellen	ADJA VVFIN	negative	-0.7
+schlechter stellen	ADJD VVFIN	negative	-0.7
+schlechtes Gewissen	ADJA NN	negative	-1
+schlecht gelaunt	ADJD ADJA	negative	-1
+schlecht gelaunt	ADJD ADJD	negative	-1
 schlechtgelaunt	ADJD	negative	-1
 Schlechtigkeit	NN	negative	-1
 schlechtmachen	VVFIN	negative	-1
@@ -5675,7 +5696,8 @@ Schorf	NN	negative	-0.7
 Schramme	NN	negative	-0.7
 schrankenlos	ADJD	positive	0.7
 schreckenerregend	ADJD	negative	-1
-Schrecken_erregend	NN	negative	-1
+Schrecken erregend	NN ADJA	negative	-1
+Schrecken erregend	NN ADJD	negative	-1
 schrecken	VVFIN	negative	-1
 Schrecken	NN	negative	-1
 Schreckensherrschaft	NN	negative	-1
@@ -5737,15 +5759,21 @@ schwanzgesteuert	ADJA	negative	-0.7
 schwärmen	VVFIN	positive	0.7
 schwärmen	VVFIN	positive	1
 schwärmerisch	ADJD	positive	1
-schwarz_arbeiten	ADJA	negative	-0.7
+schwarz arbeiten	ADJA VVFIN	negative	-0.7
+schwarz arbeiten	ADJD VVFIN	negative	-0.7
+schwarz arbeiten	ADJA VVINF	negative	-0.7
+schwarz arbeiten	ADJD VVINF	negative	-0.7
 schwarzarbeiten	VVFIN	negative	-0.7
-schwarz_malen	ADJA	negative	-0.7
-schwarz_malen	ADJD	negative	-0.7
+schwarz malen	ADJA VVFIN	negative	-0.7
+schwarz malen	ADJD VVFIN	negative	-0.7
+schwarz malen	ADJA VVINF	negative	-0.7
+schwarz malen	ADJD VVINF	negative	-0.7
 schwarzmalen	VVFIN	negative	-0.7
 Schwarzmalerei	NN	negative	-1
 schwarz	ADJD	negative	-0.7
 schwarz	ADJD	positive	0.7
-schwarz_sehen	ADJA	negative	-0.7
+schwarz sehen	ADJA VVINF	negative	-0.7
+schwarz sehen	ADJD VVFIN	negative	-0.7
 schwarzsehen	VVFIN	negative	-0.7
 Schweinegrippe	NN	negative	-1
 Schweinerei	NN	negative	-1
@@ -5780,7 +5808,8 @@ Seelenverwandtschaft	NN	positive	0.7
 Seelenverwandtschaft	NN	positive	1
 seelenvoll	ADJD	positive	1
 seelig	ADJD	positive	1
-seelisch_behindert	ADJA	negative	-1
+seelisch behindert	ADJD ADJA	negative	-1
+seelisch behindert	ADJD ADJD	negative	-1
 Segen	NN	positive	0.7
 Sehbehinderung	NN	negative	-0.7
 sehenswert	ADJD	positive	0.7
@@ -5850,12 +5879,9 @@ sexgierig	ADJA	negative	-0.7
 sexhungrig	ADJD	negative	-0.7
 Sexsucht	NN	negative	-1
 Sexualdelikt	NN	negative	-0.7
-sexuelle_Belästigung	ADJA	negative	-0.7
-sexuelle_Belästigung	NN	negative	-0.7
-sexuelle_Belästigung	ADJD	negative	-0.7
-sexueller_Missbrauch	ADJA	negative	-0.7
-sexueller_Missbrauch	NN	negative	-0.7
-sexueller_Mißbrauch	ADJA	negative	-0.7
+sexuelle Belästigung	ADJA NN	negative	-0.7
+sexueller Missbrauch	ADJA NN	negative	-0.7
+sexueller Mißbrauch	ADJA NN	negative	-0.7
 Sicherheit	NN	positive	1
 sichern	VVFIN	positive	0.7
 sicher	ADJD	positive	0.7
@@ -5873,7 +5899,7 @@ siegesgewiß	ADJD	positive	0.7
 siegessicher	ADJD	positive	0.7
 siegreich	ADJD	positive	1
 Silberhochzeit	NN	positive	0.7
-Silberne_Hochzeit	NN	positive	0.7
+Silberne Hochzeit	ADJA NN	positive	0.7
 simulieren	VVFIN	negative	-0.7
 sinnentleert	ADJD	negative	-0.7
 sinnfrei	ADJD	negative	-1
@@ -5889,7 +5915,8 @@ sittenlos	ADJD	negative	-1
 Sittlichkeitsverbrechen	NN	negative	-0.7
 sittlich	ADJD	positive	1
 sittsam	ADJD	positive	1
-sitzen_bleiben	ADJA	negative	-0.7
+sitzen bleiben	VVINF VVFIN	negative	-0.7
+sitzen bleiben	VVINF VVINF	negative	-0.7
 sitzenbleiben	VVFIN	negative	-0.7
 Sitzstreik	NN	negative	-0.7
 skandalös	ADJD	negative	-1
@@ -6176,8 +6203,8 @@ Süße	ADJA	positive	0.7
 Süße	NN	positive	0.7
 süß	ADJD	positive	0.7
 sympathieerweckend	ADJD	positive	1
-Sympathie_erweckend	ADJD	positive	1
-Sympathie_erweckend	ADJA	positive	1
+Sympathie erweckend	NN ADJA	positive	1
+Sympathie erweckend	NN ADJD	positive	1
 Sympathie	NN	positive	1
 sympathisch	ADJD	positive	1
 sympathisieren	VVFIN	positive	1
@@ -6221,7 +6248,7 @@ tätlich	ADJD	negative	-1
 Tat	NN	negative	-0.7
 Taubheit	NN	negative	-1
 taub	ADJD	negative	-1
-taub_werden	NN	negative	-1
+taub werden	ADJD VAFIN	negative	-1
 Tauglichkeit	NN	positive	1
 tauglich	ADJD	positive	0.7
 täuschend	ADJD	negative	-1
@@ -6264,7 +6291,8 @@ Therapie	NN	positive	0.7
 Thrombose	NN	negative	-1
 Thronraub	NN	negative	-0.7
 Tick	NN	negative	-0.7
-tief_bewegt	ADJA	positive	1
+tief bewegt	ADJA VVFIN	positive	1
+tief bewegt	ADJD VVPP	positive	1
 tiefbewegt	VVFIN	positive	1
 tiefbewegt	VVPP	positive	1
 Tiefenanalyse	NN	positive	0.7
@@ -6275,7 +6303,8 @@ Tief	NN	negative	-1
 tiefschürfend	ADJD	positive	1
 tiefsinnig	ADJD	positive	1
 tiefstapeln	VVFIN	negative	-1
-tief_traurig	ADJD	negative	-1
+tief traurig	ADJD ADJA	negative	-1
+tief traurig	ADJD ADJD	negative	-1
 tieftraurig	ADJD	negative	-1
 Tierfeindlichkeit	NN	negative	-1
 Tierfreundlichkeit	NN	positive	1
@@ -6417,14 +6446,17 @@ Turbulenz	NN	negative	-0.7
 Typhus	NN	negative	-1
 Tyrannei	NN	negative	-1
 tyrannisieren	VVFIN	negative	-1
-übel_gesinnt	ADJA	negative	-1
+übel gesinnt	ADJD ADJA	negative	-1
+übel gesinnt	ADJD ADJD	negative	-1
 übelgesinnt	ADJA	negative	-1
 Übelkeit	NN	negative	-1
 übellaunig	ADJD	negative	-1
 übel	ADJD	negative	-1
-übel_nehmen	NN	negative	-1
+übel nehmen	ADJD VVFIN	negative	-1
+übel nehmen	ADJD VVINF	negative	-1
 übelnehmen	VVFIN	negative	-1
-übel_wollend	ADJD	negative	-1
+übel wollend	ADJD ADJA	negative	-1
+übel wollend	ADJD ADJD	negative	-1
 übelwollend	ADJD	negative	-1
 Überaktivität	NN	negative	-0.7
 Überängstlichkeit	NN	negative	-1
@@ -6750,7 +6782,7 @@ Unglück	NN	negative	-1
 Unglücksursache	NN	negative	-0.7
 ungünstig	ADJD	negative	-1
 Ungunst	NN	negative	-1
-ungutes_Gefühl	NN	negative	-1
+ungutes Gefühl	ADJA NN	negative	-1
 ungut	ADJD	negative	-1
 unhaltbar	ADJD	negative	-1
 Unheilbarkeit	NN	negative	-1
@@ -7012,7 +7044,7 @@ väterlich	ADJD	positive	0.7
 vaterlos	ADJD	negative	-0.7
 vegetieren	VVINF	negative	-0.7
 vegetieren	VVFIN	negative	-0.7
-Venia_legendi	NE	positive	1
+Venia legendi	NE NE	positive	1
 verabreden	VVFIN	positive	0.7
 verabscheuen	VVFIN	negative	-1
 verabscheuungswürdig	ADJD	negative	-1
@@ -7298,7 +7330,8 @@ verlockend	ADJD	positive	1
 verlocken	VVFIN	negative	-1
 Verlogenheit	NN	negative	-1
 verlogen	ADJD	negative	-1
-verloren_gegangen	ADJA	negative	-0.7
+verloren gegangen	ADJD VVPP	negative	-0.7
+verloren gegangen	VVPP ADJA	negative	-0.7
 verlorengegangen	ADJD	negative	-0.7
 Verlorenheit	NN	negative	-0.7
 verloren	VVFIN	negative	-0.7
@@ -7307,7 +7340,8 @@ verlottert	VVFIN	negative	-1
 verlumpt	VVFIN	negative	-1
 verlumpt	VVPP	negative	-1
 verlustbringend	ADJD	negative	-1
-Verlust_bringend	ADJD	negative	-1
+Verlust bringend	NN ADJA	negative	-1
+Verlust bringend	NN ADJD	negative	-1
 verlustfrei	ADJD	positive	0.7
 Verlust	NN	negative	-1
 verlustreich	ADJD	negative	-1
@@ -7479,7 +7513,8 @@ vertragen	VVPP	positive	0.7
 Vertragsbruch	NN	negative	-0.7
 Vertragstreue	NN	positive	0.7
 vertrauenerweckend	ADJD	positive	1
-Vertrauen_erweckend	ADJD	positive	1
+Vertrauen erweckend	NN ADJA	positive	1
+Vertrauen erweckend	NN ADJD	positive	1
 Vertrauen	NN	positive	1
 vertrauensbildend	ADJD	positive	1
 Vertrauensbruch	NN	negative	-1
@@ -7591,17 +7626,18 @@ Volksaufstand	NN	negative	-0.7
 Volksverhetzung	NN	negative	-0.7
 Völlegefühl	NN	negative	-0.7
 Völlerei	NN	negative	-1
-voll_gefressen	ADJA	negative	-0.7
+voll gefressen	ADJD ADJA	negative	-0.7
+voll gefressen	ADJD VVPP	negative	-0.7
 vollgefressen	VVPP	negative	-0.7
-voll_gestopft	ADJA	negative	-0.7
+voll gestopft	ADJD ADJA	negative	-0.7
+voll gestopft	ADJD VVPP	negative	-0.7
 vollgestopft	VVPP	negative	-0.7
 Vollkommenheit	NN	positive	1
 vollmundig	ADJD	negative	-0.7
 Vollrausch	NE	negative	-1
 vollschlank	ADJD	positive	0.7
-voll_spucken	VVFIN	negative	-0.7
-voll_spucken	NN	negative	-0.7
-voll_spucken	ADJD	negative	-0.7
+voll spucken	ADJD VVFIN	negative	-0.7
+voll spucken	ADJD VVINF	negative	-0.7
 vollspucken	ADJA	negative	-0.7
 vollstopfen	VVFIN	negative	-0.7
 vollstramm	ADJD	negative	-1
@@ -7634,7 +7670,8 @@ vorheucheln	ADJA	negative	-1
 vorknöpfen	VVFIN	negative	-0.7
 vorlaut	ADJD	negative	-1
 Vorliebe	NN	positive	1
-vorlieb_nehmen	VVFIN	positive	1
+vorlieb nehmen	PTKVZ VVFIN	positive	1
+vorlieb nehmen	PTKVZ VVINF	positive	1
 vorliebnehmen	VVINF	positive	1
 vorlügen	VVINF	negative	-1
 vormachen	VVFIN	negative	-0.7
@@ -7867,7 +7904,8 @@ Wohlbefinden	NN	positive	1
 wohlerzogen	VVPP	positive	0.7
 wohlerzogen	VVFIN	positive	0.7
 Wohlfühlkur	NN	positive	0.7
-wohl_geformt	ADJD	positive	1
+wohl geformt	ADV ADJA	positive	1
+wohl geformt	ADV ADJD	positive	1
 wohlgeformt	VVPP	positive	1
 Wohlgefühl	NN	positive	1
 wohlgesinnt	ADJD	positive	0.7
@@ -7884,7 +7922,8 @@ Wohltätigkeit	NN	positive	1
 Wohltätigkeitsveranstaltung	NN	positive	0.7
 Wohltat	NN	positive	0.7
 wohltuend	ADJD	positive	0.7
-wohl_tun	ADJA	positive	0.7
+wohl tun	ADV VVFIN	positive	0.7
+wohl tun	ADV VVINF	positive	0.7
 wohltun	VVFIN	positive	0.7
 wohlwollend	ADJD	positive	1
 wohnungslos	ADJD	negative	-1
@@ -7947,7 +7986,8 @@ Zankapfel	NN	negative	-0.7
 zänkisch	ADJD	negative	-1
 Zank	NN	negative	-0.7
 zanksüchtig	ADJD	negative	-1
-zart_besaitet	ADJD	negative	-1
+zart besaitet	ADJD ADJA	negative	-1
+zart besaitet	ADJD VVPP	negative	-1
 zartbesaitet	ADJD	negative	-1
 Zartheit	NN	negative	-0.7
 Zärtlichkeit	NN	positive	1
@@ -8021,13 +8061,16 @@ Zuchtlosigkeit	NN	negative	-1
 Zuckerkrankheit	NN	negative	-1
 zuckerkrank	ADJD	negative	-1
 Zufälligkeit	NN	negative	-0.7
-zufrieden_geben	ADJA	positive	1
+zufrieden geben	ADJD VVFIN	positive	1
+zufrieden geben	ADJD VVINF	positive	1
 zufriedengeben	VVFIN	positive	1
 Zufriedenheit	NN	positive	1
 zufrieden	ADJD	positive	1
-zufrieden_sein	VVFIN	positive	1
+zufrieden sein	ADJD VAFIN	positive	1
+zufrieden sein	ADJD VAINF	positive	1
 zufriedenstellend	ADJD	positive	1
-zufrieden_stellen	NN	positive	0.7
+zufrieden stellen	ADJD VVINF	positive	0.7
+zufrieden stellen	ADJD VVFIN	positive	0.7
 zufriedenstellen	VVFIN	positive	0.7
 zufügen	VVINF	negative	-0.7
 zugeben	VVFIN	positive	0.7
@@ -8098,8 +8141,8 @@ zuvorkommend	ADJD	positive	0.7
 Zuwendung	NN	positive	0.7
 zuwiderhandeln	VVFIN	negative	-1
 Zuwiderhandlung	NN	negative	-0.7
-zuwider_sein	NE	negative	-1
-zuwider_sein	NN	negative	-1
+zuwider sein	ADV VAFIN	negative	-1
+zuwider sein	ADV VAINF	negative	-1
 Zwanghaftigkeit	NN	negative	-1
 zwanghaft	ADJD	negative	-1
 Zwanglosigkeit	NN	positive	0.7

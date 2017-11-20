@@ -15,6 +15,7 @@ Attributes:
 from __future__ import absolute_import, print_function, unicode_literals
 
 from bisect import bisect_left
+from itertools import chain
 from sklearn.metrics import f1_score
 from six import iterkeys
 import abc
@@ -150,6 +151,20 @@ class LexiconBaseAnalyzer(BaseAnalyzer):
         self._boundaries.restore()
         self._negations.restore()
         self._polar_terms.restore()
+
+    def train(self, train_x, train_y, dev_x, dev_y,
+              **kwargs):
+        # no training is required for this method
+        scores = [self._compute_so(tweet_i)
+                  for tweet_i in chain(train_x, dev_x)]
+        labels = [label_i
+                  for label_i in chain(train_y, dev_y)]
+        # check thresholds for every score type
+        f1, self._thresholds = self._optimize_thresholds(
+            scores, labels
+        )
+        self._logger.info("F1: %f; thresholds: %r;",
+                          f1, self._thresholds)
 
     @abc.abstractmethod
     def _compute_so(self, tweet):
@@ -289,7 +304,9 @@ class LexiconBaseAnalyzer(BaseAnalyzer):
 
         tagset = [k for k in iterkeys(IDX2CLS)]
         tagset.sort()
-        prev_threshold_idx = 0
+        assert len(tagset) - 1 <= len(set(score_space)), \
+            "Not enough scores to determine threshold for all labels."
+        prev_threshold_idx = 1
         prev_threshold = score_space[0] - 1
         # find best split point for each adjacent pair of labels
         for i in range(0, len(tagset) - 1):
@@ -328,7 +345,8 @@ class LexiconBaseAnalyzer(BaseAnalyzer):
                     best_threshold_idx = i
             thresholds.append(best_threshold)
             prev_threshold = best_threshold
-            prev_threshold_idx = best_threshold_idx
+            prev_threshold_idx = min(best_threshold_idx + 1,
+                                     len(score_space))
         return (best_f1, thresholds)
 
     def _preprocess(self, a_txt):

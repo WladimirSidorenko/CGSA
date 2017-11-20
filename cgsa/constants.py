@@ -58,6 +58,9 @@ KNN_LEX = os.path.join(LEX_DIR,
                        "knn.word2vec.kim_hovy_seedset.txt")
 LINPROJ_LEX = os.path.join(LEX_DIR,
                            "linproj.word2vec.kim_hovy_seedset.txt")
+# Conditional Probabilities of Lexicon Terms
+COND_PROB_FILE = os.path.join(LEX_DIR, "cond-probs")
+
 # Additional Sentiment Resources
 INTENSIFIER_PATH = os.path.join(DATA_DIR, "intensifiers.tsv")
 INTENSIFIERS = pd.read_table(INTENSIFIER_PATH, header=None,
@@ -75,11 +78,12 @@ DFLT_W2V_PATH = os.path.join(DATA_DIR, "vectors.word2vec")
 MODEL_DIR = os.path.join(DATA_DIR, "models")
 DFLT_MODEL_PATH = os.path.join(MODEL_DIR, "cgsa.model")
 
-TABOADA = "taboada"
+BILSTM = "bilstm"
+JUREK = "jurek"
 MOHAMMAD = "mohammad"
 MUSTO = "musto"
 SEVERYN = "severyn"
-BILSTM = "bilstm"
+TABOADA = "taboada"
 
 # labels
 POSITIVE = "positive"

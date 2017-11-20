@@ -1,0 +1,97 @@
+#!/usr/bin/gawk -f
+
+##################################################################
+function usage(ecode) {
+    printf("%s [OPTIONS] lexicon_file corpus_file(s)") > "/dev/stderr"
+    exit(ecode)
+}
+
+function generate_toks(ngrams, toks, n_toks, ngram_len,	\
+		       i, j, tok) {
+    split("", ngrams)
+    ngram_len -= 1
+    n_toks -= ngram_len
+    for (i = 1; i <= n_toks; ++i) {
+	tok = toks[i]
+	for (j = 1; j <= ngram_len; ++j) {
+	    tok = tok " " toks[i + j]
+	}
+	ngrams[tok] = 1
+    }
+}
+
+##################################################################
+BEGIN {
+    FS = OFS = "\t"
+    for (i = 1; i < ARGC; ++i) {
+	if (ARGV[i] ~ /^(-h|--help)$/) {
+	    usage(0)
+	} else if (ARGV[i] ~ /^--$/) {
+	    ARGV[i] == ""
+	    break
+	} else if (ARGV[i] ~ /^-.+/) {
+	    printf("Unrecognized option %s. Type --help to see usage.", \
+		   ARGV[i]) > "/dev/stderr"
+	    exit(1)
+	} else {
+	    break
+	}
+    }
+
+    if (ARGC < 3) {
+	printf("Invalid number of arguments.  Type --help to see usage.") > "/dev/stderr"
+	exit(2)
+    }
+    while ((ret = (getline < ARGV[1])) > 0) {
+	n = split($1, toks, /[_ ]+/)
+	ngram_lengths[n] = 1
+	key = toks[1]
+	for (i = 2; i <= n; ++i) {
+	    key = key " " toks[i]
+	}
+	total_counts[key] = 0
+	pos_counts[key] = 0
+	neg_counts[key] = 0
+    }
+    delete ARGV[1]
+    if (ret < 0) {
+	printf("Error while reading lexicon file %s.", ARGV[i]) > "/dev/stderr"
+	exit(3)
+    }
+}
+
+##################################################################
+NF {
+    label = $2
+    n_toks = split($4, toks, / +/)
+    for (nlen in ngram_lengths) {
+	generate_toks(ngrams, toks, n_toks, nlen)
+	for (ngram in ngrams) {
+	    if (!(ngram in total_counts))
+		continue
+
+	    total_counts[ngram] += 1
+	    if (label == "positive") {
+		pos_counts[ngram] += 1
+	    } else if (label == "negative") {
+		neg_counts[ngram] += 1
+	    }
+	}
+    }
+}
+
+##################################################################
+END {
+    n = asorti(total_counts, sorted_toks)
+    for (i = 1; i <= n; ++i) {
+    	tok = sorted_toks[i]
+    	ttl_cnt = total_counts[tok]
+    	if (ttl_cnt) {
+    	    printf("%s\t%f\t%f\n", tok, \
+    		   pos_counts[tok] / ttl_cnt, \
+    		   neg_counts[tok] / ttl_cnt)
+    	} else {
+    	    printf("%s\t0.\t0.\n", tok)
+    	}
+    }
+}

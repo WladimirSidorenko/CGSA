@@ -13,7 +13,7 @@ import sys
 from cgsa.cgsa import SentimentAnalyzer
 from cgsa.utils.common import LOGGER
 from cgsa.constants import (
-    DFLT_MODEL_PATH, ENCODING, BILSTM, MOHAMMAD,
+    COND_PROB_FILE, DFLT_MODEL_PATH, ENCODING, BILSTM, JUREK, MOHAMMAD,
     MUSTO, SEVERYN, TABOADA, THREE_CLASS)
 from cgsa.utils.data import Tweet
 
@@ -93,9 +93,13 @@ def main(argv):
         TRAIN, help="train model on the provided data")
     parser_train.add_argument("-t", "--type",
                               help="type(s) of the model(s) to train",
-                              choices=(BILSTM, MOHAMMAD, MUSTO, SEVERYN,
-                                       TABOADA),
+                              choices=(BILSTM, JUREK, MOHAMMAD, MUSTO,
+                                       SEVERYN, TABOADA),
                               required=True, type=str, action="append")
+    parser_train.add_argument("-c", "--cond-probs",
+                              help="file containing conditional probabilities"
+                              " of lexicon terms (used in the method of Jurek"
+                              " et al.)", type=str, default=COND_PROB_FILE)
     parser_train.add_argument("-d", "--dev",
                               help="development data",
                               action="append")
@@ -135,7 +139,8 @@ def main(argv):
                    for tweet_i in _read_data(args.dev, True)]
         LOGGER.debug("Initialining analyzer...")
         analyzer = SentimentAnalyzer(args.type,
-                                     lexicons=args.lexicon
+                                     lexicons=args.lexicon,
+                                     cond_probs=args.cond_probs
                                      )
         LOGGER.debug("Training analyzer...")
         analyzer.train(train_set, dev_set,

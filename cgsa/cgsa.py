@@ -25,7 +25,7 @@ import os
 from cgsa.base import BaseAnalyzer
 from cgsa.utils.common import LOGGER
 from cgsa.constants import (DFLT_MODEL_PATH, BILSTM,
-                            MOHAMMAD, MUSTO, SEVERYN,
+                            JUREK, MOHAMMAD, MUSTO, SEVERYN,
                             TABOADA, CLS2IDX, IDX2CLS)
 from cgsa.dl.base import DLBaseAnalyzer
 from cgsa.judge import DefaultJudge
@@ -265,21 +265,24 @@ class SentimentAnalyzer(object):
 
         """
         for model_i in a_models:
-            if model_i == TABOADA:
-                from cgsa.lexicon.taboada import TaboadaAnalyzer
-                self._models.append(TaboadaAnalyzer(*a_args, **a_kwargs))
+            if model_i == BILSTM:
+                from cgsa.dl.bilstm import BiLSTMAnalyzer
+                self._models.append(BiLSTMAnalyzer(*a_args, **a_kwargs))
+            elif model_i == JUREK:
+                from cgsa.lexicon.jurek import JurekAnalyzer
+                self._models.append(JurekAnalyzer(*a_args, **a_kwargs))
             elif model_i == MUSTO:
                 from cgsa.lexicon.musto import MustoAnalyzer
                 self._models.append(MustoAnalyzer(*a_args, **a_kwargs))
             elif model_i == MOHAMMAD:
                 from cgsa.ml.mohammad import MohammadAnalyzer
                 self._models.append(MohammadAnalyzer(*a_args, **a_kwargs))
-            elif model_i == BILSTM:
-                from cgsa.dl.bilstm import BiLSTMAnalyzer
-                self._models.append(BiLSTMAnalyzer(*a_args, **a_kwargs))
             elif model_i == SEVERYN:
                 from cgsa.dl.severyn import SeverynAnalyzer
                 self._models.append(SeverynAnalyzer(*a_args, **a_kwargs))
+            elif model_i == TABOADA:
+                from cgsa.lexicon.taboada import TaboadaAnalyzer
+                self._models.append(TaboadaAnalyzer(*a_args, **a_kwargs))
             else:
                 raise NotImplementedError
 

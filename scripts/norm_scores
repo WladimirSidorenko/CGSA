@@ -1,0 +1,79 @@
+#!/usr/bin/gawk -f
+
+##################################################################
+# Methods
+function parse_num(num) {
+    if (match(num, /^([[:digit:].]+)[eEdD]\+?([[:digit:]]+)$/, numparts)) {
+	return (0 + numparts[1])*10**numparts[2];
+    } else if (match(num, /^(-[[:digit:].]+)[eEdD]\+?([[:digit:]]+)$/, numparts)) {
+	return (0 - numparts[1])*10**numparts[2];
+    } else if (num ~ /^([[:digit:].]+)/) {
+	return 0 + num
+    } else if (num ~ /^(-[[:digit:].]+)/) {
+	return 0 - num
+    } else {
+	printf("Unrecognized number format: %s", num) > "/dev/stderr"
+	exit 3
+    }
+}
+
+function check_max(num) {
+    if (MAX - num < 1e305)
+	return 1
+
+    return 0
+}
+
+function check_min(num) {
+    if (MIN + num > 0 - 1e305)
+	return 1
+    return 0
+}
+
+##################################################################
+BEGIN {
+    MAX = 179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368
+    MIN = -179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368
+
+    FS = OFS = "\t"
+    max = -1e10
+    polfactor = 1.
+    COEFF = 1
+}
+
+##################################################################
+NR == FNR {
+    if (!NF)
+	next
+
+    score = parse_num($NF)
+    if (check_max(score) || check_min(score))
+	next
+
+    score = sqrt(score**2)
+    if (score > max)
+	max = score
+
+    next
+}
+
+NF {
+    if ($(NF - 1) == "positive")
+	polfactor = 1.
+    else if ($(NF - 1) == "negative")
+	polfactor = -1.
+
+    score = parse_num($NF)
+    if (check_max(score)) {
+	$NF = 1.
+    } else if (check_min(score)) {
+	$NF = -1.
+    } else {
+	$NF = (sqrt(score**2) / max) * polfactor
+    }
+    print
+}
+
+END {
+    print FILENAME, max, min > "/dev/stderr"
+}

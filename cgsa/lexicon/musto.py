@@ -9,20 +9,19 @@
 from __future__ import absolute_import, unicode_literals, print_function
 
 from cgsa.lexicon.base import LexiconBaseAnalyzer
-from itertools import chain
 from six.moves import range
 
 
 ##################################################################
 # Classes
 class MustoAnalyzer(LexiconBaseAnalyzer):
-    """Lexicon-based sentiment analysis using the method of Musto et al.
+    """Lexicon-based sentiment analysis method of Musto et al.
 
     Attributes:
 
     """
 
-    def __init__(self, lexicons=[]):
+    def __init__(self, lexicons=[], **kwargs):
         """Class constructor.
 
         Args:
@@ -69,20 +68,6 @@ class MustoAnalyzer(LexiconBaseAnalyzer):
         super(MustoAnalyzer, self).__init__(lexicons)
         self.name = "musto"
         self._thresholds = None
-
-    def train(self, train_x, train_y, dev_x, dev_y,
-              **kwargs):
-        # no training is required for this method
-        scores = [self._compute_so(tweet_i)
-                  for tweet_i in chain(train_x, dev_x)]
-        labels = [label_i
-                  for label_i in chain(train_y, dev_y)]
-        # check thresholds for every score type
-        f1, self._thresholds = self._optimize_thresholds(
-            scores, labels
-        )
-        self._logger.info("F1: %f; thresholds: %r;",
-                          f1, self._thresholds)
 
     def _compute_so(self, tweet):
         forms = [self._preprocess(w_i.form)
