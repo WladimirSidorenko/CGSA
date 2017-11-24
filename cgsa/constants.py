@@ -80,6 +80,7 @@ DFLT_MODEL_PATH = os.path.join(MODEL_DIR, "cgsa.model")
 
 BILSTM = "bilstm"
 JUREK = "jurek"
+KOLCHYNA = "kolchyna"
 MOHAMMAD = "mohammad"
 MUSTO = "musto"
 SEVERYN = "severyn"

@@ -25,8 +25,8 @@ import os
 from cgsa.base import BaseAnalyzer
 from cgsa.utils.common import LOGGER
 from cgsa.constants import (DFLT_MODEL_PATH, BILSTM,
-                            JUREK, MOHAMMAD, MUSTO, SEVERYN,
-                            TABOADA, CLS2IDX, IDX2CLS)
+                            JUREK, KOLCHYNA, MOHAMMAD, MUSTO,
+                            SEVERYN, TABOADA, CLS2IDX, IDX2CLS)
 from cgsa.dl.base import DLBaseAnalyzer
 from cgsa.judge import DefaultJudge
 
@@ -271,6 +271,9 @@ class SentimentAnalyzer(object):
             elif model_i == JUREK:
                 from cgsa.lexicon.jurek import JurekAnalyzer
                 self._models.append(JurekAnalyzer(*a_args, **a_kwargs))
+            elif model_i == KOLCHYNA:
+                from cgsa.lexicon.kolchyna import KolchynaAnalyzer
+                self._models.append(KolchynaAnalyzer(*a_args, **a_kwargs))
             elif model_i == MUSTO:
                 from cgsa.lexicon.musto import MustoAnalyzer
                 self._models.append(MustoAnalyzer(*a_args, **a_kwargs))

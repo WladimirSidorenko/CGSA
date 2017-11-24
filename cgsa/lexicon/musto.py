@@ -67,7 +67,6 @@ class MustoAnalyzer(LexiconBaseAnalyzer):
         """
         super(MustoAnalyzer, self).__init__(lexicons)
         self.name = "musto"
-        self._thresholds = None
 
     def _compute_so(self, tweet):
         forms = [self._preprocess(w_i.form)

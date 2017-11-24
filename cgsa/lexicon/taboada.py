@@ -14,11 +14,10 @@ from collections import Counter
 from itertools import chain
 from operator import mod
 from six import itervalues
-import re
 
 from cgsa.constants import INTENSIFIERS
 from cgsa.lexicon.base import (LexiconBaseAnalyzer, PRIMARY_LABEL_SCORE,
-                               SECONDARY_LABEL_SCORE)
+                               SECONDARY_LABEL_SCORE, SENT_PUNCT_RE)
 
 ##################################################################
 # Variables and Constants
@@ -82,7 +81,6 @@ IRREALIS = set(["erwarte", "erwartest", "erwartet", "erwarten",
                 "etwas", "irgendetwas",
                 "beliebig", "beliebige", "beliebiger", "beliebigem",
                 "beliebigen", "beliebiges"])
-SENT_PUNCT_RE = re.compile(r"^[.;:!?]$")
 NOT_WANTED_ADJ = set(["andere", "anderen", "anderem", "anderes", "anderer",
                       "gleiche", "gleichen", "gleichem", "gleiches",
                       "gleicher",
@@ -178,7 +176,6 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
         self._use_abs_so = False
         self._use_cnt_so = False
         self._use_mean_so = False
-        self._thresholds = None
 
     def train(self, train_x, train_y, dev_x, dev_y,
               **kwargs):
@@ -644,31 +641,6 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
             i -= 1
         return False
 
-    def _find_next_boundary(self, index, boundaries, left=True):
-        """Find nearest boundary on the left
-
-        Args:
-          index (int): position to find the nearest boundary for
-          boundaries (list[tuple]): positions of boundaries
-          left (bool): find left-most boundary (otherwise, right-most boundary
-            is searched)
-
-        Return:
-          int: position of the nearest boundary on the left from index
-
-        """
-        boundary_idx = bisect_left(boundaries, (index, index))
-        if boundary_idx < len(boundaries):
-            boundary_start, boundary_end = boundaries[boundary_idx]
-            if boundary_start <= index <= boundary_end:
-                return index
-        if left:
-            boundary_idx -= 1
-        if 0 <= boundary_idx < len(boundaries):
-            _, boundary_end = boundaries[boundary_idx]
-            return boundary_end
-        return -1
-
     def _get_sent_highlighter(self, start, end, lemmas):
         """Find items that might increase polar score.
 
@@ -684,25 +656,6 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
         for i in range(start, end):
             if lemmas[i] in HIGHLIGHTERS:
                 return lemmas[i]
-        return ""
-
-    def _get_sent_punct(self, index, forms, boundaries):
-        """Find closest punctuation mark on the right from index.
-
-        Args:
-          index (int): index of the polar term
-          forms (list[str]): original tweet tokens
-          boundaries (list[int]): boundary tokens
-
-        Returns:
-          str: closest punctuation mark on the right or empty string
-
-        """
-        idx = bisect_left(boundaries, (index, index))
-        for boundary in boundaries[idx:]:
-            tok = forms[boundary[0]]
-            if SENT_PUNCT_RE.match(tok):
-                return tok
         return ""
 
     def _has_sent_irrealis(self, left, right, forms, lemmas, tags):

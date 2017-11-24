@@ -8,14 +8,9 @@
 # Imports
 from __future__ import absolute_import, unicode_literals, print_function
 
-from cgsa.base import LEX_CLMS, LEX_TYPES, NEG_SFX_RE
-from cgsa.lexicon.base import LexiconBaseAnalyzer
-from cgsa.constants import (COND_PROB_FILE, ENCODING,
-                            SPACE_RE, USCORE_RE, QUOTE_NONE)
-from cgsa.utils.trie import Trie
+from cgsa.lexicon.base import CondProbLexiconBaseAnalyzer
+from cgsa.constants import COND_PROB_FILE
 import numpy as np
-import pandas as pd
-import os
 
 ##################################################################
 # Variables and Constants
@@ -24,7 +19,7 @@ P = 3.5
 
 ##################################################################
 # Classes
-class JurekAnalyzer(LexiconBaseAnalyzer):
+class JurekAnalyzer(CondProbLexiconBaseAnalyzer):
     """Lexicon-based sentiment analysis method of Jurek et al.
 
     """
@@ -111,7 +106,6 @@ class JurekAnalyzer(LexiconBaseAnalyzer):
         self._cond_probs = self._load_cond_probs(cond_probs)
         super(JurekAnalyzer, self).__init__(lexicons)
         self.name = "jurek"
-        self._thresholds = None
 
     def _compute_so(self, tweet):
         forms = [self._preprocess(w_i.form)
@@ -205,85 +199,8 @@ class JurekAnalyzer(LexiconBaseAnalyzer):
         self._logger.debug("final sentiment score: %f;", F)
         return F
 
-    def _load_cond_probs(self, cond_prob_fname):
-        """Load conditional probabilities of lexicon terms.
-
-        Args:
-          cond_prob_fname (str): path to the file containing conditional
-            probabilities
-
-        Returns:
-          dict: positive and negative conditional probabilitis of lexicon terms
-
-        """
-        prob_table = pd.read_table(cond_prob_fname, header=None,
-                                   names=("term", "positive", "negative"),
-                                   dtype={"term": str,
-                                          "positive": float,
-                                          "negative": float},
-                                   encoding=ENCODING,
-                                   error_bad_lines=False,
-                                   warn_bad_lines=True,
-                                   keep_default_na=False,
-                                   na_values=[''],
-                                   quoting=QUOTE_NONE)
-        cond_probs = {}
-        for _, row_i in prob_table.iterrows():
-            # Jurek et al. use scores in the range [-100, 100]
-            probs = (row_i.positive * 100, row_i.negative * 100)
-            cond_probs[row_i.term] = probs
-            if row_i.term != row_i.term.lower():
-                cond_probs[row_i.term.lower] = probs
-        return cond_probs
-
-    def _read_lexicons(self, a_lexicons, a_encoding=ENCODING):
-        """Overrides the method of the parent class, superseding.
-
-        Args:
-          a_lexicons (list): tags of the input instance
-          a_encoding (str): input encoding
-
-        Returns:
-          cgsa.utils.trie.Trie: constructed polar terms trie
-
-        """
-        ret = Trie(a_ignorecase=True)
-        for lexpath_i in a_lexicons:
-            lexname = os.path.splitext(os.path.basename(
-                lexpath_i
-            ))[0]
-            self._logger.debug(
-                "Reading lexicon %s...", lexname
-            )
-            lexicon = pd.read_table(lexpath_i, header=None, names=LEX_CLMS,
-                                    dtype=LEX_TYPES, encoding=a_encoding,
-                                    error_bad_lines=False, warn_bad_lines=True,
-                                    keep_default_na=False, na_values=[''],
-                                    quoting=QUOTE_NONE)
-            for i, row_i in lexicon.iterrows():
-                term = USCORE_RE.sub(' ', row_i.term)
-                polarity = row_i.polarity
-                # Jurek et al. use scores in the range [-100, 100]
-                term_score = row_i.score * 100.
-                if term in self._cond_probs:
-                    if polarity == "positive":
-                        term_score = self._cond_probs[term][0]
-                    else:
-                        term_score = self._cond_probs[term][1]
-                elif term.lower() in self._cond_probs:
-                    if polarity == "positive":
-                        term_score = self._cond_probs[term][0]
-                    else:
-                        term_score = self._cond_probs[term][1]
-                if NEG_SFX_RE.search(term):
-                    # Taboada's method explicitly accounts for negations, so we
-                    # skip negated entries from the lexicon altogether
-                    continue
-                term = self._preprocess(term)
-                ret.add(SPACE_RE.split(term),
-                        SPACE_RE.split(row_i.pos),
-                        (lexname, polarity, term_score))
-            self._logger.debug(
-                "Lexicon %s read...", lexname
-            )
-        return ret
+    def _get_score(self, term, polarity, lexicon_score):
+        # Jurek et al. use scores in the range [-100, 100]
+        score = super(JurekAnalyzer, self).__init__(term, polarity,
+                                                    lexicon_score)
+        return score * 100.

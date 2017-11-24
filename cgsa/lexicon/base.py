@@ -22,6 +22,7 @@ import abc
 import numpy as np
 import pandas as pd
 import os
+import re
 
 from cgsa.constants import (CLS2IDX, IDX2CLS, INTENSIFIERS, PUNCT_RE,
                             SPACE_RE, USCORE_RE)
@@ -49,14 +50,13 @@ NEGATIONS = ["nicht", "kein", "keine", "keiner", "keinem", "keines", "keins",
              "Mangel", "frei von"]
 PRIMARY_LABEL_SCORE = 0.51
 SECONDARY_LABEL_SCORE = (1. - PRIMARY_LABEL_SCORE) / float(len(CLS2IDX) - 1)
+SENT_PUNCT_RE = re.compile(r"^[.;:!?]$")
 
 
 ##################################################################
 # Classes
 class LexiconBaseAnalyzer(BaseAnalyzer):
     """Abstract class for lexicon-based sentiment analysis.
-
-    Attributes:
 
     """
     __metaclass__ = abc.ABCMeta
@@ -90,11 +90,12 @@ class LexiconBaseAnalyzer(BaseAnalyzer):
                        self.nouns, self.verbs)
             return ret
 
-    def __init__(self, lexicons=[]):
+    def __init__(self, lexicons=[], **kwargs):
         """Class constructor.
 
         Args:
           lexicons (list[str]): list of sentiment lexicons
+          kwargs (dict): keyword arguments
 
         """
         assert lexicons, \
@@ -103,6 +104,7 @@ class LexiconBaseAnalyzer(BaseAnalyzer):
         self._intensifiers = self._read_intensifiers(INTENSIFIERS)
         self._boundaries = self._words2trie(BOUNDARIES)
         self._negations = self._words2trie(NEGATIONS)
+        self._thresholds = None
         self._polar_terms = self._read_lexicons(lexicons,
                                                 a_encoding=ENCODING)
 
@@ -199,6 +201,50 @@ class LexiconBaseAnalyzer(BaseAnalyzer):
                       in self._boundaries.select_llongest(boundaries)]
         return boundaries
 
+    def _find_next_boundary(self, index, boundaries, left=True):
+        """Find nearest boundary on the left
+
+        Args:
+          index (int): position to find the nearest boundary for
+          boundaries (list[tuple]): positions of boundaries
+          left (bool): find left-most boundary (otherwise, right-most boundary
+            is searched)
+
+        Return:
+          int: position of the nearest boundary on the left from index
+
+        """
+        boundary_idx = bisect_left(boundaries, (index, index))
+        if boundary_idx < len(boundaries):
+            boundary_start, boundary_end = boundaries[boundary_idx]
+            if boundary_start <= index <= boundary_end:
+                return index
+        if left:
+            boundary_idx -= 1
+        if 0 <= boundary_idx < len(boundaries):
+            _, boundary_end = boundaries[boundary_idx]
+            return boundary_end
+        return -1
+
+    def _get_sent_punct(self, index, forms, boundaries):
+        """Find closest punctuation mark on the right from index.
+
+        Args:
+          index (int): index of the polar term
+          forms (list[str]): original tweet tokens
+          boundaries (list[int]): boundary tokens
+
+        Returns:
+          str: closest punctuation mark on the right or empty string
+
+        """
+        idx = bisect_left(boundaries, (index, index))
+        for boundary in boundaries[idx:]:
+            tok = forms[boundary[0]]
+            if SENT_PUNCT_RE.match(tok):
+                return tok
+        return ""
+
     def _join_scores(self, matches):
         """Sum scores of all matches.
 
@@ -213,6 +259,37 @@ class LexiconBaseAnalyzer(BaseAnalyzer):
         """
         return [(sum(res[-1] for res in results), start, end)
                 for results, start, end in matches]
+
+    def _load_cond_probs(self, cond_prob_fname):
+        """Load conditional probabilities of lexicon terms.
+
+        Args:
+          cond_prob_fname (str): path to the file containing conditional
+            probabilities
+
+        Returns:
+          dict: positive and negative conditional probabilitis of lexicon terms
+
+        """
+        prob_table = pd.read_table(cond_prob_fname, header=None,
+                                   names=("term", "positive", "negative"),
+                                   dtype={"term": str,
+                                          "positive": float,
+                                          "negative": float},
+                                   encoding=ENCODING,
+                                   error_bad_lines=False,
+                                   warn_bad_lines=True,
+                                   keep_default_na=False,
+                                   na_values=[''],
+                                   quoting=QUOTE_NONE)
+        cond_probs = {}
+        for _, row_i in prob_table.iterrows():
+            # Jurek et al. use scores in the range [-100, 100]
+            probs = (row_i.positive * 100, row_i.negative * 100)
+            cond_probs[row_i.term] = probs
+            if row_i.term != row_i.term.lower():
+                cond_probs[row_i.term.lower] = probs
+        return cond_probs
 
     def _read_intensifiers(self, intensifiers=INTENSIFIERS):
         """Read intensifiers from file.
@@ -400,3 +477,79 @@ class LexiconBaseAnalyzer(BaseAnalyzer):
             terms = SPACE_RE.split(self._preprocess(term))
             ret.add(terms, [None] * len(terms), 1.)
         return ret
+
+
+class CondProbLexiconBaseAnalyzer(LexiconBaseAnalyzer):
+    """Abstract class for lexicon-based SA using conditional probabilities.
+
+    """
+    __metaclass__ = abc.ABCMeta
+
+    def _read_lexicons(self, a_lexicons, a_encoding=ENCODING):
+        """Overrides the method of the parent class, superseding.
+
+        Args:
+          a_lexicons (list): tags of the input instance
+          a_encoding (str): input encoding
+
+        Returns:
+          cgsa.utils.trie.Trie: constructed polar terms trie
+
+        """
+        ret = Trie(a_ignorecase=True)
+        for lexpath_i in a_lexicons:
+            lexname = os.path.splitext(os.path.basename(
+                lexpath_i
+            ))[0]
+            self._logger.debug(
+                "Reading lexicon %s...", lexname
+            )
+            lexicon = pd.read_table(lexpath_i, header=None, names=LEX_CLMS,
+                                    dtype=LEX_TYPES, encoding=a_encoding,
+                                    error_bad_lines=False, warn_bad_lines=True,
+                                    keep_default_na=False, na_values=[''],
+                                    quoting=QUOTE_NONE)
+            for i, row_i in lexicon.iterrows():
+                term = USCORE_RE.sub(' ', row_i.term)
+                polarity = row_i.polarity
+                if NEG_SFX_RE.search(term):
+                    # Taboada's method explicitly accounts for negations, so we
+                    # skip negated entries from the lexicon altogether
+                    continue
+                term = self._preprocess(term)
+                term_score = self._get_term_score(term, polarity, row_i.score)
+                if term_score == 0.:
+                    continue
+                ret.add(SPACE_RE.split(term),
+                        SPACE_RE.split(row_i.pos),
+                        (lexname, polarity, term_score))
+            self._logger.debug(
+                "Lexicon %s read...", lexname
+            )
+        return ret
+
+    def _get_term_score(self, term, polarity, lexicon_score):
+        """Obtain term's score from conditional probabilities table.
+
+        Args:
+          term (str): term whose conditional probability should be checked
+          polarity (str): polarity class of the term
+          lexicon_score (float): sentiment score of the term from the lexicon
+            (used as fallback)
+
+        Returns:
+          float: conditional probability of the term or its original
+            lexicon score
+
+        """
+        if term in self._cond_probs:
+            chck_term = term
+        else:
+            chck_term = term.lower()
+            if chck_term not in self._cond_probs:
+                return lexicon_score
+
+        pos_prob, neg_prob = self._cond_probs[chck_term]
+        if polarity == "positive":
+            return pos_prob
+        return -neg_prob
