@@ -51,6 +51,30 @@ NEGATIONS = ["nicht", "kein", "keine", "keiner", "keinem", "keines", "keins",
 PRIMARY_LABEL_SCORE = 0.51
 SECONDARY_LABEL_SCORE = (1. - PRIMARY_LABEL_SCORE) / float(len(CLS2IDX) - 1)
 SENT_PUNCT_RE = re.compile(r"^[.;:!?]$")
+SKIP = {"adj": set(["selbst", "sogar", "zu", "sein", "bin", "bist", "ist",
+                    "sind", "seid", "war", "warst", "wart", "waren", "wäre",
+                    "wärest", "wäret", "wären", "habe", "hast", "hat",
+                    "haben", "habt", "gehabt", "hätte", "hättest", "hätten",
+                    "hättet", "hätte", "hättest", "hätten", "hättet",
+                    "mache", "machst", "macht", "machen", "machte", "machtest",
+                    "machst", "machst", "machst", "machst", "machst", "done",
+                    "des", "der", "als", "ART", "PPOSAT"]),
+        "adv": set(["VVFIN", "VVIMP", "VVINF", "VVIZU", "VVPP", "VAFIN",
+                    "VAIMP", "VAINF", "VAPP", "VMFIN", "VMINF", "VMPP"]),
+        "verb": set(["PTKZU", "sein", "bin", "bist", "ist",
+                     "sind", "seid", "war", "warst", "wart", "waren", "wäre",
+                     "wärest", "wäret", "wären", "habe", "hast", "hat",
+                     "haben", "habt", "hätte", "hättest", "hätten", "hättet",
+                     "hätte", "hättest", "hätten", "hättet"]),
+        "noun": set(["PWAT", "ART", "PDAT", "PIAT", "PIDAT", "PDAT", "PPOSAT",
+                     "PRELAT", "PWAT", "TRUNC", "NN", "NE", "der", "des",
+                     "von", "habe", "hast", "hat", "haben", "habt", "gehabt",
+                     "hätte", "hättest", "hätten", "hättet", "hätte",
+                     "hättest", "hätten", "hättet", "komme", "kommst", "kommt",
+                     "kommen", "komme", "kommst", "komme", "kommst", "mit",
+                     "enthalten", "enthalte", "enthältst", "enthält",
+                     "enthaltet", "enthaltete", "enthaltetest", "enthaltetet",
+                     "enthalteten", "enthaltetet", "enthalten", "enthalten"])}
 
 
 ##################################################################
@@ -200,6 +224,51 @@ class LexiconBaseAnalyzer(BaseAnalyzer):
                       for _, start, end
                       in self._boundaries.select_llongest(boundaries)]
         return boundaries
+
+    def _find_negation(self, index,
+                       neg_matches, boundaries,
+                       forms, lemmas, tags, word_type):
+        """Look for negations appearing in the nearby context.
+
+        Args:
+          index (int): index of the potentially negated word
+          neg_matches (list[tuple]): negation matches
+          boundaries (list[tuple]): boundary matches
+          forms (list[str]): tokens of the analyzed message
+          lemmas (list[str]): lemmas of the analyzed message
+          tags (list[str]): tags of the analyzed message
+          word_type (str): part of speech of the potentially negated
+            word
+
+        Returns:
+          bool: true if negation was found
+
+        """
+        not_found = (-1, -1)
+        search_idx = (index, index)
+        # check if there is any negation preceding the polar term
+        neg_idx = bisect_left(neg_matches, search_idx) - 1
+        if neg_idx < 0:
+            return not_found
+        neg_start, neg_end = neg_matches[neg_idx]
+        # check if there is a boundary between polar term and negation
+        boundary = self._find_next_boundary(index, boundaries)
+        if boundary > neg_end:
+            self._logger.debug("negation prevented by blocking")
+            return not_found
+        # otherwise, check if every token between the negtion and the polar
+        # term can be skipped
+        skip_items = SKIP["noun"]
+        for i in range(neg_end + 1, index):
+            for item_i in (forms[i], lemmas[i], tags[i]):
+                if item_i in skip_items:
+                    continue
+            self._logger.debug(
+                "negation prevented by non-skipped term: %r, %r, %r",
+                forms[i], lemmas[i], tags[i]
+            )
+            return not_found
+        return (neg_start, neg_end)
 
     def _find_next_boundary(self, index, boundaries, left=True):
         """Find nearest boundary on the left

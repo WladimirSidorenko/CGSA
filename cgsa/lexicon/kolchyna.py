@@ -22,6 +22,7 @@ import numpy as np
 PARAM_GRID = {"n_neighbors": [3, 5, 7],
               "weights": ["uniform", "distance"]}
 
+
 ##################################################################
 # Classes
 class KolchynaAnalyzer(CondProbLexiconBaseAnalyzer):
