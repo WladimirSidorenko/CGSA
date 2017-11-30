@@ -44,7 +44,7 @@ function get_prnt_idx(tok_offset, prnt_id) {
 
 function output_tweet() {
     if (toks) {
-	label = get_label(toks)
+	# label = get_label(toks)
 
 	printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n", msg_id,
 	       label, toks, lemmas, tags, deps, feats)
@@ -66,6 +66,8 @@ BEGIN {
     output_tweet()
     if ($2 == "id")
 	msg_id = $NF
+    else if ($2 == "label")
+	label = $NF
     next
 }
 
