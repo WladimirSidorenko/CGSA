@@ -477,8 +477,9 @@ class LexiconBaseAnalyzer(BaseAnalyzer):
                 #     "Predicted labels: %r", predicted_labels
                 # )
                 # estimate new F1 score
-                f1 = f1_score(predicted_labels, gold_labels,
-                              average="macro")
+                f1 = f1_score(
+                    predicted_labels, gold_labels, average="macro"
+                )
                 self._logger.debug(
                     "F1 score: %f", f1
                 )
