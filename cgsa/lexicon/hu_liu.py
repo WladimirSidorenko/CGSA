@@ -51,9 +51,10 @@ class HuLiuAnalyzer(LexiconBaseAnalyzer):
         boundaries = self._find_boundaries(match_input)
         self._logger.debug("boundaries: %r", boundaries)
         # match negations
-        neg_matches = [(start, end)
-                       for _, start, end
-                       in self._negations.search(match_input)]
+        neg_matches = []
+        # neg_matches = [(start, end)
+        #                for _, start, end
+        #                in self._negations.search(match_input)]
         self._logger.debug("matched negations: %r", neg_matches)
         # in contrast to the original approach, we do not consider the polarity
         # of the previous tweet in case of a tie
