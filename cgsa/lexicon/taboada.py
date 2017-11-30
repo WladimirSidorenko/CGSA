@@ -446,7 +446,7 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
 
     def _apply_modifiers(self, score, pol_term_index, right_edge,
                          forms, lemmas, tags, boundaries):
-        """Check for additional modying elements.
+        """Check for additional modyfing elements.
 
         Args:
           score (float): score of the polar term
