@@ -261,9 +261,10 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
                        in self._intensifiers.search(match_input)}
         self._logger.debug("matched intensifiers: %r", int_matches)
         # match negations
-        neg_matches = [(start, end)
-                       for _, start, end
-                       in self._negations.search(match_input)]
+        # neg_matches = [(start, end)
+        #                for _, start, end
+        #                in self._negations.search(match_input)]
+        neg_matches = []
         self._logger.debug("matched negations: %r", neg_matches)
         # match blocking constructs
         boundaries = self._find_boundaries(match_input)
