@@ -150,18 +150,18 @@ class KolchynaAnalyzer(CondProbLexiconBaseAnalyzer):
         self._logger.debug("boundaries: %r", boundaries)
         # match negations
         negated_words = set()
-        for _, start, end in self._negations.search(match_input):
-            # skip exceptions
-            if ((end < len(lemmas) - 1
-                 and ((lemmas[end] == "kein" and lemmas[end + 1] == "fall")
-                      or (lemmas[end] == "nicht"
-                          and lemmas[end + 1] == "nur")))
-                    or '?' in self._get_sent_punct(end, forms, boundaries)):
-                continue
-            negated_words |= set(range(start,
-                                       self._find_next_boundary(end,
-                                                                boundaries,
-                                                                left=False)))
+        # for _, start, end in self._negations.search(match_input):
+        #     # skip exceptions
+        #     if ((end < len(lemmas) - 1
+        #          and ((lemmas[end] == "kein" and lemmas[end + 1] == "fall")
+        #               or (lemmas[end] == "nicht"
+        #                   and lemmas[end + 1] == "nur")))
+        #             or '?' in self._get_sent_punct(end, forms, boundaries)):
+        #         continue
+        #     negated_words |= set(range(start,
+        #                                self._find_next_boundary(end,
+        #                                                         boundaries,
+        #                                                         left=False)))
         self._logger.debug("negated words: %r", negated_words)
         # match polar terms
         polterm_matches = self._join_scores(
