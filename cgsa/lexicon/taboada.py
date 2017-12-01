@@ -256,9 +256,10 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
         # match intensifiers (note: we are only interested in the last and
         # first positions of the matches, with the possibility to lookup the
         # start by the end position)
-        int_matches = {end: (start, score)
-                       for score, start, end
-                       in self._intensifiers.search(match_input)}
+        # int_matches = {end: (start, score)
+        #                for score, start, end
+        #                in self._intensifiers.search(match_input)}
+        int_matches = {}
         self._logger.debug("matched intensifiers: %r", int_matches)
         # match negations
         neg_matches = [(start, end)
