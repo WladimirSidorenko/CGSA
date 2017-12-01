@@ -433,8 +433,8 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
                 if neg_int_score:
                     score_i *= 1. + neg_int_score
             # apply other modifiers (uppercase, irrealis, quotes, etc)
-            score_i = self._apply_modifiers(score_i, start_i, prev_pos,
-                                            forms, lemmas, tags, boundaries)
+            # score_i = self._apply_modifiers(score_i, start_i, prev_pos,
+            #                                 forms, lemmas, tags, boundaries)
             if score_i:
                 cnt_key = ' '.join(lemmas[start_i:end_i + 1])
                 counts[cnt_key] += 1
