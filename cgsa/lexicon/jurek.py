@@ -121,9 +121,10 @@ class JurekAnalyzer(CondProbLexiconBaseAnalyzer):
             self._polar_terms.search(match_input))
         self._logger.debug("polterm_matches: %r;", polterm_matches)
         # match negations
-        neg_matches = set([end
-                           for _, _, end
-                           in self._negations.search(match_input)])
+        # neg_matches = set([end
+        #                    for _, _, end
+        #                    in self._negations.search(match_input)])
+        neg_matches = []
         self._logger.debug("matched negations: %r", neg_matches)
         # match intensifiers
         int_matches = set([end
