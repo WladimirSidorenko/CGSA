@@ -41,6 +41,7 @@ LEX_TYPES = {TERM: str, POS: str, POLARITY: str, SCORE: float}
 NEG_SFX = r"_NEG"
 NEG_SFX_RE = re.compile(re.escape(re.escape(NEG_SFX)
                                   + r"(:?FIRST)?'"))
+SZET_RE = 'ß'
 AT_RE = re.compile(r"\b@\w+", re.U)
 URI_RE = re.compile(
     r"\b((?:[\w]{3,5}://?|(?:www|bit)[.]|(?:\w[-\w]+[.])+"
@@ -282,6 +283,7 @@ class BaseAnalyzer(object):
           str: preprocessed text
 
         """
+        a_txt = SZET_RE.sub("ss", a_txt).strip()
         a_txt = SSPACE_RE.sub(' ', a_txt).strip()
         a_txt = AT_RE.sub("@someuser", a_txt)
         a_txt = URI_RE.sub("http://someuri", a_txt)
