@@ -3634,3 +3634,5 @@ zweckmässig	ADJD	positive	0.588582
 zweifrontenkrieg	NN	negative	-0.996702
 zynisch	ADJA	negative	-0.767507
 zynisch	ADJD	negative	-0.767507
+%PosSmiley	ITJ	positive	0.9
+%NegSmiley	ITJ	negative	-0.9

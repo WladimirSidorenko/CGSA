@@ -9809,3 +9809,5 @@ zwistigkeit	NN	negative	-0.016496
 zwist	NN	negative	-0.0184935
 zynisch	ADJA	negative	-0.0605509
 zynisch	ADJD	negative	-0.0605509
+%PosSmiley	ITJ	positive	0.9
+%NegSmiley	ITJ	negative	-0.9

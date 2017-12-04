@@ -44761,3 +44761,5 @@ Zwischenton	NN	negative	-0.01
 zynisch	ADJA	negative	-0.01
 zynisch	ADJD	negative	-0.01
 Zynismus	NN	negative	-0.01
+%PosSmiley	ITJ	positive	0.9
+%NegSmiley	ITJ	negative	-0.9

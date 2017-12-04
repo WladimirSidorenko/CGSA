@@ -102218,3 +102218,5 @@ zzzzzzzzz	NN	positive	0.04754
 zzzzzzzzzz	NN	positive	0.686583
 zzzzzzzzzzz	NN	positive	0.319128
 zzzzzzzzzzzz	NN	positive	0.661839
+%PosSmiley	ITJ	positive	0.9
+%NegSmiley	ITJ	negative	-0.9

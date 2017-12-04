@@ -10665,3 +10665,5 @@ Zwischenspeicherung	NN	positive	0.7
 Zwist	NN	negative	-0.7
 zynisch	ADJA	negative	-1
 zynisch	ADJD	negative	-1
+%PosSmiley	ITJ	positive	0.9
+%NegSmiley	ITJ	negative	-0.9

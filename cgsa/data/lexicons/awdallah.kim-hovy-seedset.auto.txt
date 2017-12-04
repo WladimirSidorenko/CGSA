@@ -325,3 +325,5 @@ zerstört	ADJD	negative	-1.000000
 zerstört	VVPP	negative	-1.000000
 zunichtemachen	VVFIN	negative	-0.571429
 zwei	CARD	positive	1.000000
+%PosSmiley	ITJ	positive	0.9
+%NegSmiley	ITJ	negative	-0.9

@@ -693,3 +693,5 @@ zweckmässig	ADJA	positive	0.000007
 zweckmässig	ADJD	positive	0.000007
 zweitklassig	ADJA	negative	-7e-06
 zweitklassig	ADJD	negative	-7e-06
+%PosSmiley	ITJ	positive	0.9
+%NegSmiley	ITJ	negative	-0.9

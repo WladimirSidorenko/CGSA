@@ -90137,3 +90137,5 @@ zzzzzzzz	NN	negative	-0.507433
 用例	ADJA	negative	-0.688346
 用例	NN	negative	-0.688346
 【翠】auf	NN	negative	-0.528151
+%PosSmiley	ITJ	positive	0.9
+%NegSmiley	ITJ	negative	-0.9

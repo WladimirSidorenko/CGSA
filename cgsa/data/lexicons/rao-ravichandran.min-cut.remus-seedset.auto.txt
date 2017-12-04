@@ -11280,3 +11280,5 @@ zwitschern	VVFIN	positive	1.000000
 zyklische zeiteinheit	ADJA	positive	1.000000
 zyklus	NN	positive	1.000000
 zynismus	ADJA	negative	-1.000000
+%PosSmiley	ITJ	positive	0.9
+%NegSmiley	ITJ	negative	-0.9

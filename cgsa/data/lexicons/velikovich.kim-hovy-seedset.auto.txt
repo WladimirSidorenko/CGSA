@@ -33006,3 +33006,5 @@ zypern	NE	positive	0.298336
 zzgtv	NE	negative	-0.193038
 zzw.	NE	negative	-0.807788
 #zzz	NN	negative	-0.146027
+%PosSmiley	ITJ	positive	0.9
+%NegSmiley	ITJ	negative	-0.9

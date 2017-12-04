@@ -5167,3 +5167,5 @@ zynisch	ADJA	negative	-0.125
 zynisch	ADJD	negative	-0.125
 zytotoxisch	ADJA	negative	-0.25
 zytotoxisch	ADJD	negative	-0.25
+%PosSmiley	ITJ	positive	0.9
+%NegSmiley	ITJ	negative	-0.9

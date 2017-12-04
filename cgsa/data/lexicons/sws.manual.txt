@@ -35657,3 +35657,5 @@ zwieträchtigster	ADJA	negative	-0.0048
 zwieträchtigstes	ADJA	negative	-0.0048
 Zwietracht	NN	negative	-0.0048
 zwingen	VVFIN	negative	-0.4975
+%PosSmiley	ITJ	positive	0.9
+%NegSmiley	ITJ	negative	-0.9

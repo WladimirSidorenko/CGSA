@@ -52705,3 +52705,5 @@ zzt.	NN	negative	-0.618229
 на	ADJA	negative	-0.76399
 ღ	ADJA	negative	-0.728897
 【自動】deine	ADJA	negative	-0.772021
+%PosSmiley	ITJ	positive	0.9
+%NegSmiley	ITJ	negative	-0.9

@@ -51571,3 +51571,5 @@ zypriotin	NN	negative	-0.750065
 zypriotisch	ADJA	negative	-0.750101
 zypriotisch	ADJD	negative	-0.750101
 zypriot	NE	negative	-0.750065
+%PosSmiley	ITJ	positive	0.9
+%NegSmiley	ITJ	negative	-0.9
