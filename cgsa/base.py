@@ -41,7 +41,7 @@ LEX_TYPES = {TERM: str, POS: str, POLARITY: str, SCORE: float}
 NEG_SFX = r"_NEG"
 NEG_SFX_RE = re.compile(re.escape(re.escape(NEG_SFX)
                                   + r"(:?FIRST)?'"))
-SZET_RE = 'ß'
+SZET_RE = re.compile('ß')
 AT_RE = re.compile(r"\b@\w+", re.U)
 URI_RE = re.compile(
     r"\b((?:[\w]{3,5}://?|(?:www|bit)[.]|(?:\w[-\w]+[.])+"
