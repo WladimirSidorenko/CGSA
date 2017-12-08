@@ -39,6 +39,8 @@ NEUTRAL = "neutral"
 MACRO_CLASSES = [POSITIVE, NEGATIVE]
 MICRO_CLASSES = [POSITIVE, NEGATIVE, NEUTRAL]
 
+SORT_ARGS = {"by": [ID], "axis": 0, "inplace": True, "kind": "heapsort"}
+
 
 ##################################################################
 # Methods
@@ -69,7 +71,7 @@ def read_file(fname, germeval=False):
             header=None, skipinitialspace=True, encoding=ENCODING)
     # only leave data with labels (positive, negative, or neutral)
     ret = ret.loc[lambda df: df.polarity.isin(MICRO_CLASSES)]
-    ret.sort_values(by=[ID], axis=0, inplace=True, kind="heapsort")
+    ret.sort_values(**SORT_ARGS)
     return ret
 
 
@@ -89,7 +91,9 @@ def read_dir(fnames, germeval=False):
         os.path.exists(fname_i) and os.access(fname_i, os.R_OK), \
             "Cannot read file {!r}.".format(fname_i)
         dframes.append(read_file(fname_i, germeval))
-    return pd.concat(dframes)
+    ret = pd.concat(dframes)
+    ret.sort_values(**SORT_ARGS)
+    return ret
 
 
 def read_data(path, glob_ptrn, germeval=False):
@@ -187,10 +191,14 @@ def main(argv):
     pred_data = read_data(args.pred_file, args.glob_ptrn, args.germeval)
 
     # check whether we have the same set of ids in both datasets
-    gold_ids = set(gold_data.loc[:, ID])
-    pred_ids = set(pred_data.loc[:, ID])
-    xor_ids = (gold_ids - pred_ids) | (pred_ids - gold_ids)
-    assert not xor_ids, "Unmatched ids: {!r}".format(xor_ids)
+    gold_ids = gold_data.loc[:, ID]
+    gold_ids_set = set(gold_ids)
+    pred_ids = pred_data.loc[:, ID]
+    pred_ids_set = set(pred_ids)
+    xor_ids = (gold_ids_set - pred_ids_set) | (pred_ids_set - gold_ids_set)
+    assert all(gold_ids.values == pred_ids.values), \
+        "Unmatched ids: {!r} vs. {!r} (ids present in just one" \
+        " of the sets: {!r})".format(gold_ids, pred_ids, xor_ids)
 
     # compute and output classification statistics
     compute_stat(gold_data, pred_data, args.verbose)
