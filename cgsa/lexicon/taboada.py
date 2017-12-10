@@ -341,6 +341,10 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
             # check the comparison degree of adjectives
             if pos == "adj":
                 if term_form in NOT_WANTED_ADJ or term_lemma in NOT_WANTED_ADJ:
+                    self._logger.debug(
+                        "Adjective %r listed in NOT_WANTED_ADJ (skipping)",
+                        term_form
+                    )
                     continue
                 skip_term = False
                 for j in range(start_i, end_i + 1):
@@ -356,6 +360,9 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
                         skip_term = not self._check4predicate(left_boundary,
                                                               start_i, tags)
                         break
+                self._logger.debug(
+                    "skip term (%r) = %r", term_form, skip_term
+                )
                 if skip_term:
                     continue
                 # look past determiners and "as" for intensification
@@ -464,8 +471,10 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
         snt_punct = self._get_sent_punct(pol_term_index, forms, boundaries)
         if forms[pol_term_index].isupper():
             score *= 2.  # capital modifier
+            self._logger.debug("applying capital modifier")
         if '!' in snt_punct:
             score *= 2.  # exclam modifier
+            self._logger.debug("applying exclamation modifier")
         boundary = self._find_next_boundary(right_edge,
                                             boundaries) + 1
         highlighter = self._get_sent_highlighter(boundary,
@@ -474,6 +483,7 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
         if highlighter:
             self._logger.debug("score increased by highlighter")
             score *= HIGHLIGHTERS[highlighter]
+            self._logger.debug("applying highlighter")
         if '?' in snt_punct and not self._check4determiners(
                 right_edge, forms, lemmas, tags):
             self._logger.debug("semantic orientation blocked by question mark")
