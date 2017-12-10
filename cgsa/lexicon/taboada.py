@@ -531,7 +531,7 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
 
         """
         for i in range(end, max(-1, start - 1)):
-            if tags[i].startswith():
+            if tags[i].startswith('V'):
                 return True
         return False
 
