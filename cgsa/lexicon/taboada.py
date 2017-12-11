@@ -350,15 +350,15 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
                 for j in range(start_i, end_i + 1):
                     if feats[j].get("comp"):
                         int_score += CMP_COEFF
+                        skip_term = not self._check4predicate(left_boundary,
+                                                              start_i, tags)
+                        break
+                    elif feats[j].get("sup"):
+                        int_score += 1.
                         skip_term = not (self._check4predicate(left_boundary,
                                                                start_i, tags)
                                          and self._check4determiners(
                                              start_i, forms, lemmas, tags, 2))
-                        break
-                    elif feats[j].get("sup"):
-                        int_score += 1.
-                        skip_term = not self._check4predicate(left_boundary,
-                                                              start_i, tags)
                         break
                 self._logger.debug(
                     "skip term (%r) = %r", term_form, skip_term
