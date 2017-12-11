@@ -530,7 +530,7 @@ class TaboadaAnalyzer(LexiconBaseAnalyzer):
           bool: True if determiner was found
 
         """
-        for i in range(end, max(-1, start - 1)):
+        for i in range(end, start, -1):
             if tags[i].startswith('V'):
                 return True
         return False
