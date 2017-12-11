@@ -196,7 +196,8 @@ def main(argv):
     pred_ids = pred_data.loc[:, ID]
     pred_ids_set = set(pred_ids)
     xor_ids = (gold_ids_set - pred_ids_set) | (pred_ids_set - gold_ids_set)
-    assert all(gold_ids.values == pred_ids.values), \
+    assert len(gold_ids) == len(pred_ids) \
+        and all(gold_ids.values == pred_ids.values), \
         "Unmatched ids: {!r} vs. {!r} (ids present in just one" \
         " of the sets: {!r})".format(gold_ids, pred_ids, xor_ids)
 
