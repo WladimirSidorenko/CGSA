@@ -180,7 +180,7 @@ class KolchynaAnalyzer(CondProbLexiconBaseAnalyzer):
                 log_score = np.log10(abs(10. * mean_score))
                 if mean_score < 0:
                     log_score *= -1
-        self._logger.debug("mean_score: %f; log_score: %f;",
+        self._logger.debug("mean_score: %E; log_score: %E;",
                            mean_score, log_score)
         return (mean_score, log_score)
 
