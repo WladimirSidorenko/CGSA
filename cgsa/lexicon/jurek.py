@@ -117,6 +117,8 @@ class JurekAnalyzer(CondProbLexiconBaseAnalyzer):
                        for f, l, t
                        in zip(forms, lemmas, tags)]
         # match polar term
+        self._logger.debug("polterm_matches: %r;",
+                           self._polar_terms.search(match_input))
         polterm_matches = self._join_scores(
             self._polar_terms.search(match_input))
         self._logger.debug("polterm_matches: %r;", polterm_matches)
