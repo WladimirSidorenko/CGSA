@@ -120,9 +120,6 @@ class State(object):
 
         """
         ret = set()
-        # print("istring:", repr(istring))
-        # print("ipos:", repr(ipos))
-        # print("self.transitions:", repr(self.transitions))
         if ipos is None:
             for (string, _), trg_states in iteritems(self.transitions):
                 if string == istring:
