@@ -18,13 +18,11 @@ from sklearn.svm import LinearSVC
 import numpy as np
 import re
 
-from cgsa.constants import DFLT_AUTO_LEXICA, DFLT_MANUAL_LEXICA
 from cgsa.ml.base import ALEX, MLBaseAnalyzer
 
 ##################################################################
 # Variables and Constants
-DEBUG = False
-DFLT_C = 0.02
+DFLT_C = 0.01
 DFLT_CLS_WGHT = None
 DFLT_PARAMS = {"class_weight": DFLT_CLS_WGHT, "loss": "hinge",
                "penalty": "l1", "dual": True,
@@ -119,25 +117,31 @@ class MohammadAnalyzer(MLBaseAnalyzer):
 
     """
 
-    def __init__(self, auto_lexicons=DFLT_MANUAL_LEXICA,
-                 manual_lexicons=DFLT_AUTO_LEXICA,
-                 a_clf=None):
+    def __init__(self, lexicons, a_clf=None, **kwargs):
         """Class constructor.
 
         Args:
-          auto_lexicons (list[str]): list of automatically compiled
-            lexicons
-          manual_lexicons (list[str]): list of manually compiled lexicons
+          lexicons (list[str]): list of sentiment lexicons
           a_clf (None or Classifier Instance): classifier to use (None for
             default)
+          kwargs (dict): additional keyword arguments
 
         """
-        super(MohammadAnalyzer, self).__init__(auto_lexicons, manual_lexicons)
-        self.name = "NRC-Canada"
+        # initialize parent class
+        super(MohammadAnalyzer, self).__init__(**kwargs)
+        self.name = "mohammad"
+        # read lexicons
+        self._term2mnl = defaultdict(dict)
+        self._neg_term2mnl = defaultdict(dict)
+        self._term2auto = defaultdict(dict)
+        self._neg_term2auto = defaultdict(dict)
+        self._read_lexicons({"manual": (self._term2mnl, self._neg_term2mnl),
+                             "auto": (self._term2auto, self._neg_term2auto)},
+                            lexicons)
+        # set up classifier
         clf = a_clf or LinearSVC(C=DFLT_C, **DFLT_PARAMS)
         self._model = Pipeline([("vect", DictVectorizer()),
                                 ("clf", clf)])
-        self.N_JOBS = 1
         self.PARAM_GRID = PARAM_GRID
         self._cs_fallback = False
         self._feats2tertiles = {}
@@ -161,6 +165,7 @@ class MohammadAnalyzer(MLBaseAnalyzer):
           dict: extracted features and their values
 
         """
+        self._logger.debug("tweet: %s", a_tweet)
         feats = {}
         toks = [self._preprocess(w.lemma) for w in a_tweet]
         text = ' '.join(toks)
@@ -193,6 +198,7 @@ class MohammadAnalyzer(MLBaseAnalyzer):
         # lexicon features
         self._lex_feats(feats, ngrams, toks, tags)
         self._tertilize_feats(feats)
+        self._logger.debug("feats: %r", feats)
         return feats
 
     def _extract_ngrams(self, a_feats, a_input, a_min_len, a_max_len,
@@ -429,11 +435,8 @@ class MohammadAnalyzer(MLBaseAnalyzer):
             else:
                 key2check = orig_ngram.lower()
             if key2check in lex2chck:
-                if DEBUG:
-                    print(
-                        "key2check {!r} found: {!r}".format(
-                            key2check, lex2chck[key2check]
-                        ), file=sys.stderr)
+                self._logger.debug("key2check %r found: %r",
+                                   key2check, lex2chck[key2check])
                 for ikey in keys:
                     for (lexname, pol), lex_scores \
                             in iteritems(lex2chck[key2check]):
@@ -455,25 +458,21 @@ class MohammadAnalyzer(MLBaseAnalyzer):
                                 scores[feat_name] = lex_score_max
                             feat_name = feat_prfx + "_sum"
                             scores[feat_name] += lex_score_sum
-                            # START: average feature
-                            # feat_name = feat_prfx + "_avg"
-                            # scores[feat_name] += lex_score_sum \
-                            #     / float(len(lex_scores))
-                            # END: average feature
-                            # START: token feature
-                            # if ipol != ALL_POL:
-                            #     feat_name = feat_prfx + '_' \
-                            #         + SSPACE_RE.sub('_', key2check)
-                            #     scores[feat_name] += lex_score_sum
-                            # END: token feature
+                            feat_name = feat_prfx + "_avg"
+                            scores[feat_name] += lex_score_sum \
+                                / float(len(lex_scores))
+                            if ipol != ALL_POL:
+                                feat_name = feat_prfx + '_' \
+                                    + SSPACE_RE.sub('_', key2check)
+                                scores[feat_name] += lex_score_sum
                             pos = idcs[0]
                             if pos == max_pos:
                                 feat_name = feat_prfx + "_last"
                                 scores[feat_name] = lex_score_sum
             del keys[:]
-        if DEBUG and scores:
-            print("_auto_lex_feats: scores = {:s}".format(repr(scores)),
-                  file=sys.stderr)
+        self._logger.debug("_auto_lex_feats: toks = %r", a_toks)
+        self._logger.debug("_auto_lex_feats: tags = %r", a_tags)
+        self._logger.debug("_auto_lex_feats: scores = %r", scores)
         a_feats.update(scores)
 
     def _mnl_lex_feats(self, a_feats, a_ngrams, a_toks, a_tags):
@@ -517,10 +516,9 @@ class MohammadAnalyzer(MLBaseAnalyzer):
                 lex2chck = self._term2mnl
                 ctxt = AFF_CTXT
             if orig_ngram in lex2chck:
-                if DEBUG:
-                    print("_mnl_lex_feats: lex2chck[{:s}] = {:s}".format(
-                        repr(orig_ngram), repr(lex2chck[orig_ngram])),
-                          file=sys.stderr)
+                self._logger.debug("_mnl_lex_feats: lex2chck[%r] = %r",
+                                   orig_ngram,
+                                   lex2chck[orig_ngram])
                 for (lexname, pol), lex_scores \
                         in iteritems(lex2chck[orig_ngram]):
                     for ikey in keys:
@@ -530,13 +528,9 @@ class MohammadAnalyzer(MLBaseAnalyzer):
                                                      key=ikey)
                         scores[feat_name] += sum(lex_scores)
             del keys[:]
-        if DEBUG and scores:
-            print("_mnl_lex_feats: toks = {:s}".format(repr(a_toks)),
-                  file=sys.stderr)
-            print("_mnl_lex_feats: tags = {:s}".format(repr(a_tags)),
-                  file=sys.stderr)
-            print("_mnl_lex_feats: scores = {:s}".format(repr(scores)),
-                  file=sys.stderr)
+        self._logger.debug("_mnl_lex_feats: toks = %r", a_toks)
+        self._logger.debug("_mnl_lex_feats: tags = %r", a_tags)
+        self._logger.debug("_mnl_lex_feats: scores = %r", scores)
         a_feats.update(scores)
 
     def _get_tertile(self, val, tertiles):

@@ -9,7 +9,7 @@
 from __future__ import absolute_import, unicode_literals, print_function
 
 from collections import defaultdict
-from six import iteritems
+from six import iteritems, string_types
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import f1_score, make_scorer
 import abc
@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 
 from cgsa.base import BaseAnalyzer
+from cgsa.utils.common import LOGGER
 
 ##################################################################
 # Variables and Constants
@@ -32,20 +33,24 @@ class MLBaseAnalyzer(BaseAnalyzer):
 
     """
 
-    def __init__(self, lexicons=[], a_clf=None):
+    def __init__(self, **kwargs):
         """Class constructor.
 
         Args:
-          lexicons (list[str]): list of lexicons
-          a_clf (None or Classifier Instance): classifier to use (None for
-            default)
+          kwargs (dict): additional keyword arguments
 
         """
-        super(MLBaseAnalyzer, self).__init__(lexicons=lexicons)
+        super(MLBaseAnalyzer, self).__init__(**kwargs)
         self.name = "MLBaseAnalyzer"
         self._model = None
         self.N_JOBS = 1
         self.PARAM_GRID = {}
+
+    def restore(self):
+        """Restore members which could not be serialized.
+
+        """
+        self._logger = LOGGER
 
     def train(self, train_x, train_y, dev_x, dev_y, a_grid_search):
         self._logger.debug("Training %s...", self.name)
@@ -120,7 +125,7 @@ class MLBaseAnalyzer(BaseAnalyzer):
         feats2vals = defaultdict(list)
         for feats_i in feats:
             for k, v in iteritems(feats_i):
-                if isinstance(k, basestring) and k.startswith(ALEX):
+                if isinstance(k, string_types) and k.startswith(ALEX):
                     feats2vals[k].append(v)
         marks = np.linspace(0, 100, num=n, endpoint=False)
         self._feats2tertiles = {

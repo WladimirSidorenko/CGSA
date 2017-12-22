@@ -231,19 +231,17 @@ class BaseAnalyzer(object):
 
         """
         for lexpath_i in a_lexicons:
-            fname = os.path.splitext(os.path.basename(
-                lexpath_i
-            ))
+            fname = os.path.basename(lexpath_i).split('.')
             lexname = fname[0]
             lextype = fname[-2] if len(fname) > 1 else ""
-            LOGGER.debug(
+            self._logger.debug(
                 "Reading lexicon %s...", lexname
             )
             if lextype not in a_lextype2lex:
                 if "any" in a_lextype2lex:
                     pos_term2polscore, neg_term2polscore = a_lextype2lex["any"]
                 else:
-                    self._logger.error("Unknown lexicon type: {:s}." % lextype)
+                    self._logger.error("Unknown lexicon type: %s." % lextype)
                     raise NotImplementedError
             else:
                 # determine target dictionaries for storing positive and
@@ -262,14 +260,14 @@ class BaseAnalyzer(object):
                 else:
                     trg_lex = pos_term2polscore
                 term = self._preprocess(term)
-                lex_key = (lexname, row_i.polclass)
+                lex_key = (lexname, row_i.polarity)
 
                 term = term.lower()
                 if lex_key not in trg_lex[term]:
                     trg_lex[term][lex_key] = [row_i.score]
                 else:
                     trg_lex[term][lex_key].append(row_i.score)
-            LOGGER.debug(
+            self._logger.debug(
                 "Lexicon %s read...", lexname
             )
 

@@ -137,7 +137,7 @@ def main(argv):
         LOGGER.debug("Reading development set...")
         dev_set = [tweet_i
                    for tweet_i in _read_data(args.dev, True)]
-        LOGGER.debug("Initialining analyzer...")
+        LOGGER.debug("Initializing analyzer...")
         analyzer = SentimentAnalyzer(args.type,
                                      lexicons=args.lexicon,
                                      cond_probs=args.cond_probs
