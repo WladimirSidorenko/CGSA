@@ -25,9 +25,9 @@ import os
 from cgsa.base import BaseAnalyzer
 from cgsa.utils.common import LOGGER
 from cgsa.constants import (DFLT_MODEL_PATH, BILSTM,
-                            HU_LIU, JUREK, KOLCHYNA, MOHAMMAD,
-                            MUSTO, SEVERYN, TABOADA, CLS2IDX,
-                            IDX2CLS)
+                            GUENTHER, HU_LIU, JUREK, KOLCHYNA,
+                            MOHAMMAD, MUSTO, SEVERYN, TABOADA,
+                            CLS2IDX, IDX2CLS)
 from cgsa.dl.base import DLBaseAnalyzer
 from cgsa.judge import DefaultJudge
 
@@ -269,6 +269,9 @@ class SentimentAnalyzer(object):
             if model_i == BILSTM:
                 from cgsa.dl.bilstm import BiLSTMAnalyzer
                 analyzer_cls = BiLSTMAnalyzer
+            elif model_i == GUENTHER:
+                from cgsa.ml.guenther import GuentherAnalyzer
+                analyzer_cls = GuentherAnalyzer
             elif model_i == HU_LIU:
                 from cgsa.lexicon.hu_liu import HuLiuAnalyzer
                 analyzer_cls = HuLiuAnalyzer

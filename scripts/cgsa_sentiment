@@ -13,8 +13,8 @@ import sys
 from cgsa.cgsa import SentimentAnalyzer
 from cgsa.utils.common import LOGGER
 from cgsa.constants import (
-    COND_PROB_FILE, DFLT_MODEL_PATH, ENCODING, BILSTM, HU_LIU, JUREK,
-    KOLCHYNA, MOHAMMAD, MUSTO, SEVERYN, TABOADA, THREE_CLASS)
+    COND_PROB_FILE, DFLT_MODEL_PATH, ENCODING, BILSTM, GUENTHER, HU_LIU,
+    JUREK, KOLCHYNA, MOHAMMAD, MUSTO, SEVERYN, TABOADA, THREE_CLASS)
 from cgsa.utils.data import Tweet
 
 
@@ -93,8 +93,9 @@ def main(argv):
         TRAIN, help="train model on the provided data")
     parser_train.add_argument("-t", "--type",
                               help="type(s) of the model(s) to train",
-                              choices=(BILSTM, HU_LIU, JUREK, KOLCHYNA,
-                                       MOHAMMAD, MUSTO, SEVERYN, TABOADA),
+                              choices=(BILSTM, GUENTHER, HU_LIU, JUREK,
+                                       KOLCHYNA, MOHAMMAD, MUSTO, SEVERYN,
+                                       TABOADA),
                               required=True, type=str, action="append")
     parser_train.add_argument("-c", "--cond-probs",
                               help="file containing conditional probabilities"

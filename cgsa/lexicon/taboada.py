@@ -14,12 +14,13 @@ from collections import Counter
 from itertools import chain
 from operator import mod
 from six import itervalues
+from six.moves import range
 
 from cgsa.constants import INTENSIFIERS
+from cgsa.base import SENT_PUNCT_RE
 from cgsa.lexicon.base import (LexiconBaseAnalyzer,
                                PRIMARY_LABEL_SCORE,
                                SECONDARY_LABEL_SCORE,
-                               SENT_PUNCT_RE,
                                SKIP)
 
 ##################################################################

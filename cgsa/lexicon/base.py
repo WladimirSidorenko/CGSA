@@ -12,7 +12,8 @@ Attributes:
 
 ##################################################################
 # Imports
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
 
 from bisect import bisect_left
 from itertools import chain
@@ -24,8 +25,8 @@ import pandas as pd
 import os
 import re
 
-from cgsa.constants import (CLS2IDX, IDX2CLS, INTENSIFIERS, PUNCT_RE,
-                            SPACE_RE, USCORE_RE)
+from cgsa.constants import (BOUNDARIES, CLS2IDX, IDX2CLS, INTENSIFIERS,
+                            NEGATIONS, PUNCT_RE, SPACE_RE, USCORE_RE)
 from cgsa.base import (BaseAnalyzer, ENCODING, LEX_CLMS, LEX_TYPES,
                        NEG_SFX_RE, QUOTE_NONE)
 from cgsa.utils.common import LOGGER
@@ -34,23 +35,8 @@ from cgsa.utils.trie import Trie
 
 ##################################################################
 # Variables and Constants
-BOUNDARIES = ["aber", "und", "oder", "weil", "denn", "während",
-              "nachdem", "bevor", "als", "wenn", "obwohl",
-              "jedoch", "obgleich", "wenngleich", "immerhin",
-              "ob", "falls", "sofern", "wann", "welche", "welcher",
-              "welchem", "welchen", "welches", "trotz", "dadurch",
-              "damit", "daher", "deswegen", "dann", "folglich",
-              "dementsprechend", "demnach", "deshalb", "somit",
-              "somit", "daher", "hierdurch", "wo", "wobei", "dabei",
-              "wohingegen", "wogegen", "bis",
-              "außer", "dass"]
-NEGATIONS = ["nicht", "kein", "keine", "keiner", "keinem", "keines", "keins",
-             "weder", "nichts", "nie", "niemals", "niemand",
-             "entbehren", "vermissen", "ohne", "Abwesenheit", "Fehlen",
-             "Mangel", "frei von"]
 PRIMARY_LABEL_SCORE = 0.51
 SECONDARY_LABEL_SCORE = (1. - PRIMARY_LABEL_SCORE) / float(len(CLS2IDX) - 1)
-SENT_PUNCT_RE = re.compile(r"^[.;:!?]$")
 SKIP = {"adj": set(["selbst", "sogar", "zu", "sein", "bin", "bist", "ist",
                     "sind", "seid", "war", "warst", "wart", "waren", "wäre",
                     "wärest", "wäret", "wären", "habe", "hast", "hat",
@@ -164,8 +150,6 @@ class LexiconBaseAnalyzer(BaseAnalyzer):
         super(LexiconBaseAnalyzer, self).reset()
         self._logger = None
         self._intensifiers.reset()
-        self._boundaries.reset()
-        self._negations.reset()
         self._polar_terms.reset()
 
     def restore(self):
@@ -204,26 +188,6 @@ class LexiconBaseAnalyzer(BaseAnalyzer):
 
         """
         raise NotImplementedError
-
-    def _find_boundaries(self, match_input):
-        """Determine boundaries which block propagation.
-
-        Args:
-          match_input (list[tuple]): list of tuples comprising forms, lemmas,
-            and part-of-speech tags
-
-        Returns:
-          list[tuple]: indices of matched boundaries
-
-        """
-        boundaries = self._boundaries.search(match_input)
-        for i, (tok_i, _, _) in enumerate(match_input):
-            if PUNCT_RE.search(tok_i):
-                boundaries.append((None, i, i))
-        boundaries = [(start, end)
-                      for _, start, end
-                      in self._boundaries.select_llongest(boundaries)]
-        return boundaries
 
     def _find_negation(self, index,
                        neg_matches, boundaries,
@@ -294,25 +258,6 @@ class LexiconBaseAnalyzer(BaseAnalyzer):
             _, boundary_end = boundaries[boundary_idx]
             return boundary_end
         return -1
-
-    def _get_sent_punct(self, index, forms, boundaries):
-        """Find closest punctuation mark on the right from index.
-
-        Args:
-          index (int): index of the polar term
-          forms (list[str]): original tweet tokens
-          boundaries (list[int]): boundary tokens
-
-        Returns:
-          str: closest punctuation mark on the right or empty string
-
-        """
-        idx = bisect_left(boundaries, (index, index))
-        for boundary in boundaries[idx:]:
-            tok = forms[boundary[0]]
-            if SENT_PUNCT_RE.match(tok):
-                return tok
-        return ""
 
     def _join_scores(self, matches):
         """Sum scores of all matches.
@@ -529,23 +474,6 @@ class LexiconBaseAnalyzer(BaseAnalyzer):
                     break
             else:
                 ret.adverbs.append(match_i)
-        return ret
-
-    def _words2trie(self, words):
-        """Convert collection of words to a trie.
-
-        Args:
-          words (iterable): collection of untagged words
-
-        Returns:
-          (cgsa.utils.trie.Trie): trie
-
-        """
-        ret = Trie()
-        for w_i in words:
-            term = USCORE_RE.sub(' ', w_i)
-            terms = SPACE_RE.split(self._preprocess(term))
-            ret.add(terms, [None] * len(terms), 1.)
         return ret
 
 

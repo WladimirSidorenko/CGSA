@@ -14,6 +14,7 @@ Attributes:
 # Imports
 from __future__ import absolute_import, print_function, unicode_literals
 
+from bisect import bisect_left
 from collections import defaultdict
 from csv import QUOTE_NONE
 from sklearn.model_selection import StratifiedKFold
@@ -28,7 +29,10 @@ import pandas as pd
 import re
 
 from cgsa.utils.common import LOGGER
-from cgsa.constants import ENCODING, NFOLDS, SSPACE_RE, USCORE_RE
+from cgsa.utils.trie import Trie
+from cgsa.constants import (BOUNDARIES, ENCODING, NEGATIONS,
+                            NFOLDS, PUNCT_RE, SPACE_RE, SSPACE_RE,
+                            USCORE_RE)
 
 ##################################################################
 # Variables and Constants
@@ -36,6 +40,7 @@ TERM = "term"
 POS = "pos"                # part of speech tags
 POLARITY = "polarity"
 SCORE = "score"
+SENT_PUNCT_RE = re.compile(r"^[.;:!?]$")
 LEX_CLMS = (TERM, POS, POLARITY, SCORE)
 LEX_TYPES = {TERM: str, POS: str, POLARITY: str, SCORE: float}
 NEG_SFX = r"_NEG"
@@ -87,6 +92,8 @@ class BaseAnalyzer(object):
         self._logger = LOGGER
         self._term2lex = defaultdict(dict)
         self._neg_term2lex = defaultdict(dict)
+        self._boundaries = self._words2trie(BOUNDARIES)
+        self._negations = self._words2trie(NEGATIONS)
         self._read_lexicons({"any": (self._term2lex, self._neg_term2lex)},
                             kwargs.get("lexicons", []))
 
@@ -136,6 +143,8 @@ class BaseAnalyzer(object):
 
         """
         self._logger = None
+        self._boundaries.reset()
+        self._negations.reset()
 
     def _load(self):
         """Re-initialize reset members.
@@ -156,6 +165,26 @@ class BaseAnalyzer(object):
 
         """
         raise NotImplementedError
+
+    def _find_boundaries(self, match_input):
+        """Determine boundaries which block propagation.
+
+        Args:
+          match_input (list[tuple]): list of tuples comprising forms, lemmas,
+            and part-of-speech tags
+
+        Returns:
+          list[tuple]: indices of matched boundaries
+
+        """
+        boundaries = self._boundaries.search(match_input)
+        for i, (tok_i, _, _) in enumerate(match_input):
+            if PUNCT_RE.search(tok_i):
+                boundaries.append((None, i, i))
+        boundaries = [(start, end)
+                      for _, start, end
+                      in self._boundaries.select_llongest(boundaries)]
+        return boundaries
 
     def _get_cv(self, train_x, train_y, dev_x, dev_y, n_folds=NFOLDS):
         """Generate cross-validator from training and development data.
@@ -213,6 +242,25 @@ class BaseAnalyzer(object):
         train_x += dev_x
         train_y += dev_y
         return folds, train_x, train_y
+
+    def _get_sent_punct(self, index, forms, boundaries):
+        """Find closest punctuation mark on the right from index.
+
+        Args:
+          index (int): index of the polar term
+          forms (list[str]): original tweet tokens
+          boundaries (list[int]): boundary tokens
+
+        Returns:
+          str: closest punctuation mark on the right or empty string
+
+        """
+        idx = bisect_left(boundaries, (index, index))
+        for boundary in boundaries[idx:]:
+            tok = forms[boundary[0]]
+            if SENT_PUNCT_RE.match(tok):
+                return tok
+        return ""
 
     def _read_lexicons(self, a_lextype2lex, a_lexicons, a_encoding=ENCODING):
         """Load lexicons.
@@ -286,3 +334,20 @@ class BaseAnalyzer(object):
         a_txt = AT_RE.sub("@someuser", a_txt)
         a_txt = URI_RE.sub("http://someuri", a_txt)
         return a_txt
+
+    def _words2trie(self, words):
+        """Convert collection of words to a trie.
+
+        Args:
+          words (iterable): collection of untagged words
+
+        Returns:
+          (cgsa.utils.trie.Trie): trie
+
+        """
+        ret = Trie()
+        for w_i in words:
+            term = USCORE_RE.sub(' ', w_i)
+            terms = SPACE_RE.split(self._preprocess(term))
+            ret.add(terms, [None] * len(terms), 1.)
+        return ret
