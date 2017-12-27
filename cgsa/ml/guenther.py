@@ -45,6 +45,8 @@ TRIPLE_CHAR = re.compile(r"(?P<char>\w)(?P=char)(?P=char)")
 N_REPLICAS = 10
 SUBSAMPLE_PROB = 0.2
 USE_SUBSAMPLING = True
+DFLT_ALPHA = 1e-4
+DFLT_L1_RATIO = 1e-2
 
 
 ##################################################################
@@ -88,7 +90,8 @@ class GuentherAnalyzer(MLBaseAnalyzer):
                             lexicons)
         # set up classifier
         clf = a_clf or SGDClassifier(penalty="elasticnet",
-                                     alpha=0.001, l1_ratio=0.85,
+                                     alpha=DFLT_ALPHA,
+                                     l1_ratio=DFLT_L1_RATIO,
                                      n_iter=1000, class_weight="balanced")
         self._model = Pipeline([("vect", DictVectorizer()),
                                 ("clf", clf)])
@@ -106,7 +109,6 @@ class GuentherAnalyzer(MLBaseAnalyzer):
             train_y *= N_REPLICAS + 1
             self._subsample(dev_x, N_REPLICAS, SUBSAMPLE_PROB)
             dev_x = [self._extract_feats(t) for t in dev_x]
-            dev_y = N_REPLICAS
         super(GuentherAnalyzer, self).train(train_x, train_y,
                                             dev_x, dev_y, a_grid_search,
                                             a_extract_feats=False)

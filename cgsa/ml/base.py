@@ -57,6 +57,7 @@ class MLBaseAnalyzer(BaseAnalyzer):
         super(MLBaseAnalyzer, self).__init__(**kwargs)
         self.name = "MLBaseAnalyzer"
         # read lexicons
+        self.N_JOBS = 1
         self._term2mnl = defaultdict(dict)
         self._neg_term2mnl = defaultdict(dict)
         self._term2auto = defaultdict(dict)
