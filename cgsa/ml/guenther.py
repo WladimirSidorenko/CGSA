@@ -52,6 +52,12 @@ DFLT_L1_RATIO = 1e-2
 ##################################################################
 # Class
 class GuentherAnalyzer(MLBaseAnalyzer):
+    """Class for ML-based sentiment analysis.
+
+    Attributes:
+
+    """
+
     @staticmethod
     def check_tok(tok):
         """Check whether given token should be considered for analysis.
@@ -66,12 +72,6 @@ class GuentherAnalyzer(MLBaseAnalyzer):
         tok = NEG_SFX_RE.sub("", tok)
         return (not PUNCT_RE.match(tok)
                 and tok.lower() not in STOP_WORDS)
-
-    """Class for ML-based sentiment analysis.
-
-    Attributes:
-
-    """
 
     def __init__(self, lexicons, a_clf=None, **kwargs):
         """Class constructor.
