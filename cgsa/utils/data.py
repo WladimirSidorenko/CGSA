@@ -85,6 +85,15 @@ class Features(object):
         """
         return self._feats.get(key)
 
+    def __contains__(self, key):
+        """Check feaure's presence.
+
+        Args:
+          key (str): feature's name
+
+        """
+        return key in self._feats
+
     def __getitem__(self, key):
         """Return feaure's value.
 
@@ -236,6 +245,12 @@ class Tweet(object):
         self.iwords = iter(self.words)
         return self.iwords
 
+    def __getitem__(self, key):
+        """Private method required for iteration.
+
+        """
+        return self.words[key]
+
     def __next__(self):
         """Private method required for iteration.
 
@@ -286,11 +301,11 @@ class Tweet(object):
         n = len(toks)
         if n != len(lemmas) or n != len(tags) \
            or n != len(deps) or n != len(feats):
-            self._logger.error(repr(n))
-            self._logger.error(repr(len(lemmas)))
-            self._logger.error(repr(len(tags)))
-            self._logger.error(repr(len(deps)))
-            self._logger.error(repr(len(feats)))
+            self._logger.error("Tokens: %d", n)
+            self._logger.error("Lemmas: %d", len(lemmas))
+            self._logger.error("Tags: %d", len(tags))
+            self._logger.error("Dependencies: %d", len(deps))
+            self._logger.error("Features: ", len(feats))
             for tok_i, lemma_i in zip(toks, lemmas):
                 if tok_i.lower() != lemma_i.lower():
                     self._logger.error("{!r} <-> {!r}".format(tok_i, lemma_i))

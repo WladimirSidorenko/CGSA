@@ -3,7 +3,7 @@
 ##################################################################
 # Methods
 function reset() {
-    tok_cnt = 0
+    tok_cnt = tok_offset = 0
     msg_id = toks = lemmas = tags = deps = feats = ""
 }
 

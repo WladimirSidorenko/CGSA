@@ -125,6 +125,7 @@ MODEL_DIR = os.path.join(DATA_DIR, "models")
 DFLT_MODEL_PATH = os.path.join(MODEL_DIR, "cgsa.model")
 
 BILSTM = "bilstm"
+GAMON = "gamon"
 GUENTHER = "guenther"
 HU_LIU = "hu-liu"
 JUREK = "jurek"
