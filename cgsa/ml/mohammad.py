@@ -118,7 +118,7 @@ class MohammadAnalyzer(MLBaseAnalyzer):
         text = ' '.join(toks)
         tags = [w.tag for w in a_tweet]
         # character n-grams
-        self._extract_ngrams(feats, text, 3, 5, False)
+        # self._extract_ngrams(feats, text, 3, 5, False)
         # number of capitalized words
         self._cnt(feats, toks, CAPS_RE, CAPS)
         # number of hashtags
