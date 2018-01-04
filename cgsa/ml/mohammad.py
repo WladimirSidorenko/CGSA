@@ -120,26 +120,26 @@ class MohammadAnalyzer(MLBaseAnalyzer):
         # character n-grams
         self._extract_ngrams(feats, text, 3, 5, False)
         # number of capitalized words
-        self._cnt(feats, toks, CAPS_RE, CAPS)
+        # self._cnt(feats, toks, CAPS_RE, CAPS)
         # number of hashtags
-        self._cnt(feats, toks, HSH_RE, HSHTAG)
+        # self._cnt(feats, toks, HSH_RE, HSHTAG)
         # number of words with duplicted characters
-        self._cnt(feats, toks, AT_RE, "%at")
+        # self._cnt(feats, toks, AT_RE, "%at")
         # number of words with elongated characters
-        self._cnt(feats, toks, ELONG_RE, "%elong")
+        # self._cnt(feats, toks, ELONG_RE, "%elong")
         # tag statistics
         self._pos_stat(feats, tags)
         # punctuation statistics
-        last_tok = toks[-1] if toks else ""
-        self._punct_feats(feats, text, last_tok)
+        # last_tok = toks[-1] if toks else ""
+        # self._punct_feats(feats, text, last_tok)
         # emoticon features
-        self._emo_feats(feats, text, last_tok)
+        # self._emo_feats(feats, text, last_tok)
         # Brown cluster features
         # self._bc_feats(feats, toks)
         # apply negation and extract lexicon features
         feats["%NegCtxt"] = self._apply_negation(toks)
         # token n-grams
-        ngrams = self._extract_ngrams(feats, toks,
+        ngrams = self._extract_ngrams({}, toks,
                                       1, MAX_NGRAM_ORDER,
                                       True, tags)
         # lexicon features

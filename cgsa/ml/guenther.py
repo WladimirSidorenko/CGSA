@@ -155,25 +155,25 @@ class GuentherAnalyzer(MLBaseAnalyzer):
         self._logger.debug("pruned_forms: %r", pruned_forms)
         self._logger.debug("lemmas: %r", lemmas)
         # unigrams
-        ngrams = self._extract_ngrams(feats, forms, tags,
+        ngrams = self._extract_ngrams({}, forms, tags,
                                       forms, boundaries)
-        self._logger.debug("ngrams (0): %r", ngrams)
+        # self._logger.debug("ngrams (0): %r", ngrams)
         # bigrams
         ngrams |= super(GuentherAnalyzer, self)._extract_ngrams(
-            feats, pruned_forms, a_min_len=2, a_max_len=2)
-        self._logger.debug("ngrams (1): %r", ngrams)
+            {}, pruned_forms, a_min_len=2, a_max_len=2)
+        # self._logger.debug("ngrams (1): %r", ngrams)
         # lemma unigrams
-        ngrams |= self._extract_ngrams(feats, lemmas, tags,
+        ngrams |= self._extract_ngrams({}, lemmas, tags,
                                        forms, boundaries)
-        self._logger.debug("ngrams (2): %r", ngrams)
+        # self._logger.debug("ngrams (2): %r", ngrams)
         # URI feature
-        text = ' '.join(forms)
-        if URI_RE.search(text):
-            feats["%URI-FEAT"] = 1
+        # text = ' '.join(forms)
+        # if URI_RE.search(text):
+        #     feats["%URI-FEAT"] = 1
         # hashtag feature
-        text = ' '.join(forms)
-        if HSHTAG_RE.search(text):
-            feats["%HSHTAG-FEAT"] = 1
+        # text = ' '.join(forms)
+        # if HSHTAG_RE.search(text):
+        #     feats["%HSHTAG-FEAT"] = 1
         # lexicon features
         self._lex_feats(feats, ngrams)
         # hashtag feature
