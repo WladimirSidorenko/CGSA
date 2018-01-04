@@ -39,22 +39,22 @@ class GamonAnalyzer(MLBaseAnalyzer):
         self._logger.debug("tweet: %s", a_tweet)
         feats = {}
         tags = [w.tag for w in a_tweet]
-        deps = [(w.prnt_idx, w.deprel) for w in a_tweet.words]
-        dgtree = DGTree(deps=deps)
+        # deps = [(w.prnt_idx, w.deprel) for w in a_tweet.words]
+        # dgtree = DGTree(deps=deps)
         # part-of-speech trigrams
         self._extract_ngrams(feats, tags, a_min_len=3, a_max_len=3)
         # constituent specific length measures (length of sentence, clauses,
         # adverbial/adjectival phrases, and noun phrases)
-        self._get_constituent_lengths(feats, dgtree, a_tweet)
+        # self._get_constituent_lengths(feats, dgtree, a_tweet)
         # constituent structure in the form of context free phrase structure
         # patterns for each constituent in a parse tree. Example: DECL::NP VERB
         # NP (a declarative sentence consisting of a noun phrase a verbal head
         # and a second noun phrase)
-        self._get_constituents(feats, dgtree, a_tweet)
+        # self._get_constituents(feats, dgtree, a_tweet)
         # Part of speech information coupled with semantic relations
         # (e.g. ``Verb Subject - Noun'' indicating a nominal subject to a
         # verbal predicate)
-        self._get_pos_constituents(feats, dgtree, a_tweet)
+        # self._get_pos_constituents(feats, dgtree, a_tweet)
         # Logical form features provided by NLPWin, such as transitivity of a
         # predicate (-), tense information etc.
         for word_i in a_tweet:
