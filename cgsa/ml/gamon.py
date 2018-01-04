@@ -42,7 +42,7 @@ class GamonAnalyzer(MLBaseAnalyzer):
         deps = [(w.prnt_idx, w.deprel) for w in a_tweet.words]
         dgtree = DGTree(deps=deps)
         # part-of-speech trigrams
-        self._extract_ngrams(feats, tags, a_min_len=3, a_max_len=3)
+        # self._extract_ngrams(feats, tags, a_min_len=3, a_max_len=3)
         # constituent specific length measures (length of sentence, clauses,
         # adverbial/adjectival phrases, and noun phrases)
         self._get_constituent_lengths(feats, dgtree, a_tweet)
@@ -54,7 +54,7 @@ class GamonAnalyzer(MLBaseAnalyzer):
         # Part of speech information coupled with semantic relations
         # (e.g. ``Verb Subject - Noun'' indicating a nominal subject to a
         # verbal predicate)
-        self._get_pos_constituents(feats, dgtree, a_tweet)
+        # self._get_pos_constituents(feats, dgtree, a_tweet)
         # Logical form features provided by NLPWin, such as transitivity of a
         # predicate (-), tense information etc.
         for word_i in a_tweet:

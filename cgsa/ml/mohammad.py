@@ -128,7 +128,7 @@ class MohammadAnalyzer(MLBaseAnalyzer):
         # number of words with elongated characters
         self._cnt(feats, toks, ELONG_RE, "%elong")
         # tag statistics
-        self._pos_stat(feats, tags)
+        # self._pos_stat(feats, tags)
         # punctuation statistics
         last_tok = toks[-1] if toks else ""
         self._punct_feats(feats, text, last_tok)
@@ -307,7 +307,7 @@ class MohammadAnalyzer(MLBaseAnalyzer):
                 keys.append(UNI)
                 if ngram[0].startswith('#'):
                     keys.append(HSHTAG)
-                keys.append("%TAGS-" + '_'.join(tags))
+                # keys.append("%TAGS-" + '_'.join(tags))
                 # Kiritchenko et al., 2014, do not use CAPS for automatic
                 # lexicons
                 # if CAPS_RE.match(ngram[0]):
@@ -397,7 +397,7 @@ class MohammadAnalyzer(MLBaseAnalyzer):
             n = len(ngram)
             if n == 1:
                 keys.append("tok")
-                keys.append("%TAGS-" + '_'.join(tags))
+                # keys.append("%TAGS-" + '_'.join(tags))
                 if ngram[0].startswith('#'):
                     keys.append(HSHTAG)
                 if CAPS_RE.match(ngram[0]):
