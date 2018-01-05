@@ -89,14 +89,14 @@ class GuentherAnalyzer(MLBaseAnalyzer):
                                      self._neg_term2pol_score)},
                             lexicons)
         # set up classifier
-        clf = a_clf or SGDClassifier(penalty="elasticnet",
-                                     alpha=DFLT_ALPHA,
-                                     l1_ratio=DFLT_L1_RATIO,
-                                     n_iter=1000, class_weight="balanced")
-        self._model = Pipeline([("vect", DictVectorizer()),
-                                ("clf", clf)])
-        self.PARAM_GRID = {"clf__alpha": np.linspace(1e-4, 1e-2, 5),
-                           "clf__l1_ratio":  np.linspace(1e-2, 9e-1, 5)}
+        # clf = a_clf or SGDClassifier(penalty="elasticnet",
+        #                              alpha=DFLT_ALPHA,
+        #                              l1_ratio=DFLT_L1_RATIO,
+        #                              n_iter=1000, class_weight="balanced")
+        # self._model = Pipeline([("vect", DictVectorizer()),
+        #                         ("clf", clf)])
+        # self.PARAM_GRID = {"clf__alpha": np.linspace(1e-4, 1e-2, 5),
+        #                    "clf__l1_ratio":  np.linspace(1e-2, 9e-1, 5)}
 
     def train(self, train_x, train_y, dev_x, dev_y, a_grid_search):
         if USE_SUBSAMPLING:

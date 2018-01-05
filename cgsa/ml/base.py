@@ -15,6 +15,7 @@ from six.moves import xrange
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import f1_score, make_scorer
+from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import LinearSVC
 from sklearn.pipeline import Pipeline
 import abc
@@ -33,7 +34,7 @@ DFLT_CLS_WGHT = None
 DFLT_PARAMS = {"class_weight": DFLT_CLS_WGHT, "loss": "hinge",
                "penalty": "l1", "dual": True,
                "multi_class": "crammer_singer"}
-PARAM_GRID = {"clf__C": np.linspace(1e-2, 1, 7)}
+PARAM_GRID = {"clf__alpha": np.linspace(1e-2, 1, 7)}
 WLDCARD = '*'
 NEG_SFX_RE = re.compile(r"_NEG", re.I)
 
@@ -66,7 +67,7 @@ class MLBaseAnalyzer(BaseAnalyzer):
                              "auto": (self._term2auto, self._neg_term2auto)},
                             lexicons)
         # set up classifier
-        clf = a_clf or LinearSVC(C=DFLT_C, **DFLT_PARAMS)
+        clf = a_clf or MultinomialNB()
         self._model = Pipeline([("vect", DictVectorizer()),
                                 ("clf", clf)])
         self.PARAM_GRID = PARAM_GRID
