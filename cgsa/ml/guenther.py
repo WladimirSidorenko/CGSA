@@ -176,7 +176,8 @@ class GuentherAnalyzer(MLBaseAnalyzer):
             feats["%HSHTAG-FEAT"] = 1
         # lexicon features
         self._lex_feats(feats, ngrams)
-        # hashtag feature
+        # we need non-negative feature values for MultinomialNB
+        feats = {k: abs(v) for k, v in iteritems(feats)}
         self._logger.debug("feats: %r", feats)
         return feats
 

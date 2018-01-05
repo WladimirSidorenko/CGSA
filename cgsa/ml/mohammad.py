@@ -144,6 +144,8 @@ class MohammadAnalyzer(MLBaseAnalyzer):
                                       True, tags)
         # lexicon features
         self._lex_feats(feats, ngrams, toks, tags)
+        # we need non-negative feature values for MultinomialNB
+        feats = {k: abs(v) for k, v in iteritems(feats)}
         self._tertilize_feats(feats)
         self._logger.debug("feats: %r", feats)
         return feats

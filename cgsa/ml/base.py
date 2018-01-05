@@ -76,7 +76,7 @@ class MLBaseAnalyzer(BaseAnalyzer):
 
     def predict_proba(self, msg, yvec):
         feats = self._extract_feats(msg)
-        dec = self._model.decision_function(feats)
+        dec = self._model.predict_proba(feats)
         if len(dec.shape) > 1:
             dec = np.mean(dec, axis=0)
         for i, ival in enumerate(dec):
