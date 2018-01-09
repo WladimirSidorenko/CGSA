@@ -1,0 +1,61 @@
+#!/usr/bin/env python
+# -*- mode: python; coding: utf-8; -*-
+
+##################################################################
+# Imports
+from __future__ import absolute_import, print_function, unicode_literals
+
+try:
+    from cPickle import load
+except ImportError:
+    from _pickle import load
+from six import iteritems
+import argparse
+import numpy as np
+
+from cgsa.constants import IDX2CLS
+
+##################################################################
+# Methods
+
+##################################################################
+# Main
+if __name__ == "__main__":
+    argparser = argparse.ArgumentParser(
+        description="Script for extracting most useful features from model.")
+    argparser.add_argument("model",
+                           help="model whose features should be extracted",
+                           nargs='+')
+    args = argparser.parse_args()
+
+    feature_stats = []
+    feat_name2idx = {}
+    for model_path in args.model:
+        with open(model_path, "rb") as ifile:
+            model = load(ifile)
+        model._load()
+        steps = dict(model._model.best_estimator_.steps)
+        vectorizer = steps["vect"]
+        idx2feat_name = {idx: feat_name
+                         for feat_name, idx
+                         in iteritems(vectorizer.vocabulary_)}
+        clf = steps["clf"]
+        weights = np.max(clf.coef_, axis=0)
+        labels = np.argmax(clf.coef_, axis=0)
+        for i, (wght_i, label_i) in enumerate(zip(weights, labels)):
+            feat_name = idx2feat_name[i]
+            feat = (feat_name, abs(wght_i), wght_i, IDX2CLS[label_i])
+            if feat_name in feat_name2idx:
+                idx = feat_name2idx[feat_name]
+                if feature_stats[idx][1] > feat[1]:
+                    continue
+                else:
+                    feature_stats[idx] = feat
+            else:
+                feat_name2idx[feat_name] = len(feature_stats)
+                feature_stats.append(feat)
+    feature_stats.sort(key=lambda x: x[1], reverse=True)
+    for i, (feat_name, _, wght, cls) in enumerate(feature_stats[:10]):
+        print("{:d} & '{:s}' {:f} & {:s}".format(
+            i, feat_name, wght, cls
+        ))
