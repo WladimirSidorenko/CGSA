@@ -18,11 +18,13 @@ from sklearn.metrics import f1_score, make_scorer
 from sklearn.svm import LinearSVC
 from sklearn.pipeline import Pipeline
 import abc
+import logging
 import numpy as np
 import pandas as pd
 import re
 
 from cgsa.base import BaseAnalyzer
+from cgsa.constants import IDX2CLS
 from cgsa.utils.common import LOGGER
 
 ##################################################################
@@ -72,9 +74,18 @@ class MLBaseAnalyzer(BaseAnalyzer):
         self.PARAM_GRID = PARAM_GRID
         self._cs_fallback = False
         self._feats2tertiles = {}
+        self._feats2weights = defaultdict(lambda: defaultdict(tuple))
 
     def predict_proba(self, msg, yvec):
         feats = self._extract_feats(msg)
+        if self._logger.getEffectiveLevel() <= logging.DEBUG:
+            self._logger.debug(
+                "Top-10 Most Relevant Features:\n%s",
+                self._get_top_feats(
+                    feats
+                )
+            )
+            pass
         dec = self._model.decision_function(feats)
         if len(dec.shape) > 1:
             dec = np.mean(dec, axis=0)
@@ -86,6 +97,7 @@ class MLBaseAnalyzer(BaseAnalyzer):
 
         """
         self._logger = LOGGER
+        self._feats2weights = defaultdict(lambda: defaultdict(tuple))
 
     def train(self, train_x, train_y, dev_x, dev_y, a_grid_search,
               a_extract_feats=True):
@@ -249,3 +261,51 @@ class MLBaseAnalyzer(BaseAnalyzer):
                 val = feats.pop(feat_name)
                 tertile = self._get_tertile(val, tertiles)
                 feats[feat_name + '-' + str(tertile)] = 1  # val
+
+    def _get_top_feats(self, feats, n=10):
+        """Obtain coefficients for extracted features .
+
+        Args:
+          feats (dict): features of an input istance
+          n (int): top N highest-ranked features to display
+
+        Returns:
+          str: summmary of top-N most relevant features
+
+        """
+        if not self._feats2weights:
+            self._load_feats_weights()
+        ret = []
+        for feat_name, feat_value in iteritems(feats):
+            if feat_name in self._feats2weights:
+                for cls, wght in iteritems(self._feats2weights[feat_name]):
+                    ret.append((feat_name, cls, feat_value * wght))
+        ret.sort(key=lambda x: abs(x[-1]), reverse=True)
+        return '\n'.join(
+            str(i) + ") " + feat_name + " (" + cls + "): " + str(feat_wght)
+            for i, (feat_name, cls, feat_wght) in enumerate(ret[:n], 1)
+        )
+
+    def _load_feats_weights(self):
+        """obtain feature weights from model.
+
+        Args:
+
+        Returns:
+          void:
+
+        """
+        if hasattr(self._model, "best_estimator_"):
+            steps = dict(self._model.best_estimator_.steps)
+            vectorizer = steps["vect"]
+            idx2feat_name = {idx: feat_name
+                             for feat_name, idx
+                             in iteritems(vectorizer.vocabulary_)}
+            clf = steps["clf"]
+            print(repr(clf.coef_))
+            print(clf.coef_.shape)
+            for i, feat_weights in enumerate(clf.coef_.T):
+                feat_name = idx2feat_name[i]
+                for j, wght_ij in enumerate(np.nditer(feat_weights)):
+                    label = IDX2CLS[j]
+                    self._feats2weights[feat_name][label] = wght_ij
