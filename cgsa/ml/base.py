@@ -302,8 +302,6 @@ class MLBaseAnalyzer(BaseAnalyzer):
                              for feat_name, idx
                              in iteritems(vectorizer.vocabulary_)}
             clf = steps["clf"]
-            print(repr(clf.coef_))
-            print(clf.coef_.shape)
             for i, feat_weights in enumerate(clf.coef_.T):
                 feat_name = idx2feat_name[i]
                 for j, wght_ij in enumerate(np.nditer(feat_weights)):
