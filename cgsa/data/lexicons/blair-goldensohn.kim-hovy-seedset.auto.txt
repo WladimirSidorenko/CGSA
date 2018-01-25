@@ -270,9 +270,9 @@ allegro	NN	positive	0.0316092
 allein	ADV	negative	-0.044522
 allerbeste	ADJA	positive	0.419099
 allerlei	PIAT	positive	0.0112104
-allgemein verbindlich	ADJA	positive	0.0277925
+allgemein verbindlich	ADV ADJA	positive	0.0277925
 allgemeinverbindlich	ADJA	positive	0.0277925
-allgemein verbindlich	ADJD	positive	0.0277925
+allgemein verbindlich	ADV ADJD	positive	0.0277925
 allgemeinverbindlich	ADJD	positive	0.0277925
 allgemeinverständlich	ADJA	positive	0.0164837
 allgemeinverständlich	ADJD	positive	0.0164837
@@ -303,7 +303,7 @@ altmeister	NN	positive	0.0118066
 amateurhaft	ADJA	negative	-0.011321
 amateurhaft	ADJD	negative	-0.011321
 amateursport	NN	negative	-0.012624
-american airlines	ADJA	negative	-0.0369931
+american airlines	NN NN	negative	-0.0369931
 amigo	NE	positive	0.0222303
 aminogruppe	NN	negative	-0.0130235
 aminosäure	NN	negative	-0.0130235
@@ -423,7 +423,7 @@ annehmbar	ADJA	positive	0.0450813
 annehmbar	ADJD	positive	0.0450813
 annehmen	VVFIN	positive	0.219211
 anöden	VVFIN	negative	-0.0274421
-anorexia nervosa	NE	negative	-0.224417
+anorexia nervosa	NN NN	negative	-0.224417
 anorexie	ADJA	negative	-0.224417
 anoxisch	ADJA	negative	-0.0215419
 anoxisch	ADJD	negative	-0.0215419
@@ -699,7 +699,7 @@ aufwiegelung	ADJA	negative	-0.0375708
 aufwiegelung	NN	negative	-0.0375708
 aufwieglerisch	ADJA	positive	0.0378044
 aufwieglerisch	ADJD	positive	0.0378044
-auf zack	NE	positive	0.0247502
+auf zack	APPR NN	positive	0.0247502
 augenabstand	ADJA	negative	-0.0106019
 augenabstand	ADJD	negative	-0.0106019
 augenabstand	NN	negative	-0.0106019
@@ -1523,7 +1523,8 @@ bürostuhl	NN	negative	-0.0364277
 campagne	NN	negative	-0.047048
 campingstuhl	NN	negative	-0.036483
 canceln	ADJA	negative	-0.0121446
-cannstatter wasen	NN	positive	0.0104729
+cannstatter wasen	NN NN	positive	0.0104729
+cannstatter wasen	NE NE	positive	0.0104729
 carbid	ADJA	negative	-0.0137672
 cargo	NN	positive	0.302318
 caritativ	ADJA	positive	0.0647057
@@ -1551,9 +1552,8 @@ charmant	ADJA	positive	0.192353
 charmant	ADJD	positive	0.192353
 charme	ADJA	positive	0.0693091
 checksumme	NN	positive	0.0191081
-chem veränd herstell	ADJA	positive	0.0155003
-chem veränd herstell	ADJD	positive	0.0155003
-chem veränd herstell	NN	positive	0.0155003
+chem veränd herstell	NE NE NE	positive	0.0155003
+chem veränd herstell	NN NN NN	positive	0.0155003
 chimäre	ADJA	negative	-0.0253156
 chlorwasserstoff	NN	negative	-0.0130235
 cholesterinwert	NN	positive	0.0164837
@@ -1611,7 +1611,8 @@ dämlich	ADJD	negative	-0.107882
 dämonisch	ADJA	negative	-0.157591
 dämonisch	ADJD	negative	-0.157591
 danebengegangen	VVPP	negative	-0.00960628
-daneben gehen	VVFIN	negative	-0.420642
+daneben gehen	ADV VVFIN	negative	-0.420642
+daneben gehen	ADV VVINF	negative	-0.420642
 danebengehen	VVINF	negative	-0.420642
 danebenschiessen	VVFIN	negative	-0.0186533
 dankbar	ADJA	positive	0.159121
@@ -1724,7 +1725,7 @@ dezimalbruch	NN	negative	-0.0457451
 dezimalzahl	NN	negative	-0.0457451
 diabolisch	ADJA	negative	-0.157591
 diabolisch	ADJD	negative	-0.157591
-diamantene hochzeit	ADJA	positive	0.0643922
+diamantene hochzeit	ADJA NN	positive	0.0643922
 diamanthochzeit	ADJA	positive	0.0643922
 diarrhö	NE	negative	-0.0158937
 diätenerhöhung	ADJA	positive	0.0126977
@@ -2120,16 +2121,16 @@ eisenbahngeschichte	ADJA	negative	-0.0238651
 eisenhart	ADJA	positive	0.24315
 eisenhart	ADJD	positive	0.24315
 eisenhochzeit	NN	positive	0.0643922
-eiserne hochzeit	ADJA	positive	0.0643922
+eiserne hochzeit	ADJA NN	positive	0.0643922
 eissport	NN	negative	-0.012624
 eitelkeit	NN	positive	0.0217017
 eiternd	ADJA	negative	-0.0156479
 eiternd	ADJD	negative	-0.0156479
 eitrig	ADJA	negative	-0.0156479
 eitrig	ADJD	negative	-0.0156479
-ekel erregend	ADJA	negative	-0.0215112
+ekel erregend	NN ADJA	negative	-0.0215112
 ekelerregend	ADJA	negative	-0.0215112
-ekel erregend	ADJD	negative	-0.0215112
+ekel erregend	NN ADJD	negative	-0.0215112
 ekelerregend	ADJD	negative	-0.0215112
 ekelhaft	ADJA	negative	-0.0215112
 ekelhaft	ADJD	negative	-0.0215112
@@ -2144,7 +2145,7 @@ elegant	ADJA	positive	0.419099
 elegant	ADJD	positive	0.419099
 elegisch	ADJA	negative	-0.0589284
 elegisch	ADJD	negative	-0.0589284
-elektrischer stuhl	NN	negative	-0.0364338
+elektrischer stuhl	ADJA NN	negative	-0.0364338
 elektrizitätsversorgung	ADJA	negative	-0.0134967
 elektrizitätsversorgung	ADJD	negative	-0.0134967
 elektrizitätsversorgung	NN	negative	-0.0134967
@@ -2366,9 +2367,9 @@ erfolgreich	ADJD	positive	0.0688542
 erfolgsgeschichte	ADJA	negative	-0.0232075
 erfolgsgewöhnt	ADJA	positive	0.0192986
 erfolgsverwöhnt	ADJA	positive	0.0192986
-erfolg versprechend	ADJA	positive	0.0798619
+erfolg versprechend	NN ADJA	positive	0.0798619
 erfolgversprechend	ADJA	positive	0.0798619
-erfolg versprechend	ADJD	positive	0.0798619
+erfolg versprechend	NN ADJD	positive	0.0798619
 erfolgversprechend	ADJD	positive	0.0798619
 erfolg	VVIMP	positive	0.0267292
 erfordern	VVFIN	positive	0.020872
@@ -2701,7 +2702,8 @@ fassen	VVFIN	positive	0.092031
 fasten	VVFIN	negative	-0.0278355
 faszinierend	ADJA	positive	0.419099
 faszinierend	ADJD	positive	0.419099
-fata morgana	NE	negative	-0.0512151
+fata morgana	NE NE	negative	-0.0512151
+fata morgana	NN NN	negative	-0.0512151
 faul	ADJA	negative	-0.192912
 faul	ADJD	negative	-0.192912
 faulen	ADJA	negative	-0.147905
@@ -2722,7 +2724,8 @@ fehlleistung	NN	negative	-0.0746746
 fehlleitend	ADJA	negative	-0.0559352
 fehlleitend	ADJD	negative	-0.0559352
 fehlschlag	ADJA	negative	-0.0749511
-fehl schlagen	NN	negative	-0.420642
+fehl schlagen	ADV VVFIN	negative	-0.420642
+fehl schlagen	ADV VVINF	negative	-0.420642
 fehlschlagen	VVFIN	negative	-0.420642
 feierlichkeit	NN	positive	0.12152
 feiern	VVFIN	positive	0.0158753
@@ -2750,7 +2753,8 @@ feindseligkeit	NN	negative	-0.0163178
 feingeistig	ADJA	positive	0.0407791
 feingeistig	ADJD	positive	0.0407791
 feingemahlen	ADJA	positive	0.0609258
-fein geschnitten	ADJA	positive	0.143301
+fein geschnitten	ADV ADJA	positive	0.143301
+fein geschnitten	ADV ADJD	positive	0.143301
 feingeschnitten	ADJA	positive	0.143301
 feinkörnig	ADJA	positive	0.0609258
 feinkörnig	ADJD	positive	0.0609258
@@ -2774,10 +2778,11 @@ fernverbindung	NN	negative	-0.0215235
 fertig	ADJA	positive	0.0163792
 fertig	ADJD	positive	0.0163792
 fertigen	ADJA	positive	0.0174179
-fertig machen	ADJA	negative	-0.0362679
-fertig machen	ADJD	negative	-0.0362679
+fertig machen	ADJA VVINF	negative	-0.0362679
+fertig machen	ADJD VVINF	negative	-0.0362679
 fertigmachen	VVFIN	negative	-0.0362556
-fertig machen	VVFIN	negative	-0.0362679
+fertig machen	ADJA VVFIN	negative	-0.0362679
+fertig machen	ADJD VVFIN	negative	-0.0362679
 fertigmachen	VVINF	negative	-0.0362556
 fertigungsstufe	NN	positive	0.0122614
 fertigungsstufe	VVFIN	positive	0.0122614
@@ -3072,11 +3077,12 @@ frivol	ADJA	negative	-0.115318
 frivol	ADJD	negative	-0.115318
 froh	ADJA	positive	0.419099
 froh	ADJD	positive	0.419099
-froh gelaunt	ADJA	positive	0.0131771
+froh gelaunt	ADV ADJA	positive	0.0131771
 frohgelaunt	ADJA	positive	0.0131771
-froh gelaunt	ADJD	positive	0.0131771
+froh gelaunt	ADV ADJD	positive	0.0131771
 frohgelaunt	ADJD	positive	0.0131771
-froh gestimmt	ADJA	positive	0.173897
+froh gestimmt	ADV ADJA	positive	0.173897
+froh gestimmt	ADV ADJD	positive	0.173897
 frohgestimmt	ADJA	positive	0.173897
 frohgestimmt	ADJD	positive	0.173897
 fröhlich	ADJA	positive	0.182181
@@ -3220,8 +3226,8 @@ gefälscht	ADJA	negative	-0.0288496
 gefälscht	ADJD	negative	-0.0288496
 gefangennahme	NN	negative	-0.0352046
 gefragt	VVPP	positive	0.0422787
-gefühle verursachen	ADJA	positive	0.0102332
-gefühle verursachen	ADJD	positive	0.0102332
+gefühle verursachen	NN VVINF	positive	0.0102332
+gefühle verursachen	NN VVFIN	positive	0.0102332
 gegeben	ADJA	positive	0.200109
 gegeben	ADJD	positive	0.200109
 gegeben	VVPP	positive	0.200109
@@ -3512,8 +3518,8 @@ gitterrost	NE	negative	-0.0560152
 gitterrost	NN	negative	-0.0560152
 glänzend	ADJA	positive	0.02424
 glänzend	ADJD	positive	0.02424
-glatt gehen	ADJA	positive	0.0258626
-glatt gehen	ADJD	positive	0.0258626
+glatt gehen	ADV ADJA	positive	0.0258626
+glatt gehen	ADV ADJD	positive	0.0258626
 glattgehen	VVFIN	positive	0.0258626
 glaubenskrieg	ADJA	negative	-0.0423033
 glaubhaftigkeit	ADJA	positive	0.0577422
@@ -3552,9 +3558,9 @@ gnade	VVFIN	positive	0.017885
 gnädig	ADJA	positive	0.0213084
 gnädig	ADJD	positive	0.0213084
 göbeln	VVFIN	negative	-0.0339447
-goldene hochzeit	ADJA	positive	0.0643922
-goldene konfirmation	ADJA	positive	0.0677111
-goldene konfirmation	ADJD	positive	0.0677111
+goldene hochzeit	ADJA NN	positive	0.0643922
+goldene konfirmation	ADJA NN	positive	0.0677111
+goldene konfirmation	ADJD NN	positive	0.0677111
 goldhochzeit	ADJA	positive	0.0643922
 goldig	ADJA	positive	0.0975871
 goldig	ADJD	positive	0.0975871
@@ -3695,15 +3701,15 @@ gut	ADJA	positive	0.419099
 gut	ADJD	positive	0.419099
 gutartig	ADJA	positive	0.0760574
 gutartig	ADJD	positive	0.0760574
-gut aufgelegt	ADJA	positive	0.0131771
-gut aufgelegt	ADJD	positive	0.0131771
+gut aufgelegt	ADV ADJA	positive	0.0131771
+gut aufgelegt	ADV ADJD	positive	0.0131771
 güte	ADJA	positive	0.419099
-gut gehen	ADJA	positive	0.0258626
-gut gehen	ADJD	positive	0.0258626
+gut gehen	ADJA VVINF	positive	0.0258626
+gut gehen	ADJD VVINF	positive	0.0258626
 gutgehen	VVFIN	positive	0.0258626
-gut gelaunt	ADJA	positive	0.0132509
+gut gelaunt	ADV ADJA	positive	0.0132509
 gutgelaunt	ADJA	positive	0.0132509
-gut gelaunt	ADJD	positive	0.0132509
+gut gelaunt	ADV ADJD	positive	0.0132509
 gutgelaunt	ADJD	positive	0.0132509
 gutgemeint	ADJA	positive	0.0211117
 gutgemeint	ADJD	positive	0.0211117
@@ -3718,8 +3724,8 @@ gütlich	ADJD	positive	0.0135459
 gutmütig	ADJA	positive	0.0611655
 gutmütig	ADJD	positive	0.0611655
 gutshof	NN	positive	0.0965975
-gut tun	ADJA	positive	0.0114685
-gut tun	ADJD	positive	0.0114685
+gut tun	ADJA VVINF	positive	0.0114685
+gut tun	ADJD VVINF	positive	0.0114685
 guttun	VVFIN	positive	0.0114685
 gv	NE	negative	-0.105485
 hacienda	NE	positive	0.137665
