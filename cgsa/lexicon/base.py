@@ -361,6 +361,14 @@ class LexiconBaseAnalyzer(BaseAnalyzer):
                     # skip negated entries from the lexicon altogether
                     continue
                 term = self._preprocess(term)
+                terms = SPACE_RE.split(term)
+                tags = SPACE_RE.split(row_i.pos)
+                if len(terms) != len(tags):
+                    self._logger.warn(
+                        "Unmatching number of tokens and pos tags"
+                        " in lexicon: %s vs. %s", term, row_i.pos
+                    )
+                    continue
                 ret.add(SPACE_RE.split(term),
                         SPACE_RE.split(row_i.pos),
                         (lexname, row_i.polarity, row_i.score))
