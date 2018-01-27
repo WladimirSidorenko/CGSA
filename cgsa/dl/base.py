@@ -25,7 +25,7 @@ import numpy as np
 import os
 
 from cgsa.base import BaseAnalyzer
-from cgsa.utils.common import is_relevant, normlex
+from cgsa.utils.common import LOGGER, is_relevant, normlex
 from cgsa.utils.word2vec import Word2Vec
 
 
@@ -134,6 +134,12 @@ class DLBaseAnalyzer(BaseAnalyzer):
                                   verbose=2)
         for i, prob_i in enumerate(ret[0]):
             yvec[i] = prob_i
+
+    def restore(self):
+        """Restore members which could not be serialized.
+
+        """
+        self._logger = LOGGER
 
     def reset(self):
         """Remove members which cannot be serialized.

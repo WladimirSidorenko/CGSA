@@ -65,6 +65,7 @@ class SentimentAnalyzer(object):
             analyzer = load(ifile)
         # normalize paths to serialized models
         analyzer._dirname = os.path.dirname(a_path)
+        analyzer._logger = LOGGER
         if not on_demand:
             analyzer._models = [
                 model_i
