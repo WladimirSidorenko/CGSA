@@ -82,8 +82,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         self._n_epochs = 24
         # mapping from word to its embedding index
         self._aux_keys = set((0, 1))
-        self.unk_w_i = 0
-        self.w2emb_i = {"UNK": self.unk_w_i}
+        self.w2emb_i = {"EMPTY": EMPTY_IDX, "UNK": UNK_IDX}
         self._min_width = 0
         self._n_y = 0
 
@@ -249,9 +248,10 @@ class DLBaseAnalyzer(BaseAnalyzer):
 
         """
         w_emb = np.empty((len(self.w2emb_i), self.ndim))
-        w_emb[self.unk_w_i, :] = 1e-2  # prevent zeros in this row
+        w_emb[EMPTY_IDX, :] *= 0
+        w_emb[UNK_IDX, :] = 1e-2  # prevent zeros in this row
         for w, i in iteritems(self.w2emb_i):
-            if i == self.unk_w_i:
+            if i == UNK_IDX:
                 continue
             w_emb[i] = self.w2v[w]
         self.W_EMB = theano.shared(value=floatX(w_emb),
@@ -304,7 +304,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         if a_word in self.w2emb_i:
             return self.w2emb_i[a_word]
         elif self._w_stat[a_word] < 2 and np.random.binomial(1, UNK_PROB):
-            return self.unk_w_i
+            return UNK_IDX
         else:
             i = self.w2emb_i[a_word] = len(self.w2emb_i)
             return i
@@ -322,7 +322,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
 
         """
         a_word = normlex(a_word)
-        return self.w2emb_i.get(a_word, self.unk_w_i)
+        return self.w2emb_i.get(a_word, UNK_IDX)
 
     def _get_train_w2v_emb_i(self, a_word):
         """Obtain embedding index for the given word.
@@ -342,7 +342,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
             i = self.w2emb_i[a_word] = len(self.w2emb_i)
             return i
         else:
-            return self.unk_w_i
+            return UNK_IDX
 
     def _get_test_w2v_emb_i(self, a_word):
         """Obtain embedding index for the given word.
@@ -361,7 +361,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         if emb_i is None:
             if a_word in self.w2v:
                 return floatX(self.w2v[a_word])
-            return self.W_EMB[self.unk_w_i]
+            return self.W_EMB[UNK_IDX]
         return self.W_EMB[emb_i]
 
     def _get_test_w2v_lstsq_emb_i(self, a_word):
@@ -381,7 +381,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         if emb_i is None:
             if a_word in self.w2v:
                 return floatX(np.dot(self.w2v[a_word], self.w2emb))
-            return self.W_EMB[self.unk_w_i]
+            return self.W_EMB[UNK_IDX]
         return self.W_EMB[emb_i]
 
     def _prepare_data(self, train_x, train_y, dev_x, dev_y):
