@@ -17,6 +17,7 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.layers.embeddings import Embedding
 from keras.models import load_model
 from keras.preprocessing.sequence import pad_sequences
+from keras.regularizers import l2
 from keras.utils import to_categorical
 from six import iteritems
 from tempfile import mkstemp
@@ -36,6 +37,7 @@ EMPTY_IDX = 0
 UNK_IDX = 1
 DICT_OFFSET = 1
 UNK_PROB = 1e-4
+L2_COEFF = 1e-4
 
 
 ##################################################################
@@ -79,10 +81,9 @@ class DLBaseAnalyzer(BaseAnalyzer):
         self._trained = False
         self._n_epochs = 24
         # mapping from word to its embedding index
-        self.unk_w_i = 0
         self._aux_keys = set((0, 1))
-        self.w_i = 1
-        self.w2emb_i = dict()
+        self.unk_w_i = 0
+        self.w2emb_i = {"UNK": self.unk_w_i}
         self._min_width = 0
         self._n_y = 0
 
@@ -110,9 +111,11 @@ class DLBaseAnalyzer(BaseAnalyzer):
         _, ofname = mkstemp(suffix=".hdf5", prefix=self.name + '.')
         try:
             early_stop = EarlyStopping(patience=3, verbose=1)
-            chck_point = ModelCheckpoint(monitor="val_acc",
-                                         mode="auto", filepath=ofname,
-                                         verbose=1, save_best_only=True)
+            chck_point = ModelCheckpoint(filepath=ofname,
+                                         monitor="val_categorical_accuracy",
+                                         mode="auto",
+                                         verbose=1,
+                                         save_best_only=True)
             # start training
             self._model.fit(train_x, train_y,
                             validation_data=(dev_x, dev_y),
@@ -237,14 +240,15 @@ class DLBaseAnalyzer(BaseAnalyzer):
         """Initialize task-specific word embeddings.
 
         """
-        self.W_EMB = Embedding(self.w_i, self.ndim,
-                               embeddings_initializer="he_normal")
+        self.W_EMB = Embedding(len(self.w2emb_i), self.ndim,
+                               embeddings_initializer="he_normal",
+                               embeddings_regularizer=l2(L2_COEFF))
 
     def _init_w2v_emb(self):
         """Initialize word2vec embedding matrix.
 
         """
-        w_emb = np.empty((self.w_i, self.ndim))
+        w_emb = np.empty((len(self.w2emb_i), self.ndim))
         w_emb[self.unk_w_i, :] = 1e-2  # prevent zeros in this row
         for w, i in iteritems(self.w2emb_i):
             if i == self.unk_w_i:
@@ -300,11 +304,9 @@ class DLBaseAnalyzer(BaseAnalyzer):
         if a_word in self.w2emb_i:
             return self.w2emb_i[a_word]
         elif self._w_stat[a_word] < 2 and np.random.binomial(1, UNK_PROB):
-            self.w2emb_i[a_word] = self.unk_w_i
             return self.unk_w_i
         else:
-            i = self.w2emb_i[a_word] = self.w_i
-            self.w_i += 1
+            i = self.w2emb_i[a_word] = len(self.w2emb_i)
             return i
 
     def _get_test_w_emb_i(self, a_word):
@@ -337,8 +339,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         if a_word in self.w2emb_i:
             return self.w2emb_i[a_word]
         elif a_word in self.w2v:
-            i = self.w2emb_i[a_word] = self.w_i
-            self.w_i += 1
+            i = self.w2emb_i[a_word] = len(self.w2emb_i)
             return i
         else:
             return self.unk_w_i
@@ -404,7 +405,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         # convert tweets to word lists
         train_x = [tweet2wseq(x) for x in train_x]
         dev_x = [tweet2wseq(x) for x in dev_x]
-        self._n_y = len(set(train_y + dev_y))
+        self._n_y = len(set(train_y) | set(dev_y))
         train_y = to_categorical(np.asarray(train_y))
         dev_y = to_categorical(np.asarray(dev_y))
         return (train_x, train_y, dev_x, dev_y)
