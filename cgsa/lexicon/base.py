@@ -526,6 +526,14 @@ class CondProbLexiconBaseAnalyzer(LexiconBaseAnalyzer):
                 term_score = self._get_term_score(term, polarity, row_i.score)
                 if term_score == 0.:
                     continue
+                terms = SPACE_RE.split(term)
+                tags = SPACE_RE.split(row_i.pos)
+                if len(terms) != len(tags):
+                    self._logger.warn(
+                        "Unmatching number of tokens and pos tags"
+                        " in lexicon: %s vs. %s", term, row_i.pos
+                    )
+                    continue
                 ret.add(SPACE_RE.split(term),
                         SPACE_RE.split(row_i.pos),
                         (lexname, polarity, term_score))
