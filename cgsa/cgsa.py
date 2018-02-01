@@ -24,12 +24,14 @@ import os
 
 from cgsa.base import BaseAnalyzer
 from cgsa.utils.common import LOGGER
-from cgsa.constants import (DFLT_MODEL_PATH, BILSTM, GAMON,
-                            GUENTHER, HU_LIU, JUREK, KOLCHYNA,
+from cgsa.constants import (DFLT_MODEL_PATH, DFLT_W2V_PATH, BILSTM,
+                            GAMON, GUENTHER, HU_LIU, JUREK, KOLCHYNA,
                             MOHAMMAD, MUSTO, SEVERYN, TABOADA,
                             CLS2IDX, IDX2CLS)
 from cgsa.dl.base import DLBaseAnalyzer
 from cgsa.judge import DefaultJudge
+from cgsa.utils.word2vec import Word2Vec
+
 
 ##################################################################
 # Variables and Constants
@@ -66,6 +68,8 @@ class SentimentAnalyzer(object):
         # normalize paths to serialized models
         analyzer._dirname = os.path.dirname(a_path)
         analyzer._logger = LOGGER
+        if analyzer._use_w2v or analyzer._use_lstsq:
+            analyzer._embeddings = Word2Vec(analyzer._w2v_path)
         if not on_demand:
             analyzer._models = [
                 model_i
@@ -90,7 +94,7 @@ class SentimentAnalyzer(object):
             with open(os.path.join(a_analyzer._dirname,
                                    mpath_i), "rb") as ifile:
                 model_i = BaseAnalyzer.load(ifile)
-                model_i.restore()
+                model_i.restore(a_analyzer._embeddings)
                 yield model_i
 
     def __init__(self, a_models, *args, **kwargs):
@@ -111,11 +115,19 @@ class SentimentAnalyzer(object):
         self._logger = LOGGER
         self._model_paths = []
         self._trained_models = []
+        self._use_w2v = kwargs.get("w2v", False)
+        self._use_lstsq = kwargs.get("lstsq", False)
+        self._w2v_path = os.path.abspath(
+            kwargs.pop("w2v_path", DFLT_W2V_PATH)
+        )
+        self._embeddings = None
+        if self._use_w2v or self._use_lstsq:
+            self._embeddings = Word2Vec(self._w2v_path)
+        kwargs["embeddings"] = self._embeddings
         self._init_models(a_models, *args, **kwargs)
 
     def train(self, a_train_data, a_dev_data=None,
-              a_path=DFLT_MODEL_PATH, a_grid_search=True,
-              a_w2v=False, a_lstsq=False):
+              a_path=DFLT_MODEL_PATH, a_grid_search=True):
         """Train specified model(s) on the provided data.
 
         Args:
@@ -128,10 +140,6 @@ class SentimentAnalyzer(object):
           a_grid_search (bool):
             use grid search in order to determine hyper-paramaters of
             the model
-          a_w2v (bool):
-            use word2vec embeddings
-          a_lstsq (bool):
-            use least squares method
 
         Returns:
           void:
@@ -357,6 +365,7 @@ class SentimentAnalyzer(object):
         self._wbench = None
         self._logger = None
         self._models = []
+        self._embeddings = None
 
     def _save_model(self, a_model, a_path):
         """Save single model to specifid path.

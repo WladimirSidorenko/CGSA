@@ -3,7 +3,7 @@
 
 ##################################################################
 # Documentation
-"""Package containing a collection of ML-based sentiment analyzers.
+"""Package containing a collection of custom Keras layers.
 
 Attributes:
 
@@ -15,13 +15,16 @@ Attributes:
 # Imports
 from __future__ import absolute_import, print_function, unicode_literals
 
-from .severyn import SeverynAnalyzer
-from .bilstm import BiLSTMAnalyzer
+from .word2vec import Word2Vec
+
 
 ##################################################################
 # Variables and Constants
-__name__ = "cgsa.dl"
-__all__ = ["BiLSTMAnalyzer", "SeverynAnalyzer"]
+EMPTY_IDX = 0
+UNK_IDX = 1
+
+__name__ = "cgsa.dl.layers"
+__all__ = ["EMPTY_IDX", "UNK_IDX", "Word2Vec"]
 __author__ = "Uladzimir Sidarenka"
 __email__ = "sidarenk at uni dash potsdam dot de"
-__version__ = "0.3.0a0"
+__version__ = "0.1.0"

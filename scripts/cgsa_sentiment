@@ -13,8 +13,9 @@ import sys
 from cgsa.cgsa import SentimentAnalyzer
 from cgsa.utils.common import LOGGER
 from cgsa.constants import (
-    COND_PROB_FILE, DFLT_MODEL_PATH, ENCODING, BILSTM, GAMON, GUENTHER,
-    HU_LIU, JUREK, KOLCHYNA, MOHAMMAD, MUSTO, SEVERYN, TABOADA, THREE_CLASS)
+    COND_PROB_FILE, DFLT_MODEL_PATH, DFLT_W2V_PATH, ENCODING, BILSTM, GAMON,
+    GUENTHER, HU_LIU, JUREK, KOLCHYNA, MOHAMMAD, MUSTO, SEVERYN, TABOADA,
+    THREE_CLASS)
 from cgsa.utils.data import Tweet
 
 
@@ -110,11 +111,16 @@ def main(argv):
     parser_train.add_argument("-l", "--lexicon", help="lexicon(s) to use",
                               type=str, action="append", default=[])
     w2v_group = parser_train.add_mutually_exclusive_group()
-    w2v_group.add_argument("--word2vec",
-                           help="use pre-trained word2vec")
-    w2v_group.add_argument("--lstsq-word2vec",
-                           help="use pre-trained word2vec "
-                           "with post-hoc least-square mapping")
+    w2v_group.add_argument("--w2v", help="use pre-trained word2vec embeddings",
+                           action="store_true")
+    w2v_group.add_argument("--lstsq",
+                           help="perform post-hoc mapping from standard "
+                           "word2vec embeddings to task-specific vectors"
+                           " using least squares (implies --word2vec)",
+                           action="store_true")
+    parser_train.add_argument("--w2v-path",
+                              help="path to pre-trained word2vec embeddings"
+                              " to use", type=str, default=DFLT_W2V_PATH)
     _add_cmn_options(parser_train)
 
     parser_test = subparsers.add_parser(
@@ -141,7 +147,10 @@ def main(argv):
         LOGGER.debug("Initializing analyzer...")
         analyzer = SentimentAnalyzer(args.type,
                                      lexicons=args.lexicon,
-                                     cond_probs=args.cond_probs
+                                     cond_probs=args.cond_probs,
+                                     w2v=args.w2v,
+                                     lstsq=args.lstsq,
+                                     w2v_path=args.w2v_path
                                      )
         LOGGER.debug("Training analyzer...")
         analyzer.train(train_set, dev_set,

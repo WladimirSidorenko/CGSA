@@ -16,29 +16,11 @@ from __future__ import absolute_import, print_function
 import gc
 
 from cgsa.utils.common import LOGGER
-from cgsa.constants import DFLT_W2V_PATH
 
 
 ##################################################################
 # Methods
-def singleton(cls):
-    """Make `cls` instance unique across all calls.
-
-    Args:
-      cls (class):
-        class to be decorated
-
-    Retuns:
-      object:
-        singleton instance of the decorated class
-
-    """
-    instance = cls()
-    instance.__call__ = lambda: instance
-    return instance
-
-
-def load_W2V(a_fname):
+def load_word2vec(a_fname):
     """Load Word2Vec data from file.
 
     Args:
@@ -49,10 +31,11 @@ def load_W2V(a_fname):
         mapping from word to the respective embedding
 
     """
-    from gensim.models.word2vec import Word2Vec
+    from gensim.models import KeyedVectors
     LOGGER.info("Loading %s... ", a_fname)
-    w2v = Word2Vec.load_word2vec_format(a_fname, binary=True)
-    LOGGER.info("Finished loading %s... ", a_fname)
+    w2v = KeyedVectors.load_word2vec_format(
+        a_fname, binary=False, unicode_errors="replace")
+    LOGGER.info("Loaded %s.", a_fname)
     return w2v
 
 
@@ -84,8 +67,10 @@ class LoadOnDemand(object):
         self.cmd = a_cmd
         self.args = a_args
         self.kwargs = a_kwargs
+        self.__contains__ = self.__load_contains__
+        self.__getitem__ = self.__load_getitem__
 
-    def __contains__(self, a_name):
+    def __load_contains__(self, a_name):
         """Proxy method for looking up a word in the resource.
 
         Args:
@@ -96,9 +81,23 @@ class LoadOnDemand(object):
 
         """
         self.load()
+        return self.__noload_contains__(a_name)
+
+    __contains__ = __load_contains__
+
+    def __noload_contains__(self, a_name):
+        """Proxy method for looking up a word in the resource.
+
+        Args:
+          a_name (str): word to look up in the resource
+
+        Note:
+          forwards the request to the underlying resource
+
+        """
         return a_name in self.resource
 
-    def __getitem__(self, a_name):
+    def __load_getitem__(self, a_name):
         """Proxy method for accessing the resource.
 
         Args:
@@ -110,7 +109,21 @@ class LoadOnDemand(object):
         """
         # initialize the resource if needed
         self.load()
-        return self.resource.__getitem__(a_name)
+        return self.__noload_getitem__(a_name)
+
+    __getitem__ = __load_getitem__
+
+    def __noload_getitem__(self, a_name):
+        """Proxy method for accessing the resource.
+
+        Args:
+          a_name (str): word to look up in the resource
+
+        Note:
+          forwards the request to the underlying resource
+
+        """
+        return self.resource[a_name]
 
     def load(self):
         """Force loading the resource.
@@ -121,7 +134,8 @@ class LoadOnDemand(object):
         """
         if self.resource is None:
             self.resource = self.cmd(*self.args, **self.kwargs)
-        return self.resource
+            self.__contains__ = self.__noload_contains__
+            self.__getitem__ = self.__noload_getitem__
 
     def unload(self):
         """Unload the resource.
@@ -131,30 +145,41 @@ class LoadOnDemand(object):
 
         """
         if self.resource is not None:
-            LOGGER.infor("Unloading resource %r...", self.resource)
+            resource_name = "{:s}".format(str(self.resource))
+            LOGGER.info("Unloading %s...", resource_name)
             del self.resource
             self.resource = None
             gc.collect()
+            self.__contains__ = self.__load_contains__
+            self.__getitem__ = self.__load_getitem__
+            LOGGER.info("Unloaded %s...", resource_name)
 
 
-W2V = LoadOnDemand(load_W2V, DFLT_W2V_PATH)
+class Singleton(object):
+    def __init__(self, klass):
+        self.klass = klass
+        self.instance = None
+
+    def __call__(self, *args, **kwds):
+        if self.instance is None:
+            self.instance = self.klass(*args, **kwds)
+        return self.instance
 
 
-@singleton
+@Singleton
 class Word2Vec(object):
     """Class for cached retrieval of word embeddings.
 
     """
 
-    def __init__(self, a_w2v=W2V):
+    def __init__(self, path):
         """Class cosntructor.
 
         Args:
-          a_w2v (gensim.Word2Vec):
-            dictionary with original word embeddings
+          path (str): path the word2vec file
 
         """
-        self._w2v = a_w2v
+        self._w2v = LoadOnDemand(load_word2vec, path)
         self._cache = {}
         self.ndim = -1
 

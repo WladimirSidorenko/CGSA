@@ -27,14 +27,15 @@ import os
 
 from cgsa.base import BaseAnalyzer
 from cgsa.utils.common import LOGGER, is_relevant, normlex
-from cgsa.utils.word2vec import Word2Vec
+from .layers import EMPTY_IDX, UNK_IDX
+from .layers.word2vec import Word2Vec
 
 
 ##################################################################
 # Variables and Constants
 DFLT_VDIM = 300
-EMPTY_IDX = 0
-UNK_IDX = 1
+EMPTY_TOK = "%EMPTY%"
+UNK_TOK = "%UNK%"
 DICT_OFFSET = 1
 UNK_PROB = 1e-4
 L2_COEFF = 1e-4
@@ -56,23 +57,21 @@ class DLBaseAnalyzer(BaseAnalyzer):
 
     """
 
-    def __init__(self, word2vec=None, lstsq_word2vec=None, **kwargs):
+    def __init__(self, w2v=False, lstsq=False, embeddings=None, **kwargs):
         """Class constructor.
 
         Args:
-          word2vec (str): path to the word2vec file
-          lstsq_word2vec (str): path to the word2vec file which should be used
-            for least-square computation
+          w2v (bool): use word2vec embeddings
+          lstsq (bool): use the least squares method
+          embeddings (cgsa.utils.word2vec.Word2Vec or None): pretrained
+            embeddings
 
         """
         super(DLBaseAnalyzer, self).__init__()
         self.name = "DLBaseAnalyzer"
-        if word2vec or lstsq_word2vec:
-            self.w2v = Word2Vec  # singleton object
-        else:
-            self.w2v = None
-        self._lstsq = bool(lstsq_word2vec)
-        self._plain_w2v = bool(word2vec)
+        self._w2v = w2v
+        self._lstsq = lstsq
+        self._embeddings = embeddings
         self.w2emb = None
         self.ndim = -1    # vector dimensionality will be initialized later
         self.intm_dim = -1
@@ -82,7 +81,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         self._n_epochs = 24
         # mapping from word to its embedding index
         self._aux_keys = set((0, 1))
-        self.w2emb_i = {"EMPTY": EMPTY_IDX, "UNK": UNK_IDX}
+        self.w2emb_i = {EMPTY_TOK: EMPTY_IDX, UNK_TOK: UNK_IDX}
         self._min_width = 0
         self._n_y = 0
 
@@ -101,7 +100,9 @@ class DLBaseAnalyzer(BaseAnalyzer):
             train_x, train_y, dev_x, dev_y
         )
         # initialize word embeddings and convert word lists to lists of indices
+        self._logger.debug("Digitizing data...")
         self._digitize_data(train_x, dev_x)
+        self._logger.debug("Data digitized...")
         train_x = pad_sequences(train_x)
         dev_x = pad_sequences(dev_x)
         # initialize the network
@@ -120,7 +121,8 @@ class DLBaseAnalyzer(BaseAnalyzer):
                             validation_data=(dev_x, dev_y),
                             epochs=self._n_epochs,
                             callbacks=[early_stop, chck_point])
-            self._model = load_model(ofname)
+            self._model = load_model(ofname,
+                                     custom_objects={"Word2Vec": Word2Vec})
             self._trained = True
         finally:
             os.remove(ofname)
@@ -137,10 +139,15 @@ class DLBaseAnalyzer(BaseAnalyzer):
         for i, prob_i in enumerate(ret[0]):
             yvec[i] = prob_i
 
-    def restore(self):
+    def restore(self, embs):
         """Restore members which could not be serialized.
 
+        Args:
+          embs (cgsa.utils.word2vec.Word2Vec or None): pretrained
+            embeddings
+
         """
+        self._embeddings = embs
         self._logger = LOGGER
 
     def reset(self):
@@ -149,6 +156,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         """
         # set functions to None
         self._reset_funcs()
+        self._embeddings = None
         super(DLBaseAnalyzer, self).reset()
 
     def save(self, path):
@@ -187,36 +195,29 @@ class DLBaseAnalyzer(BaseAnalyzer):
         """Initialize functions for obtaining word embeddings.
 
         """
-        if self._plain_w2v:
-            if self.w2v is None:
-                self.w2v = Word2Vec
-            self.w2v.load()
-            self.ndim = self.w2v.ndim
-            self.get_train_w_emb_i = self._get_train_w2v_emb_i
+        if self.ndim < 0:
+            self.ndim = DFLT_VDIM
+        if self._w2v:
             self.init_w_emb = self._init_w2v_emb
+            self.get_train_w_emb_i = self._get_train_w2v_emb_i
             if self._trained:
                 self.get_test_w_emb_i = self._get_test_w2v_emb_i
                 self._predict_func = self._predict_func_emb
             else:
                 self.get_test_w_emb_i = self._get_train_w2v_emb_i
         elif self._lstsq:
-            self.ndim = DFLT_VDIM
             self.get_train_w_emb_i = self._get_train_w2v_emb_i
             self.init_w_emb = self._init_w_emb
             if self._trained:
-                if self.w2v is None:
-                    self.w2v = Word2Vec
-                    self.w2v.load()
                 self.get_test_w_emb_i = self._get_test_w2v_lstsq_emb_i
                 self._predict_func = self._predict_func_emb
             else:
                 self.get_test_w_emb_i = self._get_train_w2v_emb_i
         else:
             # checked
-            self.ndim = DFLT_VDIM
+            self.init_w_emb = self._init_w_emb
             self.get_train_w_emb_i = self._get_train_w_emb_i
             self.get_test_w_emb_i = self._get_test_w_emb_i
-            self.init_w_emb = self._init_w_emb
 
     def _reset_funcs(self):
         """Set all compiled theano functions to None.
@@ -247,19 +248,20 @@ class DLBaseAnalyzer(BaseAnalyzer):
         """Initialize word2vec embedding matrix.
 
         """
+        self._embeddings.load()
+        self.ndim = self._embeddings.ndim
         w_emb = np.empty((len(self.w2emb_i), self.ndim))
         w_emb[EMPTY_IDX, :] *= 0
         w_emb[UNK_IDX, :] = 1e-2  # prevent zeros in this row
         for w, i in iteritems(self.w2emb_i):
-            if i == UNK_IDX:
+            if i == EMPTY_IDX or i == UNK_IDX:
                 continue
-            w_emb[i] = self.w2v[w]
-        self.W_EMB = theano.shared(value=floatX(w_emb),
-                                   name="W_EMB")
+            w_emb[i] = self._embeddings[w]
+        self.W_EMB = Word2Vec(w_emb)  # custom keras layer
         # We unload embeddings every time before the training to free more
         # memory.  Feel free to comment the line below, if you have plenty of
         # RAM.
-        self.w2v.unload()
+        self._embeddings.unload()
 
     # def _init_w2emb(self):
     #     """Compute a mapping from Word2Vec to embeddings.
@@ -338,7 +340,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         a_word = normlex(a_word)
         if a_word in self.w2emb_i:
             return self.w2emb_i[a_word]
-        elif a_word in self.w2v:
+        elif a_word in self._embeddings:
             i = self.w2emb_i[a_word] = len(self.w2emb_i)
             return i
         else:
@@ -359,8 +361,8 @@ class DLBaseAnalyzer(BaseAnalyzer):
         a_word = normlex(a_word)
         emb_i = self.w2emb_i.get(a_word)
         if emb_i is None:
-            if a_word in self.w2v:
-                return floatX(self.w2v[a_word])
+            if a_word in self._embeddings:
+                return self._embeddings[a_word]
             return self.W_EMB[UNK_IDX]
         return self.W_EMB[emb_i]
 

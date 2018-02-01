@@ -1,4 +1,5 @@
 future>=0.16.0
+gensim>=3.2.0
 h5py>=2.7.0
 keras>=2.0.6
 numpy>=1.6.1
