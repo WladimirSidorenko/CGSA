@@ -8,17 +8,7 @@
 # Imports
 from __future__ import absolute_import, unicode_literals, print_function
 
-from keras import backend as K
 from keras.layers.embeddings import Embedding
-import numpy as np
-
-
-import theano
-
-
-def debug_shape(var):
-    f = theano.function([var], var.shape)
-    return f(var)
 
 
 ##################################################################

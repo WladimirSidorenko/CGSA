@@ -22,9 +22,10 @@ from .word2vec import Word2Vec
 # Variables and Constants
 EMPTY_IDX = 0
 UNK_IDX = 1
+CUSTOM_OBJECTS = {"Word2Vec": Word2Vec}
 
 __name__ = "cgsa.dl.layers"
-__all__ = ["EMPTY_IDX", "UNK_IDX", "Word2Vec"]
+__all__ = ["EMPTY_IDX", "UNK_IDX", "Word2Vec", "CUSTOM_OBJECTS"]
 __author__ = "Uladzimir Sidarenka"
 __email__ = "sidarenk at uni dash potsdam dot de"
 __version__ = "0.1.0"

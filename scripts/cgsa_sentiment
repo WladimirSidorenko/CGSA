@@ -128,6 +128,11 @@ def main(argv):
     parser_test.add_argument("-b", "--batch",
                              help="batch-predict the classes",
                              action="store_true")
+    parser_test.add_argument("--w2v-path",
+                             help="path to pre-trained word2vec embeddings"
+                             " to use (should better be the same as the ones "
+                             "used for training)", type=str,
+                             default=DFLT_W2V_PATH)
     _add_cmn_options(parser_test)
 
     args = argparser.parse_args()
@@ -160,6 +165,7 @@ def main(argv):
         LOGGER.debug("Analyzer trained.")
     else:
         analyzer = SentimentAnalyzer.load(args.model,
+                                          args.w2v_path,
                                           on_demand=args.batch)
         if args.batch:
             tweets = [tweet_i

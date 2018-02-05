@@ -51,7 +51,7 @@ class SentimentAnalyzer(object):
 
     """
     @staticmethod
-    def load(a_path, on_demand=False):
+    def load(a_path, w2v_path, on_demand=False):
         """Load serialized model(s) from disc.
 
         Args:
@@ -68,8 +68,14 @@ class SentimentAnalyzer(object):
         # normalize paths to serialized models
         analyzer._dirname = os.path.dirname(a_path)
         analyzer._logger = LOGGER
-        if analyzer._use_w2v or analyzer._use_lstsq:
-            analyzer._embeddings = Word2Vec(analyzer._w2v_path)
+        if analyzer._w2v or analyzer._lstsq:
+            if w2v_path != analyzer._w2v_path:
+                LOGGER.warn(
+                    "Classifier %r was trained with a different embedding"
+                    " file: trained with %s vs. testing with %s", analyzer,
+                    analyzer._w2v_path, w2v_path
+                )
+            analyzer._embeddings = Word2Vec(w2v_path)
         if not on_demand:
             analyzer._models = [
                 model_i
@@ -115,13 +121,13 @@ class SentimentAnalyzer(object):
         self._logger = LOGGER
         self._model_paths = []
         self._trained_models = []
-        self._use_w2v = kwargs.get("w2v", False)
-        self._use_lstsq = kwargs.get("lstsq", False)
+        self._w2v = kwargs.get("w2v", False)
+        self._lstsq = kwargs.get("lstsq", False)
         self._w2v_path = os.path.abspath(
             kwargs.pop("w2v_path", DFLT_W2V_PATH)
         )
         self._embeddings = None
-        if self._use_w2v or self._use_lstsq:
+        if self._w2v or self._lstsq:
             self._embeddings = Word2Vec(self._w2v_path)
         kwargs["embeddings"] = self._embeddings
         self._init_models(a_models, *args, **kwargs)

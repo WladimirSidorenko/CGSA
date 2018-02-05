@@ -27,7 +27,7 @@ import os
 
 from cgsa.base import BaseAnalyzer
 from cgsa.utils.common import LOGGER, is_relevant, normlex
-from .layers import EMPTY_IDX, UNK_IDX
+from .layers import CUSTOM_OBJECTS, EMPTY_IDX, UNK_IDX
 from .layers.word2vec import Word2Vec
 
 
@@ -69,10 +69,21 @@ class DLBaseAnalyzer(BaseAnalyzer):
         """
         super(DLBaseAnalyzer, self).__init__()
         self.name = "DLBaseAnalyzer"
+        # boolean flags indicating whether to use external embeddings
         self._w2v = w2v
         self._lstsq = lstsq
+        # actual external embeddings
         self._embeddings = embeddings
-        self.w2emb = None
+        # mapping from words to their embedding indices in `self._embs` or
+        # `self.W_EMB`
+        self._w2i = {EMPTY_TOK: EMPTY_IDX, UNK_TOK: UNK_IDX}
+        self._pad_value = EMPTY_IDX
+        # mapping from words to their embeddings (will be initialized after
+        # training the network, if `w2v` or `lstsq` are true)
+        self._embs = None
+        # least squares matrix (will be initialized after training the network,
+        # if true)
+        self._lstsq_mtx = None
         self.ndim = -1    # vector dimensionality will be initialized later
         self.intm_dim = -1
         self._model = None
@@ -81,7 +92,6 @@ class DLBaseAnalyzer(BaseAnalyzer):
         self._n_epochs = 24
         # mapping from word to its embedding index
         self._aux_keys = set((0, 1))
-        self.w2emb_i = {EMPTY_TOK: EMPTY_IDX, UNK_TOK: UNK_IDX}
         self._min_width = 0
         self._n_y = 0
 
@@ -95,18 +105,17 @@ class DLBaseAnalyzer(BaseAnalyzer):
         self._init_wemb_funcs()
 
     def train(self, train_x, train_y, dev_x, dev_y, a_grid_search):
+        self._start_training()
         self._logger.debug("Training %s...", self.name)
+        self._logger.debug("Preparing dataset...")
         train_x, train_y, dev_x, dev_y = self._prepare_data(
             train_x, train_y, dev_x, dev_y
         )
-        # initialize word embeddings and convert word lists to lists of indices
-        self._logger.debug("Digitizing data...")
-        self._digitize_data(train_x, dev_x)
-        self._logger.debug("Data digitized...")
-        train_x = pad_sequences(train_x)
-        dev_x = pad_sequences(dev_x)
+        self._logger.debug("Dataset ready...")
         # initialize the network
+        self._logger.debug("Initializing the network...")
         self._init_nn()
+        self._logger.debug("Network ready...")
         # initialize callbacks
         _, ofname = mkstemp(suffix=".hdf5", prefix=self.name + '.')
         try:
@@ -121,23 +130,22 @@ class DLBaseAnalyzer(BaseAnalyzer):
                             validation_data=(dev_x, dev_y),
                             epochs=self._n_epochs,
                             callbacks=[early_stop, chck_point])
-            self._model = load_model(ofname,
-                                     custom_objects={"Word2Vec": Word2Vec})
-            self._trained = True
+            self._model = load_model(ofname, custom_objects=CUSTOM_OBJECTS)
+            self._finish_training()
         finally:
             os.remove(ofname)
         self._logger.debug("%s trained", self.name)
 
     def predict_proba(self, msg, yvec):
         wseq = tweet2wseq(msg)
-        emb_idcs = np.array(
-            [self.get_test_w_emb_i(w) for w in wseq]
-            + self._pad(len(wseq)), dtype="int32")
-        ret = self._model.predict(np.asarray([emb_idcs]),
+        embs = np.array(
+            [self.get_test_w_emb(w) for w in wseq]
+            + self._pad(len(wseq), self._pad_value), dtype="int32")
+        self._logger.debug("embs: %r", embs)
+        ret = self._model.predict(np.asarray([embs]),
                                   batch_size=1,
                                   verbose=2)
-        for i, prob_i in enumerate(ret[0]):
-            yvec[i] = prob_i
+        yvec[:] = ret[0]
 
     def restore(self, embs):
         """Restore members which could not be serialized.
@@ -178,7 +186,8 @@ class DLBaseAnalyzer(BaseAnalyzer):
 
     def _load(self):
         super(DLBaseAnalyzer, self)._load()
-        self._model = load_model(self._model_path)
+        self._model = load_model(self._model_path,
+                                 custom_objects=CUSTOM_OBJECTS)
         self._init_wemb_funcs()
 
     @abc.abstractmethod
@@ -191,6 +200,56 @@ class DLBaseAnalyzer(BaseAnalyzer):
     def _extract_feats(self, a_tweet):
         pass
 
+    def _start_training(self):
+        """Prepare for training.
+
+        """
+        self._trained = False
+
+    def _finish_training(self):
+        """Finalize the trained network.
+
+        """
+        self._logger.info("Finalizing network")
+        if self._lstsq or self._w2v:
+            if self._lstsq:
+                # Extract embeddings from the network
+                task_embs = self._model.layers[0].get_weights()
+                assert len(task_embs) == 1, \
+                    ("Unmatching number of trained paramaters:"
+                     " {:d} instead of {:d}").format(
+                         len(task_embs), 1)
+                # extract only embeddings of known words
+                START_IDX = UNK_IDX + 1
+                task_embs = task_embs[0]
+                w2v_embs = self._embs
+                # Compute the least square matrix
+                self._logger.info("Computing transform matrix for"
+                                  " task-specific embeddings.")
+                self._lstsq_mtx, res, rank, _ = np.linalg.lstsq(
+                    w2v_embs[START_IDX:], task_embs[START_IDX:]
+                )
+                self._logger.info("Transform matrix computed"
+                                  " (rank: %d, residuals: %f).",
+                                  rank, sum(res))
+                self._embs = task_embs
+            # pop embeddings and replace the first layer coming after them
+            layers = self._model.layers
+            emb_layer = layers.pop(0)
+
+            first_layer = layers.pop(0)
+            layer_config = first_layer.get_config()
+            layer_config["input_shape"] = (None, emb_layer.output_dim)
+            new_layer = first_layer.__class__.from_config(
+                layer_config
+            )
+            new_layer.build((emb_layer.input_dim, emb_layer.output_dim))
+            new_layer.set_weights(first_layer.get_weights())
+            layers.insert(0, new_layer)
+            self._model = self._model.__class__(layers=layers)
+        self._logger.info("Network finalized")
+        self._trained = True
+
     def _init_wemb_funcs(self):
         """Initialize functions for obtaining word embeddings.
 
@@ -201,23 +260,21 @@ class DLBaseAnalyzer(BaseAnalyzer):
             self.init_w_emb = self._init_w2v_emb
             self.get_train_w_emb_i = self._get_train_w2v_emb_i
             if self._trained:
-                self.get_test_w_emb_i = self._get_test_w2v_emb_i
-                self._predict_func = self._predict_func_emb
+                self.get_test_w_emb = self._get_test_w2v_emb
             else:
-                self.get_test_w_emb_i = self._get_train_w2v_emb_i
+                self.get_test_w_emb = self._get_train_w2v_emb_i
         elif self._lstsq:
+            self.init_w_emb = self._init_w2v_emb
             self.get_train_w_emb_i = self._get_train_w2v_emb_i
-            self.init_w_emb = self._init_w_emb
             if self._trained:
-                self.get_test_w_emb_i = self._get_test_w2v_lstsq_emb_i
-                self._predict_func = self._predict_func_emb
+                self.get_test_w_emb = self._get_test_w2v_lstsq_emb
             else:
-                self.get_test_w_emb_i = self._get_train_w2v_emb_i
+                self.get_test_w_emb = self._get_train_w2v_emb_i
         else:
             # checked
             self.init_w_emb = self._init_w_emb
             self.get_train_w_emb_i = self._get_train_w_emb_i
-            self.get_test_w_emb_i = self._get_test_w_emb_i
+            self.get_test_w_emb = self._get_test_w_emb_i
 
     def _reset_funcs(self):
         """Set all compiled theano functions to None.
@@ -240,7 +297,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         """Initialize task-specific word embeddings.
 
         """
-        self.W_EMB = Embedding(len(self.w2emb_i), self.ndim,
+        self.W_EMB = Embedding(len(self._w2i), self.ndim,
                                embeddings_initializer="he_normal",
                                embeddings_regularizer=l2(L2_COEFF))
 
@@ -250,14 +307,15 @@ class DLBaseAnalyzer(BaseAnalyzer):
         """
         self._embeddings.load()
         self.ndim = self._embeddings.ndim
-        w_emb = np.empty((len(self.w2emb_i), self.ndim))
-        w_emb[EMPTY_IDX, :] *= 0
-        w_emb[UNK_IDX, :] = 1e-2  # prevent zeros in this row
-        for w, i in iteritems(self.w2emb_i):
+        self._embs = np.empty((len(self._w2i), self.ndim))
+        self._embs[EMPTY_IDX, :] *= 0
+        self._embs[UNK_IDX, :] = 1e-2  # prevent zeros in this row
+        for w, i in iteritems(self._w2i):
             if i == EMPTY_IDX or i == UNK_IDX:
                 continue
-            w_emb[i] = self._embeddings[w]
-        self.W_EMB = Word2Vec(w_emb)  # custom keras layer
+            self._embs[i] = self._embeddings[w]
+        # initialize custom keras layer
+        self.W_EMB = Word2Vec(self._embs, trainable=self._lstsq)
         # We unload embeddings every time before the training to free more
         # memory.  Feel free to comment the line below, if you have plenty of
         # RAM.
@@ -272,13 +330,13 @@ class DLBaseAnalyzer(BaseAnalyzer):
     #     """
     #     # construct two matrices - one with the original word2vec
     #     # representations and another one with task-specific embeddings
-    #     m = len(self.w2emb_i)
+    #     m = len(self._w2i)
     #     n = self.ndim
     #     j = len(self._aux_keys)
     #     w2v_emb = floatX(np.empty((m, self.w2v.ndim)))
     #     task_emb = floatX(np.empty((m, n)))
     #     k = 0
-    #     for w, i in self.w2emb_i.iteritems():
+    #     for w, i in self._w2i.iteritems():
     #         k = i - j
     #         w2v_emb[k] = floatX(self.w2v[w])
     #         task_emb[k] = floatX(self.W_EMB[i])
@@ -303,12 +361,12 @@ class DLBaseAnalyzer(BaseAnalyzer):
 
         """
         a_word = normlex(a_word)
-        if a_word in self.w2emb_i:
-            return self.w2emb_i[a_word]
+        if a_word in self._w2i:
+            return self._w2i[a_word]
         elif self._w_stat[a_word] < 2 and np.random.binomial(1, UNK_PROB):
             return UNK_IDX
         else:
-            i = self.w2emb_i[a_word] = len(self.w2emb_i)
+            i = self._w2i[a_word] = len(self._w2i)
             return i
 
     def _get_test_w_emb_i(self, a_word):
@@ -324,7 +382,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
 
         """
         a_word = normlex(a_word)
-        return self.w2emb_i.get(a_word, UNK_IDX)
+        return self._w2i.get(a_word, UNK_IDX)
 
     def _get_train_w2v_emb_i(self, a_word):
         """Obtain embedding index for the given word.
@@ -338,15 +396,15 @@ class DLBaseAnalyzer(BaseAnalyzer):
 
         """
         a_word = normlex(a_word)
-        if a_word in self.w2emb_i:
-            return self.w2emb_i[a_word]
+        if a_word in self._w2i:
+            return self._w2i[a_word]
         elif a_word in self._embeddings:
-            i = self.w2emb_i[a_word] = len(self.w2emb_i)
+            i = self._w2i[a_word] = len(self._w2i)
             return i
         else:
             return UNK_IDX
 
-    def _get_test_w2v_emb_i(self, a_word):
+    def _get_test_w2v_emb(self, a_word):
         """Obtain embedding index for the given word.
 
         Args:
@@ -359,14 +417,14 @@ class DLBaseAnalyzer(BaseAnalyzer):
 
         """
         a_word = normlex(a_word)
-        emb_i = self.w2emb_i.get(a_word)
+        emb_i = self._w2i.get(a_word)
         if emb_i is None:
             if a_word in self._embeddings:
                 return self._embeddings[a_word]
-            return self.W_EMB[UNK_IDX]
-        return self.W_EMB[emb_i]
+            return self._embs[UNK_IDX]
+        return self._embs[emb_i]
 
-    def _get_test_w2v_lstsq_emb_i(self, a_word):
+    def _get_test_w2v_lstsq_emb(self, a_word):
         """Obtain embedding index for the given word.
 
         Args:
@@ -379,12 +437,13 @@ class DLBaseAnalyzer(BaseAnalyzer):
 
         """
         a_word = normlex(a_word)
-        emb_i = self.w2emb_i.get(a_word)
+        emb_i = self._w2i.get(a_word)
         if emb_i is None:
-            if a_word in self.w2v:
-                return floatX(np.dot(self.w2v[a_word], self.w2emb))
-            return self.W_EMB[UNK_IDX]
-        return self.W_EMB[emb_i]
+            if a_word in self._embeddings:
+                return np.dot(self._embeddings[a_word],
+                              self._lstsq_mtx)
+            return self._embs[UNK_IDX]
+        return self._embs[emb_i]
 
     def _prepare_data(self, train_x, train_y, dev_x, dev_y):
         """Provide train/test split and digitize the data.
@@ -404,9 +463,12 @@ class DLBaseAnalyzer(BaseAnalyzer):
             train_x = get_split(train_x, idcs[n_dev:])
             train_y = get_split(train_y, idcs[n_dev:])
 
-        # convert tweets to word lists
+        # convert tweets to word indices
         train_x = [tweet2wseq(x) for x in train_x]
         dev_x = [tweet2wseq(x) for x in dev_x]
+        self._digitize_data(train_x, dev_x)
+        train_x = pad_sequences(train_x)
+        dev_x = pad_sequences(dev_x)
         self._n_y = len(set(train_y) | set(dev_y))
         train_y = to_categorical(np.asarray(train_y))
         dev_y = to_categorical(np.asarray(dev_y))
@@ -450,13 +512,13 @@ class DLBaseAnalyzer(BaseAnalyzer):
                                      dtype="int32")
 
         wseq2emb_ids(train_x, self.get_train_w_emb_i)
-        wseq2emb_ids(dev_x, self.get_test_w_emb_i)
+        wseq2emb_ids(dev_x, self.get_test_w_emb)
 
-    def _pad(self, xlen):
-        """Add indices of empty words to match minimum filter length.
+    def _pad(self, xlen, pad_value=EMPTY_IDX):
+        """Add indices or vecors of empty words to match minimum filter length.
 
         Args:
           xlen (int): length of the input instance
 
         """
-        return [EMPTY_IDX] * max(0, self._min_width - xlen)
+        return [pad_value] * max(0, self._min_width - xlen)
