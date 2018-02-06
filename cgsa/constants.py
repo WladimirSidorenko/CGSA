@@ -124,6 +124,7 @@ DFLT_W2V_PATH = os.path.join(DATA_DIR, "vectors.word2vec")
 MODEL_DIR = os.path.join(DATA_DIR, "models")
 DFLT_MODEL_PATH = os.path.join(MODEL_DIR, "cgsa.model")
 
+BAZIOTIS = "baziotis"
 BILSTM = "bilstm"
 GAMON = "gamon"
 GUENTHER = "guenther"
