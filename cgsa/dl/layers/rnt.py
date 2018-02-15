@@ -6,7 +6,7 @@
 from __future__ import absolute_import, unicode_literals, print_function
 
 from keras import backend as K
-from keras.layers.recurrent import Recurrent
+from .rn import RN, set_subtensor
 
 ##################################################################
 # Variables and Constants
@@ -14,91 +14,41 @@ from keras.layers.recurrent import Recurrent
 
 ##################################################################
 # Class
-class RNT(Recurrent):
-    def __init__(self,
-                 W_regularizer=None, b_regularizer=None,
-                 W_constraint=None, b_constraint=None,
-                 bias=True, initializer="glorot_uniform", **kwargs):
-        """Recursive neural tensor layer.
-
-        """
-        self.supports_masking = True
-        self.initializer = initializer
-
-        self.W_regularizer = W_regularizer
-        self.b_regularizer = b_regularizer
-
-        self.W_constraint = W_constraint
-        self.b_constraint = b_constraint
-
-        self.bias = bias
-        super(RNT, self).__init__(**kwargs)
-
-    def build(self, input_shape):
-        assert len(input_shape) == 3
-
-        self.W = self.add_weight(shape=(input_shape[-1],),
-                                 initializer=self.initializer,
-                                 name='{}_W'.format(self.name),
+class RNT(RN):
+    def build(self, input_shapes):
+        self.V = self.add_weight(shape=(self.units, 2 * self.units,
+                                        2 * self.units),
+                                 name="{}_V".format(self.name),
+                                 initializer=self.W_initializer,
                                  regularizer=self.W_regularizer,
                                  constraint=self.W_constraint)
-        if self.bias:
-            if input_shape[1] is None:
-                raise RuntimeError(
-                    "Cannot initialize bias term {!r} with non-fixed input length.".format(self.bias)
-                )
-            self.b = self.add_weight(shape=(input_shape[1],),
-                                     initializer='zero',
-                                     name='{}_b'.format(self.name),
-                                     regularizer=self.b_regularizer,
-                                     constraint=self.b_constraint)
-        else:
-            self.b = None
+        super(RNT, self).build(input_shapes)
 
-        self.built = True
+    def step(self, inputs, states):
+        inst_indcs = K.arange(0, K.shape(inputs)[0])
+        chld_indcs = inputs[:, 0]
+        prnt_indcs = inputs[:, 1]
+        embs = states[0]
+        chld_embs = embs[inst_indcs, chld_indcs]
+        prnt_embs = embs[inst_indcs, prnt_indcs]
+        node_embs = K.concatenate([chld_embs, prnt_embs], axis=-1)
+        node_embs_t = K.transpose(node_embs)
 
-    def call(self, x, mask=None):
-        eij = dot_product(x, self.W)
-
-        if self.bias:
-            eij += self.b
-
-        eij = K.tanh(eij)
-
-        a = K.exp(eij)
-
-        # apply mask after the exp. will be re-normalized next
-        if mask is not None:
-            # Cast the mask to floatX to avoid float64 upcasting in theano
-            a *= K.cast(mask, K.floatx())
-
-        # in some cases especially in the early stages of training the sum may
-        # be almost zero and this results in NaN's. A workaround is to add a
-        # very small positive number ε to the sum.  a /= K.cast(K.sum(a,
-        # axis=1, keepdims=True), K.floatx())
-        a /= K.cast(K.sum(a, axis=1, keepdims=True) + K.epsilon(), K.floatx())
-
-        a = K.expand_dims(a)
-        weighted_input = x * a
-        return K.sum(weighted_input, axis=1)
-
-    def compute_mask(self, input, input_mask=None):
-        # do not pass the mask to the next layers
-        return None
-
-    def compute_output_shape(self, input_shape):
-        output_shape = list(input_shape)
-        if output_shape[-1] is not None:
-            output_shape[-1] = 1
-        return (input_shape[0], input_shape[-1])
-
-    def get_config(self):
-        config = {
-            "initializer": self.initializer,
-            "W_regularizer": self.W_regularizer,
-            "b_regularizer": self.b_regularizer,
-            "W_constraint": self.W_constraint,
-            "b_constraint": self.b_constraint,
-            "bias": self.bias
-        }
-        return config
+        # node_embs_t will have the dimension (2 * units x batch_size)
+        # V will have the dimension (units x 2 * units x 2 * units)
+        # ret0 will have the dimension (units x 2 * units x batch_size)
+        ret0 = K.dot(self.V, node_embs_t)
+        # ret0 will have the dimension (units x 2 * units x batch_size)
+        # tiled node embs will have the dimension (units x 2 * units x batch_size)
+        # ret1 will have the dimension (units x batch_size x 2 * units)
+        ret1 = ret0 * K.tile(node_embs_t, (self.units, 1, 1))
+        # ret2 will have the dimension (batch_size x units)
+        ret2 = K.transpose(K.sum(ret1, axis=1))
+        # ret will have the same dimensions as ret2
+        ret = ret2 + K.dot(node_embs, self.W)
+        if self.use_bias:
+            ret = K.bias_add(ret, self.b)
+        ret = self.activation(ret)
+        # now, the tricky part we need to actually modify the embedding matrix
+        embs = set_subtensor(embs[inst_indcs, prnt_indcs], ret)
+        return ret, [embs]

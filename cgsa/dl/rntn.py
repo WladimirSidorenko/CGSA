@@ -8,12 +8,8 @@
 # Imports
 from __future__ import absolute_import, unicode_literals, print_function
 
-from keras.models import Sequential
-from keras.layers import (Conv1D, Dense, Dropout, GlobalMaxPooling1D)
-from keras.regularizers import l2
-from cgsa.dl.base import DLBaseAnalyzer
-
 from .tree_rnn_base import TreeRNNBaseAnalyzer
+from .layers import RNT
 
 ##################################################################
 # Variables and Constants
@@ -30,5 +26,13 @@ class RNTNAnalyzer(TreeRNNBaseAnalyzer):
     def __init__(self, *args, **kwargs):
         super(RNTNAnalyzer, self).__init__(*args, **kwargs)
         self.name = "rntn"
-        # default dimensionality for task-specific vectors
-        self.ndim = 300
+        self.ndim = 35
+
+    def _init_rnn(self, inputs):
+        """Method defining a recurrent unit.
+
+        Returns:
+          keras.layer: instanse of a custom keras layer
+
+        """
+        return RNT()(inputs)
