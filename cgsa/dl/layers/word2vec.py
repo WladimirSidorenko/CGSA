@@ -13,6 +13,7 @@ from keras.layers.embeddings import Embedding
 
 ##################################################################
 # Variables and Constants
+WORD2VEC_LAYER_NAME = "Word2Vec"
 
 
 ##################################################################
@@ -30,6 +31,8 @@ class Word2Vec(Embedding):
             self._shape = embs.shape
             kwargs["weights"] = [embs]
 
+        if "name" not in kwargs:
+            kwargs["name"] = WORD2VEC_LAYER_NAME
         kwargs["input_dim"] = self._shape[0]
         kwargs["output_dim"] = self._shape[1]
         kwargs["trainable"] = trainable

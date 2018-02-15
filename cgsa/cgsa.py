@@ -26,8 +26,8 @@ from cgsa.base import BaseAnalyzer
 from cgsa.utils.common import LOGGER
 from cgsa.constants import (DFLT_MODEL_PATH, DFLT_W2V_PATH, BAZIOTIS,
                             BILSTM, GAMON, GUENTHER, HU_LIU, JUREK,
-                            KOLCHYNA, MOHAMMAD, MUSTO, SEVERYN, TABOADA,
-                            CLS2IDX, IDX2CLS)
+                            KOLCHYNA, MOHAMMAD, MUSTO, RNN, RNTN,
+                            SEVERYN, TABOADA, CLS2IDX, IDX2CLS)
 from cgsa.dl.base import DLBaseAnalyzer
 from cgsa.judge import DefaultJudge
 from cgsa.utils.word2vec import Word2Vec
@@ -308,6 +308,12 @@ class SentimentAnalyzer(object):
             elif model_i == MOHAMMAD:
                 from cgsa.ml.mohammad import MohammadAnalyzer
                 analyzer_cls = MohammadAnalyzer
+            elif model_i == RNN:
+                from cgsa.dl.rnn import RNNAnalyzer
+                analyzer_cls = RNNAnalyzer
+            elif model_i == RNTN:
+                from cgsa.dl.rntn import RNTNAnalyzer
+                analyzer_cls = RNTNAnalyzer
             elif model_i == SEVERYN:
                 from cgsa.dl.severyn import SeverynAnalyzer
                 analyzer_cls = SeverynAnalyzer

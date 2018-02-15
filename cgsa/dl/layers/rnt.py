@@ -2,43 +2,11 @@
 # -*- mode: python; coding: utf-8 -*-
 
 ##################################################################
-# Documentation
-"""This module was copied in parts from the [`keras_utilities`
-library](https://github.com/cbaziotis/keras-utilities) and updated to the
-latest Keras interface.
-
-The license of the `keras
-
-MIT License
-
-Copyright (c) 2017 Christos Baziotis
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-"""
-
-##################################################################
 # Imports
 from __future__ import absolute_import, unicode_literals, print_function
 
 from keras import backend as K
-from keras.engine.topology import Layer
+from keras.layers.recurrent import Recurrent
 
 ##################################################################
 # Variables and Constants
@@ -46,26 +14,13 @@ from keras.engine.topology import Layer
 
 ##################################################################
 # Class
-class Attention(Layer):
+class RNT(Recurrent):
     def __init__(self,
                  W_regularizer=None, b_regularizer=None,
                  W_constraint=None, b_constraint=None,
                  bias=True, initializer="glorot_uniform", **kwargs):
-        """
-        Keras Layer that implements an Attention mechanism for temporal data.
-        Supports Masking.
-        Follows the work of Raffel et al. [https://arxiv.org/abs/1512.08756]
-        # Input shape
-            3D tensor with shape: `(samples, steps, features)`.
-        # Output shape
-            2D tensor with shape: `(samples, features)`.
-        :param kwargs:
-        Just put it on top of an RNN Layer (GRU/LSTM/SimpleRNN) with
-          return_sequences=True.
-        The dimensions are inferred based on the output shape of the RNN.
-        Example:
-            model.add(LSTM(64, return_sequences=True))
-            model.add(Attention())
+        """Recursive neural tensor layer.
+
         """
         self.supports_masking = True
         self.initializer = initializer
@@ -77,7 +32,7 @@ class Attention(Layer):
         self.b_constraint = b_constraint
 
         self.bias = bias
-        super(Attention, self).__init__(**kwargs)
+        super(RNT, self).__init__(**kwargs)
 
     def build(self, input_shape):
         assert len(input_shape) == 3
@@ -90,8 +45,7 @@ class Attention(Layer):
         if self.bias:
             if input_shape[1] is None:
                 raise RuntimeError(
-                    ("Cannot initialize bias term {!r}"
-                     " with non-fixed input length.").format(self.bias)
+                    "Cannot initialize bias term {!r} with non-fixed input length.".format(self.bias)
                 )
             self.b = self.add_weight(shape=(input_shape[1],),
                                      initializer='zero',
@@ -100,10 +54,11 @@ class Attention(Layer):
                                      constraint=self.b_constraint)
         else:
             self.b = None
-        super(Attention, self).build(input_shape)
+
+        self.built = True
 
     def call(self, x, mask=None):
-        eij = K.dot(x, self.W)
+        eij = dot_product(x, self.W)
 
         if self.bias:
             eij += self.b
@@ -138,13 +93,12 @@ class Attention(Layer):
         return (input_shape[0], input_shape[-1])
 
     def get_config(self):
-        config = super(Attention, self).get_config()
-        config.update({
+        config = {
             "initializer": self.initializer,
             "W_regularizer": self.W_regularizer,
             "b_regularizer": self.b_regularizer,
             "W_constraint": self.W_constraint,
             "b_constraint": self.b_constraint,
             "bias": self.bias
-        })
+        }
         return config

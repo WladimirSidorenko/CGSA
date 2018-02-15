@@ -133,6 +133,8 @@ JUREK = "jurek"
 KOLCHYNA = "kolchyna"
 MOHAMMAD = "mohammad"
 MUSTO = "musto"
+RNN = "rnn"
+RNTN = "rntn"
 SEVERYN = "severyn"
 TABOADA = "taboada"
 

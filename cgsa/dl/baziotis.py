@@ -30,8 +30,6 @@ class BaziotisAnalyzer(DLBaseAnalyzer):
     Attributes:
 
     """
-    # it's actually filter width
-
     def __init__(self, *args, **kwargs):
         super(BaziotisAnalyzer, self).__init__(*args, **kwargs)
         self.name = "baziotis"

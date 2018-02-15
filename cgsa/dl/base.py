@@ -43,9 +43,6 @@ L2_COEFF = 1e-4
 
 ##################################################################
 # Methods
-def tweet2wseq(msg):
-    return [normlex(w.lemma)
-            for w in msg if is_relevant(w.form)]
 
 
 ##################################################################
@@ -137,7 +134,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         self._logger.debug("%s trained", self.name)
 
     def predict_proba(self, msg, yvec):
-        wseq = tweet2wseq(msg)
+        wseq = self._tweet2wseq(msg)
         embs = np.array(
             [self.get_test_w_emb(w) for w in wseq]
             + self._pad(len(wseq), self._pad_value), dtype="int32")
@@ -212,16 +209,17 @@ class DLBaseAnalyzer(BaseAnalyzer):
         """
         self._logger.info("Finalizing network")
         if self._lstsq or self._w2v:
+            emb_layer_idx = self._get_layer_idx()
             if self._lstsq:
                 # Extract embeddings from the network
-                task_embs = self._model.layers[0].get_weights()
+                task_embs = self._model.layers[emb_layer_idx].get_weights()
                 assert len(task_embs) == 1, \
                     ("Unmatching number of trained paramaters:"
                      " {:d} instead of {:d}").format(
                          len(task_embs), 1)
+                task_embs = task_embs[0]
                 # extract only embeddings of known words
                 START_IDX = UNK_IDX + 1
-                task_embs = task_embs[0]
                 w2v_embs = self._embs
                 # Compute the least square matrix
                 self._logger.info("Computing transform matrix for"
@@ -233,22 +231,50 @@ class DLBaseAnalyzer(BaseAnalyzer):
                                   " (rank: %d, residuals: %f).",
                                   rank, sum(res))
                 self._embs = task_embs
-            # pop embeddings and replace the first layer coming after them
-            layers = self._model.layers
-            emb_layer = layers.pop(0)
-
-            first_layer = layers.pop(0)
-            layer_config = first_layer.get_config()
-            layer_config["input_shape"] = (None, emb_layer.output_dim)
-            new_layer = first_layer.__class__.from_config(
-                layer_config
-            )
-            new_layer.build((emb_layer.input_dim, emb_layer.output_dim))
-            new_layer.set_weights(first_layer.get_weights())
-            layers.insert(0, new_layer)
-            self._model = self._model.__class__(layers=layers)
+            # pop embedding layer and modify the first layer coming after it to
+            # accept plaing embeddings as input
+            self._recompile_model(emb_layer_idx)
+            self._pad_value = self._embs[EMPTY_IDX]
         self._logger.info("Network finalized")
         self._trained = True
+
+    def _get_layer_idx(self):
+        """Return the index of embedding layer in the model.
+
+        Args:
+          name (str): name of the layer (IGNORED)
+
+        Returns:
+          int: index of embedding layer
+
+        """
+        return 0
+
+    def _recompile_model(self, emb_layer_idx):
+        """Change model by removing the embedding layer and .
+
+        Args:
+          emb_layer_idx (int): index of the embedding layer
+
+        Returns:
+          void:
+
+        Note:
+          modifies `self._model` in place
+
+        """
+        layers = self._model.layers
+        emb_layer = layers.pop(emb_layer_idx)
+        first_layer = layers.pop(emb_layer_idx)
+        layer_config = first_layer.get_config()
+        layer_config["input_shape"] = (None, emb_layer.output_dim)
+        new_layer = first_layer.__class__.from_config(
+            layer_config
+        )
+        new_layer.build((emb_layer.input_dim, emb_layer.output_dim))
+        new_layer.set_weights(first_layer.get_weights())
+        layers.insert(emb_layer_idx, new_layer)
+        self._model = self._model.__class__(layers=layers)
 
     def _init_wemb_funcs(self):
         """Initialize functions for obtaining word embeddings.
@@ -283,12 +309,6 @@ class DLBaseAnalyzer(BaseAnalyzer):
           modifies instance variables in place
 
         """
-        # self._grad_shared = None
-        # self._update = None
-        # self._predict_class = None
-        # self._predict_func = None
-        # self._compute_dev_cost = None
-        # self._debug_nn = None
         self.get_train_w_emb_i = None
         self.get_test_w_emb_i = None
         self.init_w_emb = None
@@ -320,33 +340,6 @@ class DLBaseAnalyzer(BaseAnalyzer):
         # memory.  Feel free to comment the line below, if you have plenty of
         # RAM.
         self._embeddings.unload()
-
-    # def _init_w2emb(self):
-    #     """Compute a mapping from Word2Vec to embeddings.
-
-    #     Note:
-    #       modifies instance variables in place
-
-    #     """
-    #     # construct two matrices - one with the original word2vec
-    #     # representations and another one with task-specific embeddings
-    #     m = len(self._w2i)
-    #     n = self.ndim
-    #     j = len(self._aux_keys)
-    #     w2v_emb = floatX(np.empty((m, self.w2v.ndim)))
-    #     task_emb = floatX(np.empty((m, n)))
-    #     k = 0
-    #     for w, i in self._w2i.iteritems():
-    #         k = i - j
-    #         w2v_emb[k] = floatX(self.w2v[w])
-    #         task_emb[k] = floatX(self.W_EMB[i])
-    #     print("Computing task-specific transform matrix...", end="",
-    #           file=sys.stderr)
-    #     self.w2emb, res, rank, _ = np.linalg._lstsq(w2v_emb,
-    #                                                task_emb)
-    #     self.w2emb = floatX(self.w2emb)
-    #     print(" done (w2v rank: {:d}, residuals: {:f})".format(rank, sum(res)),
-    #           file=sys.stderr)
 
     def _get_train_w_emb_i(self, a_word):
         """Obtain embedding index for the given word.
@@ -464,11 +457,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
             train_y = get_split(train_y, idcs[n_dev:])
 
         # convert tweets to word indices
-        train_x = [tweet2wseq(x) for x in train_x]
-        dev_x = [tweet2wseq(x) for x in dev_x]
-        self._digitize_data(train_x, dev_x)
-        train_x = pad_sequences(train_x)
-        dev_x = pad_sequences(dev_x)
+        train_x, dev_x = self._digitize_data(train_x, dev_x)
         self._n_y = len(set(train_y) | set(dev_y))
         train_y = to_categorical(np.asarray(train_y))
         dev_y = to_categorical(np.asarray(dev_y))
@@ -497,22 +486,18 @@ class DLBaseAnalyzer(BaseAnalyzer):
           dev_x (list[list[str]]): development set
 
         Returns:
-          void:
-
-        Note:
-          modifies input arguments in-place
+          2-tuple[list, list]: digitized training and development sets
 
         """
+        train_x = [self._tweet2wseq(x) for x in train_x]
+        dev_x = [self._tweet2wseq(x) for x in dev_x]
         self._compute_w_stat(train_x)
 
-        def wseq2emb_ids(data, w2i):
-            for i, inst_i in enumerate(data):
-                data[i] = np.asarray([w2i(w) for w in inst_i]
-                                     + self._pad(len(inst_i)),
-                                     dtype="int32")
-
-        wseq2emb_ids(train_x, self.get_train_w_emb_i)
-        wseq2emb_ids(dev_x, self.get_test_w_emb)
+        self._wseq2emb_ids(train_x, self.get_train_w_emb_i)
+        self._wseq2emb_ids(dev_x, self.get_test_w_emb)
+        train_x = self._pad_sequences(train_x)
+        dev_x = self._pad_sequences(dev_x)
+        return (train_x, dev_x)
 
     def _pad(self, xlen, pad_value=EMPTY_IDX):
         """Add indices or vecors of empty words to match minimum filter length.
@@ -522,3 +507,44 @@ class DLBaseAnalyzer(BaseAnalyzer):
 
         """
         return [pad_value] * max(0, self._min_width - xlen)
+
+    def _pad_sequences(self, x):
+        """Make all input instances of equal length.
+
+        Args:
+          x (list[np.array]): list of embedding indices
+
+        Returns:
+          x: list of embedding indices of equal lengths
+
+        """
+        return pad_sequences(x)
+
+    def _tweet2wseq(self, msg):
+        """Convert tweet to a sequence of word lemmas if these words are informative.
+
+        Args:
+          msg (cgsa.data.Tweet): input message
+
+        Return:
+          list: lemmas of informative words
+
+        """
+        return [normlex(w.lemma)
+                for w in msg if is_relevant(w.form)]
+
+    def _wseq2emb_ids(self, data, w2i):
+        """Convert sequence of words to embedding indices.
+
+        Args:
+          data (list[str]): list of input words
+          w2i (func): function to convert words to embedding indices
+
+        Return:
+          list[int]: list of embedding indices
+
+        """
+        for i, inst_i in enumerate(data):
+            data[i] = np.asarray(
+                [w2i(w) for w in inst_i]
+                + self._pad(len(inst_i)), dtype="int32")

@@ -245,6 +245,12 @@ class Tweet(object):
         self.iwords = iter(self.words)
         return self.iwords
 
+    def __len__(self):
+        """Return number of tokens in the tweet.
+
+        """
+        return len(self.words)
+
     def __getitem__(self, key):
         """Private method required for iteration.
 

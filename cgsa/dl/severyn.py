@@ -67,3 +67,4 @@ class SeverynAnalyzer(DLBaseAnalyzer):
         self._model.compile(optimizer="adadelta",
                             metrics=["categorical_accuracy"],
                             loss="categorical_hinge")
+        self._logger.debug(self._model.summary())
