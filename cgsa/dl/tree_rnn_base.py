@@ -115,8 +115,10 @@ class TreeRNNBaseAnalyzer(DLBaseAnalyzer):
         input_idx = self._get_layer_idx(name='/' + EMB_INDICES_NAME,
                                         layers=model_inputs)
         model_inputs[input_idx] = new_emb_layer
+        # compare weights
         self._model = self._model.__class__(inputs=model_inputs,
                                             outputs=new_out)
+        self._logger.debug(self._model.summary())
 
     def _relink_layers(self, old_layer, new_layer):
         """Replace .
@@ -184,7 +186,8 @@ class TreeRNNBaseAnalyzer(DLBaseAnalyzer):
         out = Dense(self._n_y,
                     activation="softmax",
                     kernel_regularizer=l2(L2_COEFF),
-                    bias_regularizer=l2(L2_COEFF))(rnn)
+                    bias_regularizer=l2(L2_COEFF),
+                    name="dense")(rnn)
         self._model = Model(inputs=[dependencies, emb_indices],
                             outputs=out)
         self._model.compile(optimizer="adadelta",

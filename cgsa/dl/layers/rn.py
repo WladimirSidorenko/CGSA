@@ -42,6 +42,8 @@ class RN(Recurrent):
         """Recursive neural layer.
 
         """
+        if "name" not in kwargs:
+            kwargs["name"] = "rn"
         super(RN, self).__init__(**kwargs)
         self.input_spec = [InputSpec(ndim=3), InputSpec(ndim=3)]
         self.activation = activations.get(activation)
