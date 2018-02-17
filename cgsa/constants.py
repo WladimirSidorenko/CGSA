@@ -135,6 +135,7 @@ MOHAMMAD = "mohammad"
 MUSTO = "musto"
 RNN = "rnn"
 RNTN = "rntn"
+MVRNN = "mvrnn"
 SEVERYN = "severyn"
 TABOADA = "taboada"
 

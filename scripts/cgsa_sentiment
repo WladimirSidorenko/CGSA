@@ -15,7 +15,7 @@ from cgsa.utils.common import LOGGER
 from cgsa.constants import (
     COND_PROB_FILE, DFLT_MODEL_PATH, DFLT_W2V_PATH, ENCODING, BAZIOTIS,
     BILSTM, GAMON, GUENTHER, HU_LIU, JUREK, KOLCHYNA, MOHAMMAD, MUSTO,
-    RNN, RNTN, SEVERYN, TABOADA, THREE_CLASS)
+    MVRNN, RNN, RNTN, SEVERYN, TABOADA, THREE_CLASS)
 from cgsa.utils.data import Tweet
 
 
@@ -96,7 +96,8 @@ def main(argv):
                               help="type(s) of the model(s) to train",
                               choices=(BAZIOTIS, BILSTM, GAMON, GUENTHER,
                                        HU_LIU, JUREK, KOLCHYNA, MOHAMMAD,
-                                       MUSTO, RNN, RNTN, SEVERYN, TABOADA),
+                                       MUSTO, MVRNN, RNN, RNTN, SEVERYN,
+                                       TABOADA),
                               required=True, type=str, action="append")
     parser_train.add_argument("-c", "--cond-probs",
                               help="file containing conditional probabilities"

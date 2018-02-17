@@ -26,7 +26,7 @@ from cgsa.base import BaseAnalyzer
 from cgsa.utils.common import LOGGER
 from cgsa.constants import (DFLT_MODEL_PATH, DFLT_W2V_PATH, BAZIOTIS,
                             BILSTM, GAMON, GUENTHER, HU_LIU, JUREK,
-                            KOLCHYNA, MOHAMMAD, MUSTO, RNN, RNTN,
+                            KOLCHYNA, MOHAMMAD, MUSTO, MVRNN, RNN, RNTN,
                             SEVERYN, TABOADA, CLS2IDX, IDX2CLS)
 from cgsa.dl.base import DLBaseAnalyzer
 from cgsa.judge import DefaultJudge
@@ -308,6 +308,9 @@ class SentimentAnalyzer(object):
             elif model_i == MOHAMMAD:
                 from cgsa.ml.mohammad import MohammadAnalyzer
                 analyzer_cls = MohammadAnalyzer
+            elif model_i == MVRNN:
+                from cgsa.dl.mvrnn import MVRNNAnalyzer
+                analyzer_cls = MVRNNAnalyzer
             elif model_i == RNN:
                 from cgsa.dl.rnn import RNNAnalyzer
                 analyzer_cls = RNNAnalyzer

@@ -122,7 +122,6 @@ class DLBaseAnalyzer(BaseAnalyzer):
                                          mode="auto",
                                          verbose=1,
                                          save_best_only=True)
-            # start training
             self._model.fit(train_x, train_y,
                             validation_data=(dev_x, dev_y),
                             epochs=self._n_epochs,
