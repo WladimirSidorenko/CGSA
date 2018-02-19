@@ -39,8 +39,7 @@ class MVRNNAnalyzer(TreeRNNBaseAnalyzer):
 
         self.name = "mvrnn"
         # according to the original Socher implementation
-        self.ndim = 50
-        self.r = 3
+        # self.ndim = 50
 
     def _init_rnn(self, inputs):
         """Method defining a recurrent unit.

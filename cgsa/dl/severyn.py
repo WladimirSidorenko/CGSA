@@ -34,7 +34,7 @@ class SeverynAnalyzer(DLBaseAnalyzer):
         self.name = "severyn"
         # The default dimensionality of word embeddings d is set to 100 (might
         # be overwitten by the loaded word2vec vectors).
-        self.ndim = 100
+        # self.ndim = 100
         # The width m of the convolution filters is set to 5 and the number of
         # convolutional feature maps is 300.
         self._min_width = 5

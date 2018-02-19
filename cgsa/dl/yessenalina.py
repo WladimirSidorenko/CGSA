@@ -33,10 +33,9 @@ class YessenalinaAnalyzer(DLBaseAnalyzer):
             raise NotImplementedError(
                 "w2v and lest square vectors are not"
                 " supported by this type of the model.")
-
         self.name = "yessenalina"
         # according to the original Yessenalina's implementation
-        self.ndim = 3
+        # self.ndim = 3
 
     def _init_rnn(self, inputs):
         """Method defining a recurrent unit.

@@ -34,7 +34,7 @@ class BaziotisAnalyzer(DLBaseAnalyzer):
         self.name = "baziotis"
         # Throughout this classifier, we use the same hyper-parameters as the
         # ones used by Baziotis et al. in their original work.
-        self.ndim = 300
+        # self.ndim = 300
 
     def _init_nn(self):
         self.init_w_emb()

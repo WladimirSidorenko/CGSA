@@ -33,7 +33,8 @@ from .layers.word2vec import Word2Vec
 
 ##################################################################
 # Variables and Constants
-DFLT_VDIM = 300
+DFLT_VDIM = 100                 # default dimensionality for task-specific
+                                # vectors
 EMPTY_TOK = "%EMPTY%"
 UNK_TOK = "%UNK%"
 DICT_OFFSET = 1
@@ -282,6 +283,8 @@ class DLBaseAnalyzer(BaseAnalyzer):
         if self.ndim < 0:
             self.ndim = DFLT_VDIM
         if self._w2v:
+            self._embeddings.load()
+            self.ndim = self._embeddings.ndim
             self.init_w_emb = self._init_w2v_emb
             self.get_train_w_emb_i = self._get_train_w2v_emb_i
             if self._trained:
@@ -289,6 +292,8 @@ class DLBaseAnalyzer(BaseAnalyzer):
             else:
                 self.get_test_w_emb = self._get_train_w2v_emb_i
         elif self._lstsq:
+            self._embeddings.load()
+            self.ndim = self._embeddings.ndim
             self.init_w_emb = self._init_w2v_emb
             self.get_train_w_emb_i = self._get_train_w2v_emb_i
             if self._trained:
