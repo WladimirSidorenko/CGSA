@@ -36,7 +36,7 @@ with codecs.open(path.join(PWD, "test-requirements.txt"),
 # setup()
 setup(
     name="cgsa",
-    version="0.2.0a0",
+    version="0.3.0a0",
     description=("Collection of Twitter-tailored "
                  "coarse-grained sentiment analysis methods."),
     long_description=long_description,
@@ -51,7 +51,7 @@ setup(
     install_requires=INSTALL_REQUIRES,
     setup_requires=["pytest-runner"],
     tests_require=TEST_REQUIRES,
-    provides=["cgsa (0.1.0a0)"],
+    provides=["cgsa (0.3.0a0)"],
     scripts=[path.join("scripts", p)
              for p in ("cgsa_sentiment", "cgsa_evaluate")],
     classifiers=["Development Status :: 3 - Alpha",
