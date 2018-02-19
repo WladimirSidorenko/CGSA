@@ -13,13 +13,12 @@ from keras.layers import (Dense, Dropout, Bidirectional, LSTM,
                           GaussianNoise)
 from keras.regularizers import l2
 
-from .base import DLBaseAnalyzer
+from .base import DLBaseAnalyzer, L2_COEFF
 from .layers import Attention
 
 
 ##################################################################
 # Variables and Constants
-L2_COEFF = 1e-4
 
 
 ##################################################################

@@ -18,21 +18,6 @@ EMBEDDING_LAYER_NAME = "MatrixEmbeddings"
 
 
 ##################################################################
-# Methods
-def diagonalize(inputs, eye):
-    """Convert batch of vectors to diagonal matrices.
-
-    Args:
-      inputs (tensor): batch of vectors of size ()
-
-    Returns:
-      tensor: input vectors as diagonal matrices
-
-    """
-    return K.tile
-
-
-##################################################################
 # Class
 class MatrixEmbedding(Embedding):
     """Layer providing matrix embeddings of words.

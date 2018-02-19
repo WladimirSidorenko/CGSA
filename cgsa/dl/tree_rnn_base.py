@@ -16,14 +16,13 @@ from keras.regularizers import l2
 import abc
 import numpy as np
 
-from .base import DLBaseAnalyzer, L2_COEFF
+from .base import DLBaseAnalyzer, EMB_INDICES_NAME, L2_COEFF
 from .layers import EMPTY_IDX, WORD2VEC_LAYER_NAME
 
 
 ##################################################################
 # Variables and Constants
 DEP_LAYER_NAME = "dependencies"
-EMB_INDICES_NAME = "embedding_indices"
 
 
 ##################################################################

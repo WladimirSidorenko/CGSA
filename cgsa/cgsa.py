@@ -27,7 +27,7 @@ from cgsa.utils.common import LOGGER
 from cgsa.constants import (DFLT_MODEL_PATH, DFLT_W2V_PATH, BAZIOTIS,
                             BILSTM, GAMON, GUENTHER, HU_LIU, JUREK,
                             KOLCHYNA, MOHAMMAD, MUSTO, MVRNN, RNN, RNTN,
-                            SEVERYN, TABOADA, CLS2IDX, IDX2CLS)
+                            SEVERYN, TABOADA, YESSENALINA, CLS2IDX, IDX2CLS)
 from cgsa.dl.base import DLBaseAnalyzer
 from cgsa.judge import DefaultJudge
 from cgsa.utils.word2vec import Word2Vec
@@ -323,6 +323,9 @@ class SentimentAnalyzer(object):
             elif model_i == TABOADA:
                 from cgsa.lexicon.taboada import TaboadaAnalyzer
                 analyzer_cls = TaboadaAnalyzer
+            elif model_i == YESSENALINA:
+                from cgsa.dl.yessenalina import YessenalinaAnalyzer
+                analyzer_cls = YessenalinaAnalyzer
             else:
                 raise NotImplementedError
             self._models.append(analyzer_cls(*a_args, **a_kwargs))

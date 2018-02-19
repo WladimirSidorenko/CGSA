@@ -133,11 +133,12 @@ JUREK = "jurek"
 KOLCHYNA = "kolchyna"
 MOHAMMAD = "mohammad"
 MUSTO = "musto"
+MVRNN = "mvrnn"
 RNN = "rnn"
 RNTN = "rntn"
-MVRNN = "mvrnn"
 SEVERYN = "severyn"
 TABOADA = "taboada"
+YESSENALINA = "yessenalina"
 
 # labels
 POSITIVE = "positive"
