@@ -53,5 +53,4 @@ class YMatrixEmbedding(Embedding):
         # embs will have shape `batch_size x instance length x output_dim x
         # output_dim'
         embs = K.gather(self.EMBS, inputs)
-        # return set_subtensor(embs[:, :, -1], self.zero_one_vec)
-        return embs
+        return set_subtensor(embs[:, :, -1], self.zero_one_vec)
