@@ -138,7 +138,6 @@ class DLBaseAnalyzer(BaseAnalyzer):
         embs = np.array(
             [self.get_test_w_emb(w) for w in wseq]
             + self._pad(len(wseq), self._pad_value), dtype="int32")
-        self._logger.debug("embs: %r", embs)
         ret = self._model.predict(np.asarray([embs]),
                                   batch_size=1,
                                   verbose=2)
@@ -154,6 +153,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         """
         self._embeddings = embs
         self._logger = LOGGER
+        self._init_wemb_funcs()
 
     def reset(self):
         """Remove members which cannot be serialized.
@@ -185,7 +185,6 @@ class DLBaseAnalyzer(BaseAnalyzer):
         super(DLBaseAnalyzer, self)._load()
         self._model = load_model(self._model_path,
                                  custom_objects=CUSTOM_OBJECTS)
-        self._init_wemb_funcs()
 
     @abc.abstractmethod
     def _init_nn(self):
