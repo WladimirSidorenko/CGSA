@@ -175,16 +175,20 @@ class DLBaseAnalyzer(BaseAnalyzer):
 
         """
         # set functions to None
-        self._model_path = path + ".h5"
-        self._model.save(self._model_path)
+        model_path = path + ".h5"
+        self._model.save(model_path)
+        self._model_path = os.path.basename(model_path)
+        # all paths are relative
         self._model = None
         with open(path, "wb") as ofile:
             dump(self, ofile)
 
-    def _load(self):
-        super(DLBaseAnalyzer, self)._load()
-        self._model = load_model(self._model_path,
-                                 custom_objects=CUSTOM_OBJECTS)
+    def _load(self, a_path):
+        super(DLBaseAnalyzer, self)._load(a_path)
+        self._model = load_model(
+            os.path.join(a_path, self._model_path),
+            custom_objects=CUSTOM_OBJECTS
+        )
 
     @abc.abstractmethod
     def _init_nn(self):

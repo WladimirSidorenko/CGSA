@@ -63,6 +63,7 @@ class SentimentAnalyzer(object):
 
         """
         # load paths to serialized models
+        LOGGER.debug("Loading analyzer from file: %s", a_path)
         with open(a_path, "rb") as ifile:
             analyzer = load(ifile)
         # normalize paths to serialized models
@@ -97,9 +98,12 @@ class SentimentAnalyzer(object):
 
         """
         for mpath_i in a_analyzer._model_paths:
+            a_analyzer._logger.debug(
+                "Loading model from file: %s (dirname: %s)",
+                mpath_i, a_analyzer._dirname)
             with open(os.path.join(a_analyzer._dirname,
                                    mpath_i), "rb") as ifile:
-                model_i = BaseAnalyzer.load(ifile)
+                model_i = BaseAnalyzer.load(a_analyzer._dirname, ifile)
                 model_i.restore(a_analyzer._embeddings)
                 yield model_i
 
@@ -172,7 +176,7 @@ class SentimentAnalyzer(object):
                     self._save_model(model_i, dirname)
                     self._models[i] = None
         if a_path:
-            LOGGER.debug("Saving analyzer...")
+            LOGGER.debug("Saving analyzer in %s...", a_path)
             self._reset()
             with open(a_path, "wb") as ofile:
                 dump(self, ofile)
@@ -238,6 +242,7 @@ class SentimentAnalyzer(object):
         dirname = self._check_path(a_path)
         # store each trained model
         for i, model_i in enumerate(self._models):
+            self._logger.debug("Saving model in %s", dirname)
             self._save_model(model_i, dirname)
             self._models[i] = model_i = None
             gc.collect()
