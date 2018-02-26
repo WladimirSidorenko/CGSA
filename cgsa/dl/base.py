@@ -143,6 +143,12 @@ class DLBaseAnalyzer(BaseAnalyzer):
                                   verbose=2)
         yvec[:] = ret[0]
 
+    def predict_proba_raw(self, messages):
+        yvecs = np.zeros((len(messages), self._n_y))
+        for i, msg_i in enumerate(messages):
+            self.predict_proba(msg_i, yvecs[i])
+        return yvecs
+
     def restore(self, embs):
         """Restore members which could not be serialized.
 

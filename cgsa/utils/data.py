@@ -182,6 +182,7 @@ class Word(object):
         self.tag = tag
         self._parse_deps(deprel)
         self.feats = Features(feats)
+        self.children = []
 
     def __str__(self):
         """Return unicode representation of the given word.
@@ -323,3 +324,9 @@ class Tweet(object):
             for tok_i, lemma_i, tag_i, dep_i, feats_i
             in zip(toks, lemmas, tags, deps, feats)
         ]
+        for i, w_i in enumerate(self.words):
+            prnt_idx = w_i.prnt_idx
+            if prnt_idx < 0:
+                continue
+            prnt = self.words[prnt_idx]
+            prnt.children.append(i)
