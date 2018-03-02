@@ -14,7 +14,7 @@ from cgsa.cgsa import SentimentAnalyzer
 from cgsa.utils.common import LOGGER
 from cgsa.constants import (
     COND_PROB_FILE, DFLT_MODEL_PATH, DFLT_W2V_PATH, ENCODING, BAZIOTIS,
-    BILSTM, GAMON, GUENTHER, HU_LIU, JUREK, KOLCHYNA, MOHAMMAD, MUSTO,
+    BILSTM, GAMON, GUENTHER, HU_LIU, JUREK, KOLCHYNA, LBA, MOHAMMAD, MUSTO,
     MVRNN, RNN, RNTN, SEVERYN, TABOADA, YESSENALINA, THREE_CLASS)
 from cgsa.utils.data import Tweet
 
@@ -95,7 +95,7 @@ def main(argv):
     parser_train.add_argument("-t", "--type",
                               help="type(s) of the model(s) to train",
                               choices=(BAZIOTIS, BILSTM, GAMON, GUENTHER,
-                                       HU_LIU, JUREK, KOLCHYNA, MOHAMMAD,
+                                       HU_LIU, JUREK, KOLCHYNA, LBA, MOHAMMAD,
                                        MUSTO, MVRNN, RNN, RNTN, SEVERYN,
                                        TABOADA, YESSENALINA),
                               required=True, type=str, action="append")

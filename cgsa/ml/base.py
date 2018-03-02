@@ -74,7 +74,7 @@ class MLBaseAnalyzer(BaseAnalyzer):
         self.PARAM_GRID = PARAM_GRID
         self._cs_fallback = False
         self._feats2tertiles = {}
-        self._feats2weights = defaultdict(lambda: defaultdict(tuple))
+        self._feats2weights = None
 
     def predict_proba(self, msg, yvec):
         feats = self._extract_feats(msg)
@@ -92,12 +92,19 @@ class MLBaseAnalyzer(BaseAnalyzer):
         for i, ival in enumerate(dec):
             yvec[self.classes_[i]] += ival
 
+    def reset(self):
+        """Remove members which cannot be serialized.
+
+        """
+        super(MLBaseAnalyzer, self).reset()
+        self._feats2weights = None
+
     def restore(self):
         """Restore members which could not be serialized.
 
         """
         self._logger = LOGGER
-        self._feats2weights = defaultdict(lambda: defaultdict(tuple))
+        self._load_feats_weights()
 
     def train(self, train_x, train_y, dev_x, dev_y, a_grid_search,
               a_extract_feats=True):
@@ -295,6 +302,7 @@ class MLBaseAnalyzer(BaseAnalyzer):
           void:
 
         """
+        self._feats2weights = defaultdict(lambda: defaultdict(tuple))
         if hasattr(self._model, "best_estimator_"):
             steps = dict(self._model.best_estimator_.steps)
             vectorizer = steps["vect"]

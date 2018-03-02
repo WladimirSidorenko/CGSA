@@ -50,7 +50,7 @@ class Attention(Layer):
     def __init__(self,
                  W_regularizer=None, b_regularizer=None,
                  W_constraint=None, b_constraint=None,
-                 bias=True, initializer="glorot_uniform", **kwargs):
+                 bias=False, initializer="glorot_uniform", **kwargs):
         """
         Keras Layer that implements an Attention mechanism for temporal data.
         Supports Masking.
@@ -89,7 +89,7 @@ class Attention(Layer):
                                  constraint=self.W_constraint)
         if self.bias:
             if input_shape[1] is None:
-                raise RuntimeError(
+                raise ValueError(
                     ("Cannot initialize bias term {!r}"
                      " with non-fixed input length.").format(self.bias)
                 )
@@ -132,9 +132,6 @@ class Attention(Layer):
         return None
 
     def compute_output_shape(self, input_shape):
-        output_shape = list(input_shape)
-        if output_shape[-1] is not None:
-            output_shape[-1] = 1
         return (input_shape[0], input_shape[-1])
 
     def get_config(self):

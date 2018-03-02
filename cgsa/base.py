@@ -278,13 +278,12 @@ class BaseAnalyzer(object):
           populates `a_pos_term2polscore` and `a_neg_term2polscore` in place
 
         """
+        self._logger.info("Reading lexicons %r...", a_lexicons)
         for lexpath_i in a_lexicons:
             fname = os.path.basename(lexpath_i).split('.')
             lexname = fname[0]
             lextype = fname[-2] if len(fname) > 1 else ""
-            self._logger.debug(
-                "Reading lexicon %s...", lexname
-            )
+            self._logger.debug("Reading lexicon %s...", lexname)
             if lextype not in a_lextype2lex:
                 if "any" in a_lextype2lex:
                     pos_term2polscore, neg_term2polscore = a_lextype2lex["any"]

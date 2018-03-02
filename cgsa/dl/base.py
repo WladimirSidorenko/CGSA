@@ -42,6 +42,7 @@ UNK_PROB = 1e-4
 L2_COEFF = 1e-4
 EMB_INDICES_NAME = "embedding_indices"
 
+
 ##################################################################
 # Methods
 
