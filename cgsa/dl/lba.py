@@ -13,7 +13,6 @@ from collections import defaultdict
 from keras.models import Model
 from keras.layers import (Average, Dense, Dropout, Bidirectional, LSTM,
                           GaussianNoise, Input)
-from keras.preprocessing.sequence import pad_sequences
 from keras.regularizers import l2
 from six import iteritems
 import numpy as np
@@ -49,6 +48,18 @@ class LBAAnalyzer(DLBaseAnalyzer):
         self.name = "lba"
         self._read_lexicons(None, lexicons)
 
+    def predict_proba(self, msg, yvec):
+        wseq = self._tweet2wseq(msg)
+        embs = np.array(
+            [self.get_test_w_emb(w) for w in wseq]
+            + self._pad(len(wseq), self._pad_value), dtype="int32")
+        lex_embs = [wseq]
+        self._wseq2emb_ids(lex_embs, self.get_lex_emb_i)
+        ret = self._model.predict([np.asarray([embs]),
+                                   np.asarray(lex_embs)],
+                                  batch_size=1, verbose=2)
+        yvec[:] = ret[0]
+
     def _init_nn(self):
         self.init_w_emb()
         emb_indices = Input(shape=(None,),
@@ -73,15 +84,15 @@ class LBAAnalyzer(DLBaseAnalyzer):
             )(prev_layer)
             prev_layer = rnn
         # add simple attention
-        attention = Attention(bias=False)(prev_layer)
+        # attention = Attention(bias=False)(prev_layer)
         # add lexicon-based attention
         lba = LBA(self.lexicon)([lex_indices, prev_layer])
-        merge = Average()([attention, lba])
+        # merge = Average()([lba])
         out = Dense(self._n_y,
                     activation="softmax",
                     activity_regularizer=l2(L2_COEFF),
                     kernel_regularizer=l2(L2_COEFF),
-                    bias_regularizer=l2(L2_COEFF))(merge)
+                    bias_regularizer=l2(L2_COEFF))(lba)
         self._model = Model(inputs=[emb_indices, lex_indices],
                             outputs=out)
         self._model.compile(optimizer="adadelta",

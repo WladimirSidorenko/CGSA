@@ -53,7 +53,7 @@ class LBA(Layer):
         # attention matrix
         self.W = self.add_weight(shape=self.lexicon.shape,
                                  name='{}_W'.format(self.name),
-                                 trainable=False,
+                                 trainable=True,
                                  initializer="Zeros",
                                  regularizer=self.W_regularizer,
                                  constraint=self.W_constraint)
