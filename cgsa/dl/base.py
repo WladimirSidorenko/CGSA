@@ -168,6 +168,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         # set functions to None
         self._reset_funcs()
         self._embeddings = None
+        self.W_EMB = None
         super(DLBaseAnalyzer, self).reset()
 
     def save(self, path):
