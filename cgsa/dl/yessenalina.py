@@ -50,11 +50,13 @@ class YessenalinaAnalyzer(DLBaseAnalyzer):
         """Initialize neural network.
 
         """
-        self.init_w_emb()
         emb_indices = Input(shape=(None,),
                             dtype="int32",
                             name=EMB_INDICES_NAME)
-        mtx_embs = self.MTX_EMB(emb_indices)
+        mtx_embs = YMatrixEmbedding(
+            len(self._w2i), self.ndim,
+            embeddings_initializer="he_normal",
+            embeddings_regularizer=l2(L2_COEFF))(emb_indices)
         rnn = self._init_rnn(mtx_embs)
         flat = Flatten()(rnn)
         out = Dense(self._n_y,
@@ -67,11 +69,3 @@ class YessenalinaAnalyzer(DLBaseAnalyzer):
                             metrics=["categorical_accuracy"],
                             loss="categorical_hinge")
         self._logger.debug(self._model.summary())
-
-    def _init_w_emb(self):
-        """Initialize matrix embeddings along with vector representations.
-
-        """
-        self.MTX_EMB = YMatrixEmbedding(len(self._w2i), self.ndim,
-                                        embeddings_initializer="he_normal",
-                                        embeddings_regularizer=l2(L2_COEFF))

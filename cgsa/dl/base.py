@@ -185,9 +185,11 @@ class DLBaseAnalyzer(BaseAnalyzer):
         self._model.save(model_path)
         self._model_path = os.path.basename(model_path)
         # all paths are relative
+        model = self._model
         self._model = None
         with open(path, "wb") as ofile:
             dump(self, ofile)
+        self._model = model
 
     def _load(self, a_path):
         super(DLBaseAnalyzer, self)._load(a_path)
