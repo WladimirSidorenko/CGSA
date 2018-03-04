@@ -45,6 +45,24 @@ from keras.engine.topology import Layer
 
 
 ##################################################################
+# Methods
+def dot_product(x, kernel):
+    """
+    Wrapper for dot product operation, in order to be compatible with both
+    Theano and Tensorflow
+    Args:
+        x (): input
+        kernel (): weights
+    Returns:
+    """
+    if K.backend() == 'tensorflow':
+        # todo: check that this is correct
+        return K.squeeze(K.dot(x, K.expand_dims(kernel)), axis=-1)
+    else:
+        return K.dot(x, kernel)
+
+
+##################################################################
 # Class
 class Attention(Layer):
     def __init__(self,
@@ -103,7 +121,7 @@ class Attention(Layer):
         super(Attention, self).build(input_shape)
 
     def call(self, x, mask=None):
-        eij = K.dot(x, self.W)
+        eij = dot_product(x, self.W)
 
         if self.bias:
             eij += self.b
