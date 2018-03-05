@@ -10,22 +10,11 @@ from keras import activations, constraints, initializers, regularizers
 from keras.engine import InputSpec
 from keras.layers.recurrent import Recurrent
 
+from .utils import get_subtensor, set_subtensor
+
+
 ##################################################################
 # Variables and Constants
-
-##################################################################
-# Methods
-if K.backend() == "tensorflow":
-    def set_subtensor(tensor, value):
-        return K.tf.assign(tensor, value)
-
-elif K.backend() == "theano":
-    def set_subtensor(tensor, value):
-        return K.T.set_subtensor(tensor, value)
-
-else:
-    raise NotImplementedError
-
 
 ##################################################################
 # Class
@@ -101,15 +90,15 @@ class RN(Recurrent):
         chld_indcs = inputs[:, 0]
         prnt_indcs = inputs[:, 1]
         embs = states[0]
-        chld_embs = embs[inst_indcs, chld_indcs]
-        prnt_embs = embs[inst_indcs, prnt_indcs]
+        chld_embs = get_subtensor(embs, inst_indcs, chld_indcs)
+        prnt_embs = get_subtensor(embs, inst_indcs, prnt_indcs)
         ret = K.dot(K.concatenate([chld_embs, prnt_embs], axis=-1),
                     self.W)
         if self.use_bias:
             ret = K.bias_add(ret, self.b)
         ret = self.activation(ret)
         # now, the tricky part we need to actually modify the embedding matrix
-        embs = set_subtensor(embs[inst_indcs, prnt_indcs], ret)
+        embs = set_subtensor(embs, ret, inst_indcs, prnt_indcs)
         return ret, [embs]
 
     def get_config(self):

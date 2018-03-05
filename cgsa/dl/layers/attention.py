@@ -39,27 +39,10 @@ from __future__ import absolute_import, unicode_literals, print_function
 
 from keras import backend as K
 from keras.engine.topology import Layer
+from .utils import dot_product
 
 ##################################################################
 # Variables and Constants
-
-
-##################################################################
-# Methods
-def dot_product(x, kernel):
-    """
-    Wrapper for dot product operation, in order to be compatible with both
-    Theano and Tensorflow
-    Args:
-        x (): input
-        kernel (): weights
-    Returns:
-    """
-    if K.backend() == 'tensorflow':
-        # todo: check that this is correct
-        return K.squeeze(K.dot(x, K.expand_dims(kernel)), axis=-1)
-    else:
-        return K.dot(x, kernel)
 
 
 ##################################################################
