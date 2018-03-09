@@ -97,6 +97,14 @@ class LBAAnalyzer(BaziotisAnalyzer):
         self._model.compile(optimizer="adadelta",
                             metrics=["categorical_accuracy"],
                             loss="categorical_hinge")
+        self._attention_debug = Model(
+            inputs=[emb_indices, lex_indices],
+            outputs=[prev_layer, attention]
+        )
+        self._lba_debug = Model(
+            inputs=[emb_indices, lex_indices],
+            outputs=[prev_layer, lba]
+        )
 
     def _digitize_data(self, train_x, dev_x):
         """Convert sequences of words to sequences of word and lexicon indices.
