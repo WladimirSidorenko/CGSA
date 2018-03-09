@@ -23,8 +23,8 @@ from cgsa.utils.common import normlex
 from cgsa.base import (LEX_CLMS, LEX_TYPES, NEG_SFX_RE, USCORE_RE)
 from cgsa.constants import ENCODING
 
-from .base import (DLBaseAnalyzer, EMB_INDICES_NAME,
-                   EMPTY_TOK, UNK_TOK, L2_COEFF)
+from .base import (EMB_INDICES_NAME, EMPTY_TOK, UNK_TOK, L2_COEFF)
+from .baziotis import BaziotisAnalyzer
 from .layers import Attention, LBA, EMPTY_IDX, UNK_IDX
 
 
@@ -35,7 +35,7 @@ LEX_INDICES_NAME = "lexicon_indices"
 
 ##################################################################
 # Class
-class LBAAnalyzer(DLBaseAnalyzer):
+class LBAAnalyzer(BaziotisAnalyzer):
     """Class for DL-based sentiment analysis.
 
     Attributes:
@@ -72,7 +72,7 @@ class LBAAnalyzer(DLBaseAnalyzer):
         noisy_embs = GaussianNoise(0.2)(vec_embs)
         do_embs = Dropout(0.3)(noisy_embs)
         prev_layer = do_embs
-        # add two BiLSTM layers
+        # add one Bi-LSTM layers
         for _ in range(2):
             rnn = Bidirectional(
                 LSTM(150, recurrent_dropout=0.25,
@@ -84,17 +84,16 @@ class LBAAnalyzer(DLBaseAnalyzer):
             )(prev_layer)
             prev_layer = rnn
         # add simple attention
-        # attention = Attention(bias=False)(prev_layer)
+        attention = Attention(bias=True)(prev_layer)
         # add lexicon-based attention
         lba = LBA(self.lexicon)([lex_indices, prev_layer])
-        # merge = Average()([lba])
+        merged_attention = Average()([attention, lba])
         out = Dense(self._n_y,
                     activation="softmax",
                     activity_regularizer=l2(L2_COEFF),
                     kernel_regularizer=l2(L2_COEFF),
-                    bias_regularizer=l2(L2_COEFF))(lba)
-        self._model = Model(inputs=[emb_indices, lex_indices],
-                            outputs=out)
+                    bias_regularizer=l2(L2_COEFF))(merged_attention)
+        self._model = Model(inputs=[emb_indices, lex_indices], outputs=out)
         self._model.compile(optimizer="adadelta",
                             metrics=["categorical_accuracy"],
                             loss="categorical_hinge")
