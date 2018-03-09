@@ -14,7 +14,6 @@ from __future__ import absolute_import, unicode_literals, print_function
 from keras import backend as K
 from keras.engine.topology import Layer
 import numpy as np
-import sys
 
 
 ##################################################################

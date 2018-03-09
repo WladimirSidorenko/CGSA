@@ -505,7 +505,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         return (train_x, dev_x)
 
     def _pad(self, xlen, pad_value=EMPTY_IDX):
-        """Add indices or vecors of empty words to match minimum filter length.
+        """Add indices or vectors of empty words to match minimum filter length.
 
         Args:
           xlen (int): length of the input instance

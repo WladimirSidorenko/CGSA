@@ -278,7 +278,6 @@ class BaseAnalyzer(object):
           populates `a_pos_term2polscore` and `a_neg_term2polscore` in place
 
         """
-        self._logger.info("Reading lexicons %r...", a_lexicons)
         for lexpath_i in a_lexicons:
             fname = os.path.basename(lexpath_i).split('.')
             lexname = fname[0]
