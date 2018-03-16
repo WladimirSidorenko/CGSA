@@ -75,3 +75,10 @@ class YessenalinaAnalyzer(DLBaseAnalyzer):
         self.MTX_EMB = YMatrixEmbedding(len(self._w2i), self.ndim,
                                         embeddings_initializer="he_normal",
                                         embeddings_regularizer=l2(L2_COEFF))
+
+    def reset(self):
+        """Remove members which cannot be serialized.
+
+        """
+        self.MTX_EMB = None
+        super(DLBaseAnalyzer, self).reset()

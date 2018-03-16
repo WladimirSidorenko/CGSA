@@ -29,16 +29,18 @@ class YMatrixEmbedding(Embedding):
 
     def build(self, input_shape):
         self.EMBS = self.add_weight(
-            shape=(self.input_dim,
-                   self.output_dim,
-                   self.output_dim),
+            shape=(self.input_dim, self.output_dim, self.output_dim),
             initializer=self.embeddings_initializer,
             name='embeddings',
             regularizer=self.embeddings_regularizer,
             constraint=self.embeddings_constraint,
             dtype=self.dtype)
-        self.zero_one_vec = np.zeros(self.output_dim, dtype="float32")
-        self.zero_one_vec[-1] = 1.
+        self.zero_one_mulmask = np.ones((self.output_dim, self.output_dim),
+                                        dtype="float32")
+        self.zero_one_mulmask[:, -1] = 0.
+        self.zero_one_addmask = np.zeros((self.output_dim, self.output_dim),
+                                         dtype="float32")
+        self.zero_one_addmask[-1, -1] = 1.
         self.built = True
 
     def compute_output_shape(self, input_shape):
@@ -53,4 +55,6 @@ class YMatrixEmbedding(Embedding):
         # embs will have shape `batch_size x instance length x output_dim x
         # output_dim'
         embs = K.gather(self.EMBS, inputs)
-        return set_subtensor(embs[:, :, -1], self.zero_one_vec)
+        embs *= self.zero_one_mulmask
+        embs += self.zero_one_addmask
+        return embs

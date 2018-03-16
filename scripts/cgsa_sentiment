@@ -21,6 +21,7 @@ from cgsa.utils.data import Tweet
 
 ##################################################################
 # Variables and Constants
+DEBUG = "debug"
 TRAIN = "train"
 TEST = "test"
 
@@ -43,6 +44,28 @@ def _add_cmn_options(a_parser):
                           " default)", type=str, default=DFLT_MODEL_PATH)
     a_parser.add_argument(
         "files", help="input file(s)", type=str, nargs="+")
+
+
+def _add_cmn_test_options(a_parser):
+    """Add common options to option subparser
+
+    Args:
+      a_parser (argparse.ArgumentParser):
+        option subparser to which new options should be added
+
+    Returns:
+      void:
+
+    """
+    _add_cmn_options(a_parser)
+    a_parser.add_argument("--w2v-path",
+                          help="path to pre-trained word2vec embeddings"
+                          " to use (should better be the same as the ones "
+                          "used for training)", type=str,
+                          default=DFLT_W2V_PATH)
+    a_parser.add_argument("-b", "--batch",
+                          help="batch-predict the classes",
+                          action="store_true")
 
 
 def _read_data(files, train=False):
@@ -126,15 +149,10 @@ def main(argv):
 
     parser_test = subparsers.add_parser(
         TEST, help="determine polarity of the given messages")
-    parser_test.add_argument("-b", "--batch",
-                             help="batch-predict the classes",
-                             action="store_true")
-    parser_test.add_argument("--w2v-path",
-                             help="path to pre-trained word2vec embeddings"
-                             " to use (should better be the same as the ones "
-                             "used for training)", type=str,
-                             default=DFLT_W2V_PATH)
-    _add_cmn_options(parser_test)
+    _add_cmn_test_options(parser_test)
+    parser_debug = subparsers.add_parser(DEBUG,
+                                         help="explain model's prediction")
+    _add_cmn_test_options(parser_debug)
 
     args = argparser.parse_args()
     if args.verbose:
@@ -168,7 +186,12 @@ def main(argv):
         analyzer = SentimentAnalyzer.load(args.model,
                                           args.w2v_path,
                                           on_demand=args.batch)
-        if args.batch:
+        if args.mode == DEBUG:
+            for tweet_i in _read_data(args.files):
+                tweet_i.label = analyzer.debug(tweet_i)
+                print(str(tweet_i))
+        # batch mode is only used in the testing mode
+        elif args.batch:
             tweets = [tweet_i
                       for tweet_i in _read_data(args.files, False)]
             analyzer.batch_predict(tweets)

@@ -139,11 +139,16 @@ class DLBaseAnalyzer(BaseAnalyzer):
         embs = np.array(
             [self.get_test_w_emb(w) for w in wseq]
             + self._pad(len(wseq), self._pad_value), dtype="int32")
-        self._logger.debug("embs: %r", embs)
         ret = self._model.predict(np.asarray([embs]),
                                   batch_size=1,
                                   verbose=2)
         yvec[:] = ret[0]
+
+    def predict_proba_raw(self, messages):
+        yvecs = np.zeros((len(messages), self._n_y))
+        for i, msg_i in enumerate(messages):
+            self.predict_proba(msg_i, yvecs[i])
+        return yvecs
 
     def restore(self, embs):
         """Restore members which could not be serialized.
@@ -155,6 +160,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         """
         self._embeddings = embs
         self._logger = LOGGER
+        self._init_wemb_funcs()
 
     def reset(self):
         """Remove members which cannot be serialized.
@@ -163,6 +169,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         # set functions to None
         self._reset_funcs()
         self._embeddings = None
+        self.W_EMB = None
         super(DLBaseAnalyzer, self).reset()
 
     def save(self, path):
@@ -176,17 +183,22 @@ class DLBaseAnalyzer(BaseAnalyzer):
 
         """
         # set functions to None
-        self._model_path = path + ".h5"
-        self._model.save(self._model_path)
+        model_path = path + ".h5"
+        self._model.save(model_path)
+        self._model_path = os.path.basename(model_path)
+        # all paths are relative
+        model = self._model
         self._model = None
         with open(path, "wb") as ofile:
             dump(self, ofile)
+        self._model = model
 
-    def _load(self):
-        super(DLBaseAnalyzer, self)._load()
-        self._model = load_model(self._model_path,
-                                 custom_objects=CUSTOM_OBJECTS)
-        self._init_wemb_funcs()
+    def _load(self, a_path):
+        super(DLBaseAnalyzer, self)._load(a_path)
+        self._model = load_model(
+            os.path.join(a_path, self._model_path),
+            custom_objects=CUSTOM_OBJECTS
+        )
 
     @abc.abstractmethod
     def _init_nn(self):

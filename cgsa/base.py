@@ -73,15 +73,16 @@ class BaseAnalyzer(object):
     __metaclass__ = abc.ABCMeta
 
     @staticmethod
-    def load(a_path):
+    def load(a_path, a_data):
         """Load model from disc and restore its members.
 
         Args:
-          a_path (str): path to the serialized model
+          a_path (str): path to the directory containing serialized model
+          a_data (Buffer): path to the directory containing serialized model
 
         """
-        analyzer = load(a_path)
-        analyzer._load()
+        analyzer = load(a_data)
+        analyzer._load(a_path)
         return analyzer
 
     def __init__(self, *args, **kwargs):
@@ -146,8 +147,14 @@ class BaseAnalyzer(object):
         self._boundaries.reset()
         self._negations.reset()
 
-    def _load(self):
+    def _load(self, a_path):
         """Re-initialize reset members.
+
+        Args:
+          a_path (str): path to the directory containing stored model
+
+        Returns:
+          None:
 
         """
         self._logger = LOGGER

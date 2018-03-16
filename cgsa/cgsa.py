@@ -13,6 +13,7 @@ Attributes:
 ##################################################################
 # Imports
 from __future__ import absolute_import, print_function, unicode_literals
+from six import iteritems
 try:
     from cPickle import dump, load
 except ImportError:
@@ -63,6 +64,7 @@ class SentimentAnalyzer(object):
 
         """
         # load paths to serialized models
+        LOGGER.debug("Loading analyzer from file: %s", a_path)
         with open(a_path, "rb") as ifile:
             analyzer = load(ifile)
         # normalize paths to serialized models
@@ -97,9 +99,12 @@ class SentimentAnalyzer(object):
 
         """
         for mpath_i in a_analyzer._model_paths:
+            a_analyzer._logger.debug(
+                "Loading model from file: %s (dirname: %s)",
+                mpath_i, a_analyzer._dirname)
             with open(os.path.join(a_analyzer._dirname,
                                    mpath_i), "rb") as ifile:
-                model_i = BaseAnalyzer.load(ifile)
+                model_i = BaseAnalyzer.load(a_analyzer._dirname, ifile)
                 model_i.restore(a_analyzer._embeddings)
                 yield model_i
 
@@ -172,7 +177,7 @@ class SentimentAnalyzer(object):
                     self._save_model(model_i, dirname)
                     self._models[i] = None
         if a_path:
-            LOGGER.debug("Saving analyzer...")
+            LOGGER.debug("Saving analyzer in %s...", a_path)
             self._reset()
             with open(a_path, "wb") as ofile:
                 dump(self, ofile)
@@ -190,7 +195,7 @@ class SentimentAnalyzer(object):
         # create a workspace for doing the predictions
         probs = np.zeros((len(a_instances),
                           len(self._model_paths),
-                          len(CLS2IDX)
+                          len(IDX2CLS)
                           ))
         # load each trained model and let it predict the classes
         for i, model_i in enumerate(SentimentAnalyzer._load_models(self)):
@@ -228,6 +233,48 @@ class SentimentAnalyzer(object):
         lbl_idx, _ = self.judge.predict(self._wbench)
         return IDX2CLS[lbl_idx]
 
+    def debug(self, instance):
+        """Explain predictions of each classifier.
+
+        Args:
+          instance (cgsa.utils.data.Tweet): input instance to classify
+
+        Returns:
+          str: predicted label
+
+        Note:
+          modifies input tweet in place
+
+        """
+        n_classes = len(CLS2IDX)
+        if self._wbench is None:
+            self._wbench = np.zeros((len(self._models), n_classes))
+        else:
+            self._wbench *= 0
+
+        from .explainer import Explainer
+        explainer = Explainer(class_names=IDX2CLS)
+        # let each trained model predict the probabilities of classes
+        for i, model_i in enumerate(self._models):
+            self._logger.info("Considering model (%d): %r", i, model_i)
+            model_i.predict_proba(instance, self._wbench[i])
+            self._logger.info("Predicted scores: %r", self._wbench[i])
+            # explanations
+            explanations = explainer.explain_instance(
+                instance,
+                model_i.predict_proba_raw,
+                num_features=6, labels=[y for y in range(len(IDX2CLS))]
+            )
+            for i, cls in iteritems(IDX2CLS):
+                self._logger.info("Class: %s", cls)
+                explanation = explanations.as_list(label=i)
+                self._logger.info("Explanation: %r", explanation)
+        # let the judge unite the decisions
+        self._logger.info("All predicted scores: %r", self._wbench)
+        lbl_idx, _ = self.judge.predict(self._wbench)
+        self._logger.info("Judge prediction: %r", self._wbench)
+        return IDX2CLS[lbl_idx]
+
     def save(self, a_path):
         """Dump model to disc.
 
@@ -238,6 +285,7 @@ class SentimentAnalyzer(object):
         dirname = self._check_path(a_path)
         # store each trained model
         for i, model_i in enumerate(self._models):
+            self._logger.debug("Saving model in %s", dirname)
             self._save_model(model_i, dirname)
             self._models[i] = model_i = None
             gc.collect()

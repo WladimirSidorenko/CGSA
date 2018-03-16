@@ -35,11 +35,11 @@ class TreeRNNBaseAnalyzer(DLBaseAnalyzer):
     def predict_proba(self, msg, yvec):
         wseq = self._tweet2wseq(msg)
         deps = self._get_deps(msg)
-        self._logger.debug("deps: %r", deps)
+        # self._logger.debug("deps: %r", deps)
         embs = np.array(
             [self.get_test_w_emb(w) for w in wseq]
             + self._pad(len(wseq), self._pad_value), dtype="int32")
-        self._logger.debug("embs: %r", embs)
+        # self._logger.debug("embs: %r", embs)
         ret = self._model.predict([np.asarray([deps]),
                                    np.asarray([embs])],
                                   batch_size=1,

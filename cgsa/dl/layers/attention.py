@@ -39,6 +39,7 @@ from __future__ import absolute_import, unicode_literals, print_function
 
 from keras import backend as K
 from keras.engine.topology import Layer
+from .utils import dot_product
 
 ##################################################################
 # Variables and Constants
@@ -103,7 +104,7 @@ class Attention(Layer):
         super(Attention, self).build(input_shape)
 
     def call(self, x, mask=None):
-        eij = K.dot(x, self.W)
+        eij = dot_product(x, self.W)
 
         if self.bias:
             eij += self.b
