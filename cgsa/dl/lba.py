@@ -11,8 +11,8 @@ from __future__ import absolute_import, unicode_literals, print_function
 from csv import QUOTE_NONE
 from collections import defaultdict
 from keras.models import Model
-from keras.layers import (Average, Dense, Dropout, Bidirectional, LSTM,
-                          GaussianNoise, Input)
+from keras.layers import (Concatenate, Dense, Dropout, Bidirectional,
+                          LSTM, GaussianNoise, Input)
 from keras.regularizers import l2
 from six import iteritems
 import numpy as np
@@ -25,12 +25,13 @@ from cgsa.constants import ENCODING
 
 from .base import (EMB_INDICES_NAME, EMPTY_TOK, UNK_TOK, L2_COEFF)
 from .baziotis import BaziotisAnalyzer
-from .layers import Attention, LBA, EMPTY_IDX, UNK_IDX
+from .layers import Attention, CBA, LBA, LBAFlatten, EMPTY_IDX, UNK_IDX
 
 
 ##################################################################
 # Variables and Constants
 LEX_INDICES_NAME = "lexicon_indices"
+PRNT_INDICES_NAME = "parent_indices"
 
 
 ##################################################################
@@ -55,6 +56,8 @@ class LBAAnalyzer(BaziotisAnalyzer):
             + self._pad(len(wseq), self._pad_value), dtype="int32")
         lex_embs = [wseq]
         self._wseq2emb_ids(lex_embs, self.get_lex_emb_i)
+        dep_embs = [wseq]
+        self._wseq2emb_ids(dep_embs, self.get_dep_emb_i)
         ret = self._model.predict([np.asarray([embs]),
                                    np.asarray(lex_embs)],
                                   batch_size=1, verbose=2)
@@ -62,18 +65,21 @@ class LBAAnalyzer(BaziotisAnalyzer):
 
     def _init_nn(self):
         self.init_w_emb()
-        emb_indices = Input(shape=(None,),
+        emb_indices = Input(shape=(self._max_seq_len,),
                             dtype="int32",
                             name=EMB_INDICES_NAME)
-        lex_indices = Input(shape=(None,),
+        lex_indices = Input(shape=(self._max_seq_len,),
                             dtype="int32",
                             name=LEX_INDICES_NAME)
+        prnt_indices = Input(shape=(self._max_seq_len,),
+                             dtype="int32",
+                             name=PRNT_INDICES_NAME)
         vec_embs = self.W_EMB(emb_indices)
         noisy_embs = GaussianNoise(0.2)(vec_embs)
         do_embs = Dropout(0.3)(noisy_embs)
         prev_layer = do_embs
         # add one Bi-LSTM layers
-        for _ in range(2):
+        for _ in range(1):
             rnn = Bidirectional(
                 LSTM(150, recurrent_dropout=0.25,
                      return_sequences=True,
@@ -87,13 +93,17 @@ class LBAAnalyzer(BaziotisAnalyzer):
         attention = Attention(bias=True)(prev_layer)
         # add lexicon-based attention
         lba = LBA(self.lexicon)([lex_indices, prev_layer])
-        merged_attention = Average()([attention, lba])
+        # add context-based attention
+        cba = CBA()([do_embs, prnt_indices, lba, prev_layer])
+        flat_lba = LBAFlatten()(lba)
+        joint_attention = Concatenate(axis=1)([attention, flat_lba, cba])
         out = Dense(self._n_y,
                     activation="softmax",
                     activity_regularizer=l2(L2_COEFF),
                     kernel_regularizer=l2(L2_COEFF),
-                    bias_regularizer=l2(L2_COEFF))(merged_attention)
-        self._model = Model(inputs=[emb_indices, lex_indices], outputs=out)
+                    bias_regularizer=l2(L2_COEFF))(joint_attention)
+        self._model = Model(inputs=[emb_indices, lex_indices, prnt_indices],
+                            outputs=out)
         self._model.compile(optimizer="adadelta",
                             metrics=["categorical_accuracy"],
                             loss="categorical_hinge")
@@ -123,7 +133,10 @@ class LBAAnalyzer(BaziotisAnalyzer):
         )
         train_lex = self._digitize_lex_data(train_x)
         dev_lex = self._digitize_lex_data(dev_x)
-        return ([train_embs, train_lex], [dev_embs, dev_lex])
+        train_deps = self._digitize_dep_data(train_x)
+        dev_deps = self._digitize_dep_data(dev_x)
+        return ([train_embs, train_lex, train_deps],
+                [dev_embs, dev_lex, dev_deps])
 
     def _digitize_lex_data(self, dataset):
         """Convert sequences of words to sequences of word and lexicon indices.
@@ -138,6 +151,25 @@ class LBAAnalyzer(BaziotisAnalyzer):
         # extract word embeddings
         ret = [self._tweet2wseq(tweet_i) for tweet_i in dataset]
         self._wseq2emb_ids(ret, self.get_lex_emb_i)
+        ret = self._pad_sequences(ret)
+        return ret
+
+    def _digitize_dep_data(self, dataset):
+        """Convert sequences of words to sequences of word and lexicon indices.
+
+        Args:
+          dataset (list[tweet]): data set to be digitized
+
+        Returns:
+          list[list[int]]: digitized data sets
+
+        """
+        ret = []
+        # extract word embeddings
+        for tweet_i in dataset:
+            offset = self._max_seq_len - len(tweet_i)
+            ret.append([w.prnt_idx + offset if w.prnt_idx >= 0 else 0
+                        for w in tweet_i])
         ret = self._pad_sequences(ret)
         return ret
 

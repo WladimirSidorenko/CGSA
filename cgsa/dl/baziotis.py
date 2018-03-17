@@ -75,7 +75,7 @@ class BaziotisAnalyzer(DLBaseAnalyzer):
     def train(self, train_x, train_y, dev_x, dev_y, a_grid_search):
         max_train_len = max(len(x) for x in train_x)
         max_dev_len = max(len(x) for x in dev_x) if dev_x else -1
-        self._max_seq_len = max(max_train_len, max_dev_len)
+        self._max_seq_len = max(max_train_len, max_dev_len) + 1
         self._min_width = self._max_seq_len
         super(BaziotisAnalyzer, self).train(train_x, train_y,
                                             dev_x, dev_y, a_grid_search)
@@ -83,8 +83,8 @@ class BaziotisAnalyzer(DLBaseAnalyzer):
     def predict_proba(self, msg, yvec):
         wseq = self._tweet2wseq(msg)
         embs = np.array(
-            [self.get_test_w_emb(w) for w in wseq]
-            + self._pad(len(wseq), self._pad_value), dtype="int32")
+            [self._pad(len(wseq), self._pad_value)
+             + self.get_test_w_emb(w) for w in wseq], dtype="int32")
         self._logger.debug("embs: %r", embs)
         ret = self._model.predict(np.asarray([embs]),
                                   batch_size=1,

@@ -72,11 +72,11 @@ class LBA(Layer):
                              + K.epsilon(), K.floatx())
         lex_scores = K.expand_dims(lex_scores)
         weighted_input = x * lex_scores
-        return K.sum(weighted_input, axis=1)
+        return weighted_input
 
     def compute_output_shape(self, input_shapes):
         output_shape = input_shapes[-1]
-        return (output_shape[0], output_shape[-1])
+        return ((output_shape[0], output_shape[-1]), output_shape)
 
     def get_config(self):
         config = super(LBA, self).get_config()
@@ -86,3 +86,15 @@ class LBA(Layer):
             "W_constraint": self.W_constraint
         })
         return config
+
+
+class LBAFlatten(Layer):
+    def __init__(self, **kwargs):
+        super(LBAFlatten, self).__init__(**kwargs)
+
+    def call(self, layer_input):
+        return K.sum(layer_input, axis=1)
+
+    def compute_output_shape(self, input_shapes):
+        output_shape = input_shapes[-1]
+        return ((output_shape[0], output_shape[-1]))
