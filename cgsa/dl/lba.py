@@ -50,16 +50,25 @@ class LBAAnalyzer(BaziotisAnalyzer):
         self._read_lexicons(None, lexicons)
 
     def predict_proba(self, msg, yvec):
+        assert len(msg) < self._max_seq_len, \
+            ("Provided message is longer than the maximum accepted"
+             " sequence length: {:d}").format(self._max_seq_len)
         wseq = self._tweet2wseq(msg)
-        embs = np.array(
-            [self.get_test_w_emb(w) for w in wseq]
-            + self._pad(len(wseq), self._pad_value), dtype="int32")
+        # obtain word indices
+        embs = [np.array(
+            self._pad(len(wseq), self._pad_value)
+            + [self.get_test_w_emb(w) for w in wseq], dtype="int32")]
+        # obtain lexicon indices
         lex_embs = [wseq]
         self._wseq2emb_ids(lex_embs, self.get_lex_emb_i)
-        dep_embs = [wseq]
-        self._wseq2emb_ids(dep_embs, self.get_dep_emb_i)
-        ret = self._model.predict([np.asarray([embs]),
-                                   np.asarray(lex_embs)],
+        # obtain head indices
+        offset = self._max_seq_len - len(msg)
+        dep_embs = [self._pad(len(msg))
+                    + [w.prnt_idx + offset if w.prnt_idx >= 0 else 0
+                       for w in msg]]
+        ret = self._model.predict([np.asarray(embs),
+                                   np.asarray(lex_embs),
+                                   np.asarray(dep_embs)],
                                   batch_size=1, verbose=2)
         yvec[:] = ret[0]
 

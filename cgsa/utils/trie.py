@@ -29,7 +29,7 @@ from cgsa.utils.common import LOGGER
 ##################################################################
 # Variable and Constants
 PUNCT_RE = re.compile("[#,.]")
-SPACE_RE = re.compile("\s\s+", re.L)
+SPACE_RE = re.compile("\s\s+")
 FINAL_SPACE_RE = re.compile("(:?^\s+|\s+$)")
 ANEW = 0
 CONTINUE = 1
