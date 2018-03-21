@@ -52,13 +52,14 @@ class CBA(Layer):
         super(CBA, self).build(input_shapes)
 
     def call(self, inputs):
-        embs, prnt_indices, lba_out, rnn_out = inputs
+        embs, prnt_indices, lba, rnn_out = inputs
         n_istances = K.shape(embs)[0]
         instance_len = K.shape(embs)[1]
         inst_indcs = K.arange(0, n_istances)
         inst_indcs = K.repeat_elements(inst_indcs, instance_len, axis=0)
         # obtain LBA outut of the parent nodes
-        prnt_lba = get_subtensor(lba_out, inst_indcs, K.flatten(prnt_indices))
+        lba_rnn = lba * rnn_out
+        prnt_lba = get_subtensor(lba_rnn, inst_indcs, K.flatten(prnt_indices))
         prnt_lba = K.reshape(prnt_lba, rnn_out.shape)
         # concatenate input embeddings with the output of LBA
         cba_input = K.concatenate([prnt_lba, embs], axis=-1)
@@ -67,12 +68,11 @@ class CBA(Layer):
         cba_output /= K.cast(K.sum(cba_output, axis=1, keepdims=True)
                              + K.epsilon(), K.floatx())
         cba_output = K.expand_dims(cba_output)
-        weighted_output = rnn_out * cba_output
-        return K.sum(weighted_output, axis=1)
+        return cba_output
 
     def compute_output_shape(self, input_shapes):
         output_shape = input_shapes[-1]
-        return (output_shape[0], output_shape[-1])
+        return (output_shape[0], output_shape[1], 1)
 
     def get_config(self):
         config = super(CBA, self).get_config()

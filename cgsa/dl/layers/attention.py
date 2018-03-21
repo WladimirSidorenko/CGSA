@@ -39,7 +39,6 @@ from __future__ import absolute_import, unicode_literals, print_function
 
 from keras import backend as K
 from keras.engine.topology import Layer
-from .utils import dot_product
 
 ##################################################################
 # Variables and Constants
@@ -47,7 +46,7 @@ from .utils import dot_product
 
 ##################################################################
 # Class
-class Attention(Layer):
+class RawAttention(Layer):
     def __init__(self,
                  W_regularizer=None, b_regularizer=None,
                  W_constraint=None, b_constraint=None,
@@ -78,7 +77,7 @@ class Attention(Layer):
         self.b_constraint = b_constraint
 
         self.bias = bias
-        super(Attention, self).__init__(**kwargs)
+        super(RawAttention, self).__init__(**kwargs)
 
     def build(self, input_shape):
         assert len(input_shape) == 3
@@ -101,10 +100,10 @@ class Attention(Layer):
                                      constraint=self.b_constraint)
         else:
             self.b = None
-        super(Attention, self).build(input_shape)
+        super(RawAttention, self).build(input_shape)
 
     def call(self, x, mask=None):
-        eij = dot_product(x, self.W)
+        eij = K.dot(x, self.W)
 
         if self.bias:
             eij += self.b
@@ -123,19 +122,19 @@ class Attention(Layer):
         # very small positive number ε to the sum.  a /= K.cast(K.sum(a,
         # axis=1, keepdims=True), K.floatx())
         a /= K.cast(K.sum(a, axis=1, keepdims=True) + K.epsilon(), K.floatx())
+
         a = K.expand_dims(a)
-        weighted_input = x * a
-        return K.sum(weighted_input, axis=1)
+        return a
 
     def compute_mask(self, input, input_mask=None):
         # do not pass the mask to the next layers
         return None
 
     def compute_output_shape(self, input_shape):
-        return (input_shape[0], input_shape[-1])
+        return (input_shape[0], input_shape[1], 1)
 
     def get_config(self):
-        config = super(Attention, self).get_config()
+        config = super(RawAttention, self).get_config()
         config.update({
             "initializer": self.initializer,
             "W_regularizer": self.W_regularizer,
@@ -145,3 +144,29 @@ class Attention(Layer):
             "bias": self.bias
         })
         return config
+
+
+class MergeAttention(Layer):
+    def __init__(self, **kwargs):
+        super(MergeAttention, self).__init__(**kwargs)
+
+    def call(self, inputs):
+        x, attention = inputs
+        return self._merge(x, attention)
+
+    def compute_output_shape(self, input_shapes):
+        output_shape = input_shapes[0]
+        return ((output_shape[0], output_shape[-1]))
+
+    def _merge(self, x, attention):
+        x = x * attention
+        return K.sum(x, axis=1)
+
+
+class Attention(RawAttention, MergeAttention):
+    def call(self, x, **kwargs):
+        attention = RawAttention.call(self, x, **kwargs)
+        return MergeAttention.call(self, [x, attention])
+
+    def compute_output_shape(self, input_shape):
+        return (input_shape[0], input_shape[-1])

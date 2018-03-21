@@ -90,7 +90,7 @@ class TreeRNNBaseAnalyzer(DLBaseAnalyzer):
         raise KeyError("{:s} layer not found.".format(name))
 
     def _recompile_model(self, emb_layer_idx):
-        """Return the index of embedding layer in the model.
+        """Replace the embedding layer of the model.
 
         Args:
           emb_layer_idx (int): index of the embedding layer

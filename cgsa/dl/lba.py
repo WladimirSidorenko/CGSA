@@ -10,6 +10,7 @@ from __future__ import absolute_import, unicode_literals, print_function
 
 from csv import QUOTE_NONE
 from collections import defaultdict
+from keras import backend as K
 from keras.models import Model
 from keras.layers import (Concatenate, Dense, Dropout, Bidirectional,
                           LSTM, GaussianNoise, Input)
@@ -25,7 +26,7 @@ from cgsa.constants import ENCODING
 
 from .base import (EMB_INDICES_NAME, EMPTY_TOK, UNK_TOK, L2_COEFF)
 from .baziotis import BaziotisAnalyzer
-from .layers import Attention, CBA, LBA, LBAFlatten, EMPTY_IDX, UNK_IDX
+from .layers import MergeAttention, RawAttention, CBA, LBA, EMPTY_IDX, UNK_IDX
 
 
 ##################################################################
@@ -66,10 +67,32 @@ class LBAAnalyzer(BaziotisAnalyzer):
         dep_embs = [self._pad(len(msg))
                     + [w.prnt_idx + offset if w.prnt_idx >= 0 else 0
                        for w in msg]]
-        ret = self._model.predict([np.asarray(embs),
-                                   np.asarray(lex_embs),
-                                   np.asarray(dep_embs)],
+        nn_input = [np.asarray(embs),
+                    np.asarray(lex_embs),
+                    np.asarray(dep_embs)]
+        # attention_debug = K.function(
+        #     inputs=self._model.input + [K.learning_phase()],
+        #     outputs=self._model.get_layer("attention_1").output
+        # )
+        # lba_debug = K.function(
+        #     inputs=self._model.input + [K.learning_phase()],
+        #     outputs=self._model.get_layer("lba_1").output
+        # )
+        # cba_debug = K.function(
+        #     inputs=self._model.input + [K.learning_phase()],
+        #     outputs=self._model.get_layer("cba_1").output
+        # )
+        # attention = attention_debug(nn_input + [0.])
+        # lba = lba_debug(nn_input)
+        # cba = cba_debug(nn_input)
+        # self._logger.info("msg: %s", msg)
+        # # self._logger.info("prev_layer: %r", prev_layer)
+        # self._logger.info("attention: %r", attention)
+        # self._logger.info("lba: %r", lba)
+        # self._logger.info("cba: %r", cba)
+        ret = self._model.predict(nn_input,
                                   batch_size=1, verbose=2)
+        # self._logger.info("ret: %r", ret)
         yvec[:] = ret[0]
 
     def _init_nn(self):
@@ -90,7 +113,7 @@ class LBAAnalyzer(BaziotisAnalyzer):
         # add one Bi-LSTM layers
         for _ in range(1):
             rnn = Bidirectional(
-                LSTM(150, recurrent_dropout=0.25,
+                LSTM(100, recurrent_dropout=0.25,
                      return_sequences=True,
                      activity_regularizer=l2(L2_COEFF),
                      kernel_regularizer=l2(L2_COEFF),
@@ -99,13 +122,16 @@ class LBAAnalyzer(BaziotisAnalyzer):
             )(prev_layer)
             prev_layer = rnn
         # add simple attention
-        attention = Attention(bias=True)(prev_layer)
+        attention = RawAttention(bias=True)(prev_layer)
         # add lexicon-based attention
         lba = LBA(self.lexicon)([lex_indices, prev_layer])
         # add context-based attention
         cba = CBA()([do_embs, prnt_indices, lba, prev_layer])
-        flat_lba = LBAFlatten()(lba)
-        joint_attention = Concatenate(axis=1)([attention, flat_lba, cba])
+        joint_attention = Concatenate(axis=1)([
+            MergeAttention()([prev_layer, attention]),
+            MergeAttention()([prev_layer, lba]),
+            MergeAttention()([prev_layer, cba])
+        ])
         out = Dense(self._n_y,
                     activation="softmax",
                     activity_regularizer=l2(L2_COEFF),
@@ -116,14 +142,7 @@ class LBAAnalyzer(BaziotisAnalyzer):
         self._model.compile(optimizer="adadelta",
                             metrics=["categorical_accuracy"],
                             loss="categorical_hinge")
-        self._attention_debug = Model(
-            inputs=[emb_indices, lex_indices],
-            outputs=[prev_layer, attention]
-        )
-        self._lba_debug = Model(
-            inputs=[emb_indices, lex_indices],
-            outputs=[prev_layer, lba]
-        )
+        self._logger.debug(self._model.summary())
 
     def _digitize_data(self, train_x, dev_x):
         """Convert sequences of words to sequences of word and lexicon indices.
