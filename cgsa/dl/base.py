@@ -33,8 +33,10 @@ from .layers.word2vec import Word2Vec
 
 ##################################################################
 # Variables and Constants
-DFLT_VDIM = 100                 # default dimensionality for task-specific
-                                # vectors
+# default dimensionality for task-specific vectors
+DFLT_VDIM = 100
+DFLT_N_EPOCHS = 24  # 24
+
 EMPTY_TOK = "%EMPTY%"
 UNK_TOK = "%UNK%"
 DICT_OFFSET = 1
@@ -88,7 +90,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         self._model = None
         self._model_path = None
         self._trained = False
-        self._n_epochs = 24
+        self._n_epochs = DFLT_N_EPOCHS
         # mapping from word to its embedding index
         self._aux_keys = set((0, 1))
         self._min_width = 0

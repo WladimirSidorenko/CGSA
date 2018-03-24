@@ -44,7 +44,7 @@ class LBA(Layer):
             self.lexicon = lexicon
         self.W_regularizer = W_regularizer
         self.W_constraint = W_constraint
-        self._initial_weights = [self.lexicon]
+        kwargs["weights"] = [self.lexicon]
         super(LBA, self).__init__(**kwargs)
 
     def build(self, input_shapes):

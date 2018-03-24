@@ -72,24 +72,32 @@ class LBAAnalyzer(BaziotisAnalyzer):
                     np.asarray(dep_embs)]
         # attention_debug = K.function(
         #     inputs=self._model.input + [K.learning_phase()],
-        #     outputs=self._model.get_layer("attention_1").output
+        #     outputs=self._model.get_layer("raw_attention_1").output
         # )
+        # lba_layer = self._model.get_layer("lba_1")
         # lba_debug = K.function(
         #     inputs=self._model.input + [K.learning_phase()],
-        #     outputs=self._model.get_layer("lba_1").output
+        #     outputs=lba_layer.output
         # )
+        # self._logger.info("lba_layer: %r", lba_layer.get_weights())
         # cba_debug = K.function(
         #     inputs=self._model.input + [K.learning_phase()],
         #     outputs=self._model.get_layer("cba_1").output
         # )
-        # attention = attention_debug(nn_input + [0.])
-        # lba = lba_debug(nn_input)
-        # cba = cba_debug(nn_input)
+        # n = len(msg)
+        # attention = attention_debug(nn_input + [0.])[0][-n:]
+        # lba = lba_debug(nn_input + [0.])[0][-n:]
+        # cba = cba_debug(nn_input + [0.])[0][-n:]
         # self._logger.info("msg: %s", msg)
-        # # self._logger.info("prev_layer: %r", prev_layer)
         # self._logger.info("attention: %r", attention)
         # self._logger.info("lba: %r", lba)
         # self._logger.info("cba: %r", cba)
+        # for i, (tok_i, att_i, lba_i, cba_i) in enumerate(zip(msg, attention,
+        #                                                      lba, cba)):
+        #     self._logger.info(
+        #         "token[%d]: %s; attention: %f; lba: %f; cba: %f;",
+        #         i, tok_i.lemma, att_i, lba_i, cba_i
+        #     )
         ret = self._model.predict(nn_input,
                                   batch_size=1, verbose=2)
         # self._logger.info("ret: %r", ret)
@@ -274,6 +282,7 @@ class LBAAnalyzer(BaziotisAnalyzer):
             for score_idx, score in iteritems(scores):
                 self.lexicon[w_idx, score_idx] = score
         self.lexicon[EMPTY_IDX, :] = 0.
+        self.lexicon[UNK_IDX, :] /= 1e2
         return self.lexicon
 
     def _get_lexicon_w_emb_i(self, a_word):
