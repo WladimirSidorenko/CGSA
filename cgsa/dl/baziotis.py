@@ -60,7 +60,7 @@ class BaziotisAnalyzer(DLBaseAnalyzer):
             )
             self._model.add(Dropout(0.5))
         # add Attention layer
-        self._model.add(Attention(bias=True))
+        self._model.add(Attention(bias=(not self._w2v and not self._lstsq)))
         self._model.add(Dropout(0.5))
         # add the final dense layer
         self._model.add(Dense(self._n_y,
