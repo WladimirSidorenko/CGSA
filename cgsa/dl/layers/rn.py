@@ -34,7 +34,8 @@ class RN(Recurrent):
         if "name" not in kwargs:
             kwargs["name"] = "RN"
         super(RN, self).__init__(**kwargs)
-        self.input_spec = [InputSpec(ndim=3), InputSpec(ndim=3)]
+        self.input_spec = [InputSpec(ndim=3)]
+        self.state_spec = [InputSpec(ndim=3)]
         self.activation = activations.get(activation)
 
         self.W_initializer = initializers.get(recurrent_initializer)
