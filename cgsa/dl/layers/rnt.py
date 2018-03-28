@@ -50,5 +50,5 @@ class RNT(RN):
             ret = K.bias_add(ret, self.b)
         ret = self.activation(ret)
         # now, the tricky part we need to actually modify the embedding matrix
-        embs = set_subtensor(embs[inst_indcs, prnt_indcs], ret)
+        embs = set_subtensor(embs, ret, inst_indcs, prnt_indcs)
         return ret, [embs]

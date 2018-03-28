@@ -19,6 +19,7 @@ class MSRN(Recurrent):
     def __init__(self, *args, **kwargs):
         super(MSRN, self).__init__(*args, **kwargs)
         self.input_spec = [InputSpec(ndim=4)]
+        self.state_spec = [InputSpec(ndim=4)]
 
     def __call__(self, inputs, **kwargs):
         self.units = K.int_shape(inputs)[-1]
@@ -27,7 +28,6 @@ class MSRN(Recurrent):
     def build(self, input_shapes):
         super(MSRN, self).build([input_shapes])
         self.states = [None]
-        self.state_spec = [InputSpec(ndim=4)]
         self._eye = K.eye(input_shapes[-1])
 
     def compute_output_shape(self, input_shape):

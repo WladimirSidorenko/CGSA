@@ -76,10 +76,6 @@ class RN(Recurrent):
             self.bias = None
         super(RN, self).build(input_shapes)
 
-    def get_constants(self, inputs, training=None):
-        constants = [self.EMBS]
-        return constants
-
     def preprocess_input(self, inputs, training=None):
         return inputs
 

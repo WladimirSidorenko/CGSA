@@ -28,7 +28,7 @@ from .base import (EMB_INDICES_NAME, EMPTY_TOK, UNK_TOK, L2_COEFF)
 from .baziotis import BaziotisAnalyzer
 from .functional import FunctionalWord2Vec
 from .layers import (MergeAttention, RawAttention, CBA, LBA,
-                     EMPTY_IDX, UNK_IDX, WORD2VEC_LAYER_NAME)
+                     EMPTY_IDX, UNK_IDX)
 
 
 ##################################################################
