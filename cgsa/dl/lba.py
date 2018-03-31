@@ -53,53 +53,7 @@ class LBAAnalyzer(FunctionalWord2Vec, BaziotisAnalyzer):
         self._read_lexicons(None, lexicons)
 
     def predict_proba(self, msg, yvec):
-        assert len(msg) < self._max_seq_len, \
-            ("Provided message is longer than the maximum accepted"
-             " sequence length: {:d}").format(self._max_seq_len)
-        wseq = self._tweet2wseq(msg)
-        # obtain word indices
-        embs = [np.array(
-            self._pad(len(wseq), self._pad_value)
-            + [self.get_test_w_emb(w) for w in wseq], dtype="int32")]
-        # obtain lexicon indices
-        lex_embs = [wseq]
-        self._wseq2emb_ids(lex_embs, self.get_lex_emb_i)
-        # obtain head indices
-        offset = self._max_seq_len - len(msg)
-        dep_embs = [self._pad(len(msg))
-                    + [w.prnt_idx + offset if w.prnt_idx >= 0 else 0
-                       for w in msg]]
-        nn_input = [np.asarray(embs),
-                    np.asarray(lex_embs),
-                    np.asarray(dep_embs)]
-        # attention_debug = K.function(
-        #     inputs=self._model.input + [K.learning_phase()],
-        #     outputs=self._model.get_layer("raw_attention_1").output
-        # )
-        # lba_layer = self._model.get_layer("lba_1")
-        # lba_debug = K.function(
-        #     inputs=self._model.input + [K.learning_phase()],
-        #     outputs=lba_layer.output
-        # )
-        # self._logger.info("lba_layer: %r", lba_layer.get_weights())
-        # cba_debug = K.function(
-        #     inputs=self._model.input + [K.learning_phase()],
-        #     outputs=self._model.get_layer("cba_1").output
-        # )
-        # n = len(msg)
-        # attention = attention_debug(nn_input + [0.])[0][-n:]
-        # lba = lba_debug(nn_input + [0.])[0][-n:]
-        # cba = cba_debug(nn_input + [0.])[0][-n:]
-        # self._logger.info("msg: %s", msg)
-        # self._logger.info("attention: %r", attention)
-        # self._logger.info("lba: %r", lba)
-        # self._logger.info("cba: %r", cba)
-        # for i, (tok_i, att_i, lba_i, cba_i) in enumerate(zip(msg, attention,
-        #                                                      lba, cba)):
-        #     self._logger.info(
-        #         "token[%d]: %s; attention: %f; lba: %f; cba: %f;",
-        #         i, tok_i.lemma, att_i, lba_i, cba_i
-        #     )
+        nn_input = self._msg2nn_input(msg)
         ret = self._model.predict(nn_input,
                                   batch_size=1, verbose=2)
         # self._logger.info("ret: %r", ret)
@@ -123,7 +77,7 @@ class LBAAnalyzer(FunctionalWord2Vec, BaziotisAnalyzer):
         # add one Bi-LSTM layers
         for _ in range(1):
             rnn = Bidirectional(
-                LSTM(100, recurrent_dropout=0.25,
+                LSTM(100, recurrent_dropout=0.3,
                      return_sequences=True,
                      activity_regularizer=l2(L2_COEFF),
                      kernel_regularizer=l2(L2_COEFF),
@@ -310,3 +264,80 @@ class LBAAnalyzer(FunctionalWord2Vec, BaziotisAnalyzer):
                     best_idx = idx
             return self.score_idx2emb_idx[best_idx]
         return UNK_IDX
+
+    def _load(self, a_path):
+        super(LBAAnalyzer, self)._load(a_path)
+        self.attention_debug = K.function(
+            inputs=self._model.input + [K.learning_phase()],
+            outputs=self._model.get_layer("raw_attention_1").output
+        )
+        lba_layer = self._model.get_layer("lba_1")
+        self._logger.debug("lba_layer: %r", lba_layer.get_weights())
+        self.lba_debug = K.function(
+            inputs=self._model.input + [K.learning_phase()],
+            outputs=self._model.get_layer("lba_1").output
+        )
+        self.cba_debug = K.function(
+            inputs=self._model.input + [K.learning_phase()],
+            outputs=self._model.get_layer("cba_1").output
+        )
+
+    def reset(self):
+        """Remove members which cannot be serialized.
+
+        """
+        # set functions to None
+        self.attention_debug = None
+        self.lba_debug = None
+        self.cba_debug = None
+        super(LBAAnalyzer, self).reset()
+
+    def debug(self, msg):
+        """Output debug information on intermediate steps of prediction.
+
+        """
+        nn_input = self._msg2nn_input(msg)
+        n = len(msg)
+        attention = self.attention_debug(nn_input + [0.])[0][-n:]
+        lba = self.lba_debug(nn_input + [0.])[0][-n:]
+        cba = self.cba_debug(nn_input + [0.])[0][-n:]
+        self._logger.info("msg: %s", msg)
+        self._logger.info("attention: %r", attention)
+        self._logger.info("lba: %r", lba)
+        self._logger.info("cba: %r", cba)
+        for i, (tok_i, att_i, lba_i, cba_i) in enumerate(zip(msg, attention,
+                                                             lba, cba)):
+            self._logger.info(
+                "token[%d]: %s; attention: %f; lba: %f; cba: %f;",
+                i, tok_i.lemma, att_i, lba_i, cba_i
+            )
+
+    def _msg2nn_input(self, msg):
+        """Convert input message to embeddings and dependency indices.
+
+        Args:
+          msg (cgsa.data.Tweet): input message
+
+        Return:
+          (list[array]): input embeddings for the neural network
+
+        """
+        assert len(msg) < self._max_seq_len, \
+            ("Provided message is longer than the maximum accepted"
+             " sequence length: {:d}").format(self._max_seq_len)
+        wseq = self._tweet2wseq(msg)
+        # obtain word indices
+        embs = [np.array(
+            self._pad(len(wseq), self._pad_value)
+            + [self.get_test_w_emb(w) for w in wseq], dtype="int32")]
+        # obtain lexicon indices
+        lex_embs = [wseq]
+        self._wseq2emb_ids(lex_embs, self.get_lex_emb_i)
+        # obtain head indices
+        offset = self._max_seq_len - len(msg)
+        dep_embs = [self._pad(len(msg))
+                    + [w.prnt_idx + offset if w.prnt_idx >= 0 else 0
+                       for w in msg]]
+        nn_input = [np.asarray(embs), np.asarray(lex_embs),
+                    np.asarray(dep_embs)]
+        return nn_input
