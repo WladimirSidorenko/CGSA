@@ -10,6 +10,7 @@ from keras import activations, constraints, initializers, regularizers
 from keras.engine import InputSpec
 from keras.layers.recurrent import Recurrent
 
+from .common import DFLT_INITIALIZER
 from .utils import get_subtensor, set_subtensor
 
 
@@ -22,8 +23,8 @@ class RN(Recurrent):
     def __init__(self,
                  activation='tanh',
                  use_bias=False,
-                 recurrent_initializer='orthogonal',
-                 bias_initializer='zeros',
+                 recurrent_initializer=DFLT_INITIALIZER,
+                 bias_initializer=DFLT_INITIALIZER,
                  recurrent_regularizer=None,
                  bias_regularizer=None,
                  recurrent_constraint=None,

@@ -40,6 +40,8 @@ from __future__ import absolute_import, unicode_literals, print_function
 from keras import backend as K
 from keras.engine.topology import Layer
 
+from .common import DFLT_INITIALIZER
+
 ##################################################################
 # Variables and Constants
 
@@ -50,7 +52,7 @@ class RawAttention(Layer):
     def __init__(self,
                  W_regularizer=None, b_regularizer=None,
                  W_constraint=None, b_constraint=None,
-                 bias=False, initializer="glorot_uniform", **kwargs):
+                 bias=False, initializer=DFLT_INITIALIZER, **kwargs):
         """
         Keras Layer that implements an Attention mechanism for temporal data.
         Supports Masking.

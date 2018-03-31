@@ -15,6 +15,8 @@ from keras import backend as K
 from keras.engine.topology import Layer
 import numpy as np
 
+from .common import DFLT_INITIALIZER
+
 
 ##################################################################
 # Class
@@ -53,7 +55,7 @@ class LBA(Layer):
         self.W = self.add_weight(shape=self.lexicon.shape,
                                  name='{}_W'.format(self.name),
                                  trainable=True,
-                                 initializer="Zeros",
+                                 initializer=DFLT_INITIALIZER,
                                  regularizer=self.W_regularizer,
                                  constraint=self.W_constraint)
         super(LBA, self).build(input_shapes)

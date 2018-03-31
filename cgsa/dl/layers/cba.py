@@ -15,6 +15,7 @@ from keras import backend as K
 from keras.engine.topology import Layer
 
 
+from .common import DFLT_INITIALIZER
 from .utils import get_subtensor
 
 
@@ -46,7 +47,7 @@ class CBA(Layer):
         self.W = self.add_weight(shape=(emb_dim + rnn_dim, rnn_dim),
                                  name='{}_W'.format(self.name),
                                  trainable=True,
-                                 initializer="Orthogonal",
+                                 initializer=DFLT_INITIALIZER,
                                  regularizer=self.W_regularizer,
                                  constraint=self.W_constraint)
         super(CBA, self).build(input_shapes)

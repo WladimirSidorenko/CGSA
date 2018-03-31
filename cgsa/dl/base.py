@@ -27,7 +27,7 @@ import os
 
 from cgsa.base import BaseAnalyzer
 from cgsa.utils.common import LOGGER, is_relevant, normlex
-from .layers import CUSTOM_OBJECTS, EMPTY_IDX, UNK_IDX
+from .layers import CUSTOM_OBJECTS, DFLT_INITIALIZER, EMPTY_IDX, UNK_IDX
 from .layers.word2vec import Word2Vec
 
 
@@ -43,7 +43,9 @@ DICT_OFFSET = 1
 UNK_PROB = 1e-4
 L2_COEFF = 1e-4
 EMB_INDICES_NAME = "embedding_indices"
-
+DFLT_TRAIN_PARAMS = {"optimizer": "adadelta",
+                     "metrics": ["categorical_accuracy"],
+                     "loss": "categorical_hinge"}
 
 ##################################################################
 # Methods
@@ -290,6 +292,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         new_layer.set_weights(first_layer.get_weights())
         layers.insert(emb_layer_idx, new_layer)
         self._model = self._model.__class__(layers=layers)
+        self._model.compile(**DFLT_TRAIN_PARAMS)
 
     def _init_wemb_funcs(self):
         """Initialize functions for obtaining word embeddings.
@@ -337,7 +340,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
 
         """
         self.W_EMB = Embedding(len(self._w2i), self.ndim,
-                               embeddings_initializer="he_normal",
+                               embeddings_initializer=DFLT_INITIALIZER,
                                embeddings_regularizer=l2(L2_COEFF))
 
     def _init_w2v_emb(self):

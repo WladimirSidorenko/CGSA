@@ -24,7 +24,8 @@ from cgsa.utils.common import normlex
 from cgsa.base import (LEX_CLMS, LEX_TYPES, NEG_SFX_RE, USCORE_RE)
 from cgsa.constants import ENCODING
 
-from .base import (EMB_INDICES_NAME, EMPTY_TOK, UNK_TOK, L2_COEFF)
+from .base import (DFLT_TRAIN_PARAMS, EMB_INDICES_NAME,
+                   EMPTY_TOK, UNK_TOK, L2_COEFF)
 from .baziotis import BaziotisAnalyzer
 from .functional import FunctionalWord2Vec
 from .layers import (MergeAttention, RawAttention, CBA, LBA,
@@ -103,9 +104,7 @@ class LBAAnalyzer(FunctionalWord2Vec, BaziotisAnalyzer):
                     bias_regularizer=l2(L2_COEFF))(joint_attention)
         self._model = Model(inputs=[emb_indices, lex_indices, prnt_indices],
                             outputs=out)
-        self._model.compile(optimizer="adadelta",
-                            metrics=["categorical_accuracy"],
-                            loss="categorical_hinge")
+        self._model.compile(**DFLT_TRAIN_PARAMS)
         self._logger.debug(self._model.summary())
 
     def _digitize_data(self, train_x, dev_x):

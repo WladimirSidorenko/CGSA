@@ -17,6 +17,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from .attention import Attention, MergeAttention, RawAttention
 from .cba import CBA
+from .common import DFLT_INITIALIZER
 from .lba import LBA
 from .mvrn import MVRN
 from .msrn import MSRN
@@ -43,7 +44,7 @@ __name__ = "cgsa.dl.layers"
 __all__ = ["Attention", "EMPTY_IDX", "UNK_IDX", "MVRN", "RN", "RNT",
            "CBA", "LBA", "MatrixEmbedding", "MergeAttention",
            "RawAttention", "WORD2VEC_LAYER_NAME", "Word2Vec",
-           "CUSTOM_OBJECTS"]
+           "CUSTOM_OBJECTS", "DFLT_INITIALIZER"]
 __author__ = "Uladzimir Sidarenka"
 __email__ = "sidarenk at uni dash potsdam dot de"
 __version__ = "0.1.0"

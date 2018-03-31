@@ -12,7 +12,7 @@ from __future__ import (absolute_import, unicode_literals, print_function,
 from abc import ABC
 from keras.layers import Input
 
-from .base import EMB_INDICES_NAME
+from .base import DFLT_TRAIN_PARAMS, EMB_INDICES_NAME
 from .layers import WORD2VEC_LAYER_NAME
 
 
@@ -85,6 +85,7 @@ class FunctionalWord2Vec(ABC):
         ]
         self._model = self._model.__class__(inputs=model_inputs,
                                             outputs=new_outputs)
+        self._model.compile(**DFLT_TRAIN_PARAMS)
         self._logger.debug(self._model.summary())
 
     def _relink_layers(self, layers, old2new, start=False):

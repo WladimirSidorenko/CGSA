@@ -11,9 +11,10 @@ from __future__ import absolute_import, unicode_literals, print_function
 from keras.models import Sequential
 from keras.layers import (Conv1D, Dense, Dropout, GlobalMaxPooling1D)
 from keras.regularizers import l2
-from cgsa.dl.base import DLBaseAnalyzer
 
-from .base import L2_COEFF
+from .base import DFLT_TRAIN_PARAMS, DLBaseAnalyzer, L2_COEFF
+from .layers import DFLT_INITIALIZER
+
 
 ##################################################################
 # Variables and Constants
@@ -50,7 +51,7 @@ class SeverynAnalyzer(DLBaseAnalyzer):
         self._model.add(Conv1D(
             self._n_filters, self._flt_width,
             activation="relu",
-            kernel_initializer="he_normal",
+            kernel_initializer=DFLT_INITIALIZER,
             kernel_regularizer=l2(L2_COEFF),
             bias_regularizer=l2(L2_COEFF)))
         # add max-pooling
@@ -60,11 +61,9 @@ class SeverynAnalyzer(DLBaseAnalyzer):
         # add final dense layer
         self._model.add(Dense(self._n_y,
                               activation="softmax",
-                              kernel_initializer="he_normal",
-                              bias_initializer="he_normal",
+                              kernel_initializer=DFLT_INITIALIZER,
+                              bias_initializer=DFLT_INITIALIZER,
                               kernel_regularizer=l2(L2_COEFF),
                               bias_regularizer=l2(L2_COEFF)))
-        self._model.compile(optimizer="adadelta",
-                            metrics=["categorical_accuracy"],
-                            loss="categorical_hinge")
+        self._model.compile(**DFLT_TRAIN_PARAMS)
         self._logger.debug(self._model.summary())

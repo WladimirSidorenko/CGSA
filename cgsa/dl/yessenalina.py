@@ -12,8 +12,9 @@ from keras.layers import Dense, Flatten, Input
 from keras.models import Model
 from keras.regularizers import l2
 
-from .base import EMB_INDICES_NAME, DLBaseAnalyzer, L2_COEFF
-from .layers import MSRN, YMatrixEmbedding
+from .base import (DFLT_TRAIN_PARAMS, DLBaseAnalyzer,
+                   EMB_INDICES_NAME, L2_COEFF)
+from .layers import DFLT_INITIALIZER, MSRN, YMatrixEmbedding
 
 ##################################################################
 # Variables and Constants
@@ -63,18 +64,18 @@ class YessenalinaAnalyzer(DLBaseAnalyzer):
                     bias_regularizer=l2(L2_COEFF),
                     name="dense")(flat)
         self._model = Model(inputs=[emb_indices], outputs=out)
-        self._model.compile(optimizer="adadelta",
-                            metrics=["categorical_accuracy"],
-                            loss="categorical_hinge")
+        self._model.compile(**DFLT_TRAIN_PARAMS)
         self._logger.debug(self._model.summary())
 
     def _init_w_emb(self):
         """Initialize matrix embeddings along with vector representations.
 
         """
-        self.MTX_EMB = YMatrixEmbedding(len(self._w2i), self.ndim,
-                                        embeddings_initializer="he_normal",
-                                        embeddings_regularizer=l2(L2_COEFF))
+        self.MTX_EMB = YMatrixEmbedding(
+            len(self._w2i), self.ndim,
+            embeddings_initializer=DFLT_INITIALIZER,
+            embeddings_regularizer=l2(L2_COEFF)
+        )
 
     def reset(self):
         """Remove members which cannot be serialized.

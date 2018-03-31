@@ -12,11 +12,10 @@ from keras.layers import Dense, Input
 from keras.models import Model
 from keras.regularizers import l2
 
-from .base import L2_COEFF
+from .base import DFLT_TRAIN_PARAMS, L2_COEFF
 from .tree_rnn_base import (TreeRNNBaseAnalyzer, DEP_LAYER_NAME,
                             EMB_INDICES_NAME)
-from .layers import MVRN
-from .layers import MatrixEmbedding
+from .layers import DFLT_INITIALIZER, MatrixEmbedding, MVRN
 
 ##################################################################
 # Variables and Constants
@@ -71,9 +70,7 @@ class MVRNNAnalyzer(TreeRNNBaseAnalyzer):
                     name="dense")(rnn)
         self._model = Model(inputs=[dependencies, emb_indices],
                             outputs=out)
-        self._model.compile(optimizer="adadelta",
-                            metrics=["categorical_accuracy"],
-                            loss="categorical_hinge")
+        self._model.compile(**DFLT_TRAIN_PARAMS)
         self._logger.debug(self._model.summary())
 
     def _init_w_emb(self):
@@ -82,5 +79,5 @@ class MVRNNAnalyzer(TreeRNNBaseAnalyzer):
         """
         super(MVRNNAnalyzer, self)._init_w_emb()
         self.MTX_EMB = MatrixEmbedding(len(self._w2i), self.ndim,
-                                       embeddings_initializer="he_normal",
+                                       embeddings_initializer=DFLT_INITIALIZER,
                                        embeddings_regularizer=l2(L2_COEFF))

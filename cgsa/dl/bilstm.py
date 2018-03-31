@@ -11,7 +11,8 @@ from __future__ import absolute_import, unicode_literals, print_function
 from keras.models import Sequential
 from keras.layers import (Dense, LSTM)
 from keras.layers.wrappers import Bidirectional
-from cgsa.dl.base import DLBaseAnalyzer
+from .base import DFLT_TRAIN_PARAMS, DLBaseAnalyzer
+from .layers import DFLT_INITIALIZER
 
 ##################################################################
 # Variables and Constants
@@ -45,8 +46,6 @@ class BiLSTMAnalyzer(DLBaseAnalyzer):
         # add final dense layer
         self._model.add(Dense(self._n_y,
                               activation="softmax",
-                              kernel_initializer="he_normal",
-                              bias_initializer="he_normal"))
-        self._model.compile(optimizer="rmsprop",
-                            metrics=["accuracy"],
-                            loss="categorical_hinge")
+                              kernel_initializer=DFLT_INITIALIZER,
+                              bias_initializer=DFLT_INITIALIZER))
+        self._model.compile(**DFLT_TRAIN_PARAMS)
