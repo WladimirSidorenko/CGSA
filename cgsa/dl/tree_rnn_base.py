@@ -16,7 +16,7 @@ from keras.regularizers import l2
 import abc
 import numpy as np
 
-from .base import DFLT_TRAIN_PARAMS, DLBaseAnalyzer, EMB_INDICES_NAME, L2_COEFF
+from .base import DLBaseAnalyzer, EMB_INDICES_NAME, L2_COEFF
 from .functional import FunctionalWord2Vec
 from .layers import EMPTY_IDX
 
@@ -91,7 +91,7 @@ class TreeRNNBaseAnalyzer(FunctionalWord2Vec, DLBaseAnalyzer):
                     name="dense")(rnn)
         self._model = Model(inputs=[dependencies, emb_indices],
                             outputs=out)
-        self._model.compile(**DFLT_TRAIN_PARAMS)
+        self._model.compile(**self._train_params)
         self._logger.debug(self._model.summary())
 
     @abc.abstractmethod

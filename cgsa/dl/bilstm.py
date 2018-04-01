@@ -11,7 +11,7 @@ from __future__ import absolute_import, unicode_literals, print_function
 from keras.models import Sequential
 from keras.layers import (Dense, LSTM)
 from keras.layers.wrappers import Bidirectional
-from .base import DFLT_TRAIN_PARAMS, DLBaseAnalyzer
+from .base import DLBaseAnalyzer
 from .layers import DFLT_INITIALIZER
 
 ##################################################################
@@ -48,4 +48,4 @@ class BiLSTMAnalyzer(DLBaseAnalyzer):
                               activation="softmax",
                               kernel_initializer=DFLT_INITIALIZER,
                               bias_initializer=DFLT_INITIALIZER))
-        self._model.compile(**DFLT_TRAIN_PARAMS)
+        self._model.compile(**self._train_params)

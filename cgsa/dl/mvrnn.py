@@ -12,7 +12,7 @@ from keras.layers import Dense, Input
 from keras.models import Model
 from keras.regularizers import l2
 
-from .base import DFLT_TRAIN_PARAMS, L2_COEFF
+from .base import L2_COEFF
 from .tree_rnn_base import (TreeRNNBaseAnalyzer, DEP_LAYER_NAME,
                             EMB_INDICES_NAME)
 from .layers import DFLT_INITIALIZER, MatrixEmbedding, MVRN
@@ -70,7 +70,7 @@ class MVRNNAnalyzer(TreeRNNBaseAnalyzer):
                     name="dense")(rnn)
         self._model = Model(inputs=[dependencies, emb_indices],
                             outputs=out)
-        self._model.compile(**DFLT_TRAIN_PARAMS)
+        self._model.compile(**self._train_params)
         self._logger.debug(self._model.summary())
 
     def _init_w_emb(self):

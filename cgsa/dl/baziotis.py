@@ -15,7 +15,7 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.regularizers import l2
 import numpy as np
 
-from .base import DFLT_TRAIN_PARAMS, DLBaseAnalyzer, L2_COEFF
+from .base import DLBaseAnalyzer, L2_COEFF
 from .layers import Attention, DFLT_INITIALIZER
 
 
@@ -68,7 +68,7 @@ class BaziotisAnalyzer(DLBaseAnalyzer):
                               activity_regularizer=l2(L2_COEFF),
                               kernel_regularizer=l2(L2_COEFF),
                               bias_regularizer=l2(L2_COEFF)))
-        self._model.compile(**DFLT_TRAIN_PARAMS)
+        self._model.compile(**self._train_params)
 
     def train(self, train_x, train_y, dev_x, dev_y, a_grid_search):
         max_train_len = max(len(x) for x in train_x)

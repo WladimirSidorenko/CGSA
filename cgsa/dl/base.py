@@ -13,6 +13,7 @@ try:
 except ImportError:
     from _pickle import dump, load
 from collections import Counter
+from copy import deepcopy
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.layers.embeddings import Embedding
 from keras.models import load_model
@@ -20,6 +21,7 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.regularizers import l2
 from keras.utils import to_categorical
 from six import iteritems
+from sklearn.utils.class_weight import compute_class_weight
 from tempfile import mkstemp
 import abc
 import numpy as np
@@ -97,6 +99,8 @@ class DLBaseAnalyzer(BaseAnalyzer):
         self._aux_keys = set((0, 1))
         self._min_width = 0
         self._n_y = 0
+        self._train_params = deepcopy(DFLT_TRAIN_PARAMS)
+        self._fit_params = {}
 
         # variables needed for training
         self._w_stat = self._pred_class = None
@@ -117,6 +121,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         self._logger.debug("Dataset ready...")
         # initialize the network
         self._logger.debug("Initializing the network...")
+        self._update_fit_params(train_y)
         self._init_nn()
         self._logger.debug("Network ready...")
         # initialize callbacks
@@ -131,7 +136,8 @@ class DLBaseAnalyzer(BaseAnalyzer):
             self._model.fit(train_x, train_y,
                             validation_data=(dev_x, dev_y),
                             epochs=self._n_epochs,
-                            callbacks=[early_stop, chck_point])
+                            callbacks=[early_stop, chck_point],
+                            **self._fit_params)
             self._model = load_model(ofname, custom_objects=CUSTOM_OBJECTS)
             self._finish_training()
         finally:
@@ -292,7 +298,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         new_layer.set_weights(first_layer.get_weights())
         layers.insert(emb_layer_idx, new_layer)
         self._model = self._model.__class__(layers=layers)
-        self._model.compile(**DFLT_TRAIN_PARAMS)
+        self._model.compile(**self._train_params)
 
     def _init_wemb_funcs(self):
         """Initialize functions for obtaining word embeddings.
@@ -570,3 +576,24 @@ class DLBaseAnalyzer(BaseAnalyzer):
             data[i] = np.asarray(
                 self._pad(len(inst_i))
                 + [w2i(w) for w in inst_i], dtype="int32")
+
+    def _update_fit_params(self, train_y):
+        """Add class weights to the training parameters.
+
+        Args:
+          train_y (list[np.array]): labels of training instances
+
+        Returns:
+          void:
+
+        Note:
+          modifies `self._train_params` in place
+
+        """
+        y_labels = np.argmax(train_y, axis=-1)
+        class_weights = compute_class_weight("balanced",
+                                             np.unique(y_labels),
+                                             y_labels)
+        sample_weights = np.array([class_weights[y_i]
+                                   for y_i in y_labels])
+        self._fit_params["sample_weight"] = sample_weights

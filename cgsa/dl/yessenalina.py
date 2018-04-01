@@ -12,7 +12,7 @@ from keras.layers import Dense, Flatten, Input
 from keras.models import Model
 from keras.regularizers import l2
 
-from .base import (DFLT_TRAIN_PARAMS, DLBaseAnalyzer,
+from .base import (DLBaseAnalyzer,
                    EMB_INDICES_NAME, L2_COEFF)
 from .layers import DFLT_INITIALIZER, MSRN, YMatrixEmbedding
 
@@ -64,7 +64,7 @@ class YessenalinaAnalyzer(DLBaseAnalyzer):
                     bias_regularizer=l2(L2_COEFF),
                     name="dense")(flat)
         self._model = Model(inputs=[emb_indices], outputs=out)
-        self._model.compile(**DFLT_TRAIN_PARAMS)
+        self._model.compile(**self._train_params)
         self._logger.debug(self._model.summary())
 
     def _init_w_emb(self):

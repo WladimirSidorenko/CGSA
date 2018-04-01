@@ -12,7 +12,7 @@ from keras.models import Sequential
 from keras.layers import (Conv1D, Dense, Dropout, GlobalMaxPooling1D)
 from keras.regularizers import l2
 
-from .base import DFLT_TRAIN_PARAMS, DLBaseAnalyzer, L2_COEFF
+from .base import DLBaseAnalyzer, L2_COEFF
 from .layers import DFLT_INITIALIZER
 
 
@@ -65,5 +65,5 @@ class SeverynAnalyzer(DLBaseAnalyzer):
                               bias_initializer=DFLT_INITIALIZER,
                               kernel_regularizer=l2(L2_COEFF),
                               bias_regularizer=l2(L2_COEFF)))
-        self._model.compile(**DFLT_TRAIN_PARAMS)
+        self._model.compile(**self._train_params)
         self._logger.debug(self._model.summary())
