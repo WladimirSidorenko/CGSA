@@ -147,8 +147,8 @@ class DLBaseAnalyzer(BaseAnalyzer):
     def predict_proba(self, msg, yvec):
         wseq = self._tweet2wseq(msg)
         embs = np.array(
-            [self._pad(len(wseq), self._pad_value)
-             + self.get_test_w_emb(w) for w in wseq], dtype="int32")
+            self._pad(len(wseq), self._pad_value)
+            + [self.get_test_w_emb(w) for w in wseq], dtype="int32")
         ret = self._model.predict(np.asarray([embs]),
                                   batch_size=1,
                                   verbose=2)
