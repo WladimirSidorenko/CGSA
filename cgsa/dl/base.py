@@ -45,7 +45,14 @@ DICT_OFFSET = 1
 UNK_PROB = 1e-4
 L2_COEFF = 1e-4
 EMB_INDICES_NAME = "embedding_indices"
-DFLT_TRAIN_PARAMS = {"optimizer": "adadelta",
+# LBA Results for Different Optimizers:
+# sgd: Macro: 10.33%; Micro: 36.2623%;
+# rmsprop: Macro: 30.84%; Micro: 44.5902%;
+# adagrad: Macro: 35.45%; Micro: 61.5738%;
+# adadelta: 30.84%; Micro: 44.5902%;
+# adam: Macro: 30.84%; Micro: 44.5902%;
+# nadam: 30.84%; Micro: 44.5902%;
+DFLT_TRAIN_PARAMS = {"optimizer": "adagrad",
                      "metrics": ["categorical_accuracy"],
                      "loss": "categorical_hinge"}
 
@@ -590,6 +597,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
           modifies `self._train_params` in place
 
         """
+        return
         y_labels = np.argmax(train_y, axis=-1)
         class_weights = compute_class_weight("balanced",
                                              np.unique(y_labels),
