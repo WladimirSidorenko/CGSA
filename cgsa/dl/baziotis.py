@@ -73,7 +73,7 @@ class BaziotisAnalyzer(DLBaseAnalyzer):
     def train(self, train_x, train_y, dev_x, dev_y, a_grid_search):
         max_train_len = max(len(x) for x in train_x)
         max_dev_len = max(len(x) for x in dev_x) if dev_x else -1
-        self._max_seq_len = max(max_train_len, max_dev_len) + 1
+        self._max_seq_len = int(max(max_train_len, max_dev_len) * 1.5) + 1
         self._min_width = self._max_seq_len
         super(BaziotisAnalyzer, self).train(train_x, train_y,
                                             dev_x, dev_y, a_grid_search)

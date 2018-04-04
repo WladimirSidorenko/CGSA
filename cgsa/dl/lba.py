@@ -322,8 +322,9 @@ class LBAAnalyzer(FunctionalWord2Vec, BaziotisAnalyzer):
 
         """
         assert len(msg) < self._max_seq_len, \
-            ("Provided message is longer than the maximum accepted"
-             " sequence length: {:d}").format(self._max_seq_len)
+            ("Provided message ({:s}) is longer ({:d}) than the maximum"
+             " accepted sequence length: {:d}").format(str(msg), len(msg),
+                                                       self._max_seq_len)
         wseq = self._tweet2wseq(msg)
         # obtain word indices
         embs = [np.array(
