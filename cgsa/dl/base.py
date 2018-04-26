@@ -128,7 +128,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         self._logger.debug("Dataset ready...")
         # initialize the network
         self._logger.debug("Initializing the network...")
-        self._update_fit_params(train_y)
+        # self._update_fit_params(train_y)
         self._init_nn()
         self._logger.debug("Network ready...")
         # initialize callbacks
@@ -605,3 +605,4 @@ class DLBaseAnalyzer(BaseAnalyzer):
         sample_weights = np.array([class_weights[y_i]
                                    for y_i in y_labels])
         self._fit_params["sample_weight"] = sample_weights
+        self._logger.debug("Class weights: %r", class_weights)
