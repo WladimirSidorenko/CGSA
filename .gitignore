@@ -103,3 +103,7 @@ cgsa/data/models/
 .emacs.*
 cgsa/data/vectors.word2vec
 data/GTS/
+*.logs
+*.errors
+*.h5
+*.model
