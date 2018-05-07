@@ -36,6 +36,7 @@ from cgsa.utils.word2vec import Word2Vec
 
 ##################################################################
 # Variables and Constants
+DEBUG_NFEATS = 10
 
 
 ##################################################################
@@ -263,7 +264,8 @@ class SentimentAnalyzer(object):
             explanations = explainer.explain_instance(
                 instance,
                 model_i.predict_proba_raw,
-                num_features=6, labels=[y for y in range(len(IDX2CLS))]
+                num_features=DEBUG_NFEATS,
+                labels=[y for y in range(len(IDX2CLS))]
             )
             for i, cls in iteritems(IDX2CLS):
                 self._logger.info("Class: %s", cls)
