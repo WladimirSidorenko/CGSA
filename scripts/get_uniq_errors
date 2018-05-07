@@ -1,0 +1,66 @@
+#!/usr/bin/awk -f
+
+##################################################################
+function usage() {
+    myname = ARGV[0]
+    printf("USAGE: %s file1 file2 [file3 ...]", myname)
+    exit exit_code
+}
+
+function read_file(msgids, fname) {
+    while (getline < fname) {
+	if ($0 ~ /^[><]/) {
+	    continue
+	} else if (NF) {
+	    msgids[$1] = 1
+	}
+    }
+    close(fname)
+}
+
+##################################################################
+BEGIN {
+    FS = OFS = "\t"
+
+    if (ARGC < 3) {
+	printf("Invalid number of arguments.  Type --help to see usage.") \
+	    >> "/dev/stderr"
+    }
+    j = 0
+    for (i = 1; i < ARGC; ++i) {
+	if (ARGV[i] == "-h" || ARGV[i] == "--help") {
+	    usage(0)
+	} else if (ARGV[i] == "--") {
+	    ARGV[i] = ""
+	    break
+	} else {
+	    if (j == 0) {
+		++j
+		continue
+	    } else {
+		read_file(seen_errors, ARGV[i])
+		ARGV[i] = ""
+	    }
+	}
+    }
+    error = ""
+}
+
+##################################################################
+/^[><]/ {
+    error = error $0 "\n"
+    next
+}
+
+NF {
+    msgid = $1
+    if (!(msgid in seen_errors)) {
+	printf("%s%s\n\n", error, $0)
+    }
+    error = ""
+    next
+}
+
+1 {
+    error = ""
+}
