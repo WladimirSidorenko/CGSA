@@ -68,12 +68,13 @@ def _add_cmn_test_options(a_parser):
                           action="store_true")
 
 
-def _read_data(files, train=False):
+def _read_data(files, train=False, ignore_bad_input=False):
     """Read files and return an iterator over tweets.
 
     Args:
       files (list[str]): list of input files
       train (bool): train mode (skip unknown labels)
+      ignore_bad_input (bool): ignore tweets that culd not be parsed
 
     """
     if files is None:
@@ -87,8 +88,12 @@ def _read_data(files, train=False):
                 try:
                     tweet = Tweet(iline)
                 except:
-                    print("Line #{:d}".format(i + 1), file=sys.stderr)
-                    raise
+                    if ignore_bad_input:
+                        LOGGER.warn("Error at line %d: %r", i + 1, iline)
+                        continue
+                    else:
+                        LOGGER.error("Error at line %d: %r", i + 1, iline)
+                        raise
                 if tweet.label not in THREE_CLASS:
                     LOGGER.warn("Skipping tweet with label %s.",
                                 tweet.label)
@@ -132,6 +137,9 @@ def main(argv):
     parser_train.add_argument("-g", "--grid-search",
                               help="determine best hyper-parameters using"
                               " grid search", action="store_true")
+    parser_train.add_argument("-i", "--ignore-bad-input",
+                              help="ignore invalid input instances",
+                              action="store_true")
     parser_train.add_argument("-l", "--lexicon", help="lexicon(s) to use",
                               type=str, action="append", default=[])
     w2v_group = parser_train.add_mutually_exclusive_group()
@@ -164,10 +172,12 @@ def main(argv):
     if args.mode == TRAIN:
         LOGGER.debug("Reading training set...")
         train_set = [tweet_i
-                     for tweet_i in _read_data(args.files, True)]
+                     for tweet_i in _read_data(args.files, True,
+                                               args.ignore_bad_input)]
         LOGGER.debug("Reading development set...")
         dev_set = [tweet_i
-                   for tweet_i in _read_data(args.dev, True)]
+                   for tweet_i in _read_data(args.dev, True,
+                                             args.ignore_bad_input)]
         LOGGER.debug("Initializing analyzer...")
         analyzer = SentimentAnalyzer(args.type,
                                      lexicons=args.lexicon,
