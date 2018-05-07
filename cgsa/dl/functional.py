@@ -9,8 +9,9 @@
 # Imports
 from __future__ import (absolute_import, unicode_literals, print_function,
                         print_function)
-from abc import ABC
+from abc import ABCMeta
 from keras.layers import Input
+from six import add_metaclass
 
 from .base import EMB_INDICES_NAME
 from .layers import WORD2VEC_LAYER_NAME
@@ -18,7 +19,8 @@ from .layers import WORD2VEC_LAYER_NAME
 
 ##################################################################
 # Class
-class FunctionalWord2Vec(ABC):
+@add_metaclass(ABCMeta)
+class FunctionalWord2Vec():
     def _get_layer_idx(self, name=WORD2VEC_LAYER_NAME, layers=None):
         """Return index of embedding layer in the model.
 
