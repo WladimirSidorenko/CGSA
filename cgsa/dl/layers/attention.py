@@ -41,6 +41,7 @@ from keras import backend as K
 from keras.engine.topology import Layer
 
 from .common import DFLT_INITIALIZER
+from .utils import dot_product
 
 ##################################################################
 # Variables and Constants
@@ -105,7 +106,7 @@ class RawAttention(Layer):
         super(RawAttention, self).build(input_shape)
 
     def call(self, x, mask=None):
-        eij = K.dot(x, self.W)
+        eij = dot_product(x, self.W)
 
         if self.bias:
             eij += self.b

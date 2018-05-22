@@ -16,7 +16,7 @@ from keras.engine.topology import Layer
 
 
 from .common import DFLT_INITIALIZER
-from .utils import get_subtensor
+from .utils import get_subtensor, repeat_elements
 
 
 ##################################################################
@@ -55,13 +55,15 @@ class CBA(Layer):
     def call(self, inputs):
         embs, prnt_indices, lba, rnn_out = inputs
         n_istances = K.shape(embs)[0]
-        instance_len = K.shape(embs)[1]
+        instance_len = K.int_shape(embs)[1]
+        rnn_out_dim = K.int_shape(rnn_out)[-1]
         inst_indcs = K.arange(0, n_istances)
-        inst_indcs = K.repeat_elements(inst_indcs, instance_len, axis=0)
+        inst_indcs = repeat_elements(inst_indcs, instance_len, axis=0)
+
         # obtain LBA outut of the parent nodes
         lba_rnn = lba * rnn_out
         prnt_lba = get_subtensor(lba_rnn, inst_indcs, K.flatten(prnt_indices))
-        prnt_lba = K.reshape(prnt_lba, rnn_out.shape)
+        prnt_lba = K.reshape(prnt_lba, [-1, instance_len, rnn_out_dim])
         # concatenate input embeddings with the output of LBA
         cba_input = K.concatenate([prnt_lba, embs], axis=-1)
         cba_output = K.sum(K.dot(cba_input, self.W), axis=-1)
