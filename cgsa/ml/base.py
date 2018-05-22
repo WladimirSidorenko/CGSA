@@ -99,7 +99,7 @@ class MLBaseAnalyzer(BaseAnalyzer):
         super(MLBaseAnalyzer, self).reset()
         self._feats2weights = None
 
-    def restore(self):
+    def restore(self, *args, **kwargs):
         """Restore members which could not be serialized.
 
         """
