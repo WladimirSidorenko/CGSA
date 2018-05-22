@@ -142,6 +142,9 @@ def main(argv):
                               action="store_true")
     parser_train.add_argument("-l", "--lexicon", help="lexicon(s) to use",
                               type=str, action="append", default=[])
+    parser_train.add_argument("--multi-gpu",
+                              help="train classifier on multiple GPUs",
+                              action="store_true")
     w2v_group = parser_train.add_mutually_exclusive_group()
     w2v_group.add_argument("--w2v", help="use pre-trained word2vec embeddings",
                            action="store_true")
@@ -189,7 +192,8 @@ def main(argv):
         LOGGER.debug("Training analyzer...")
         analyzer.train(train_set, dev_set,
                        a_path=args.model,
-                       a_grid_search=args.grid_search
+                       a_grid_search=args.grid_search,
+                       a_multi_gpu=args.multi_gpu
                        )
         LOGGER.debug("Analyzer trained.")
     else:

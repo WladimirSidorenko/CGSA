@@ -98,7 +98,8 @@ class GuentherAnalyzer(MLBaseAnalyzer):
         self.PARAM_GRID = {"clf__alpha": np.linspace(1e-4, 1e-2, 5),
                            "clf__l1_ratio":  np.linspace(1e-2, 9e-1, 5)}
 
-    def train(self, train_x, train_y, dev_x, dev_y, a_grid_search):
+    def train(self, train_x, train_y, dev_x, dev_y,
+              a_grid_search=False, a_multi_gpu=False):
         if USE_SUBSAMPLING:
             train_x = [self._extract_feats(t) for t in train_x]
             self._logger.info("Subsampling %d training examples.",

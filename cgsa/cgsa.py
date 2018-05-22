@@ -139,7 +139,8 @@ class SentimentAnalyzer(object):
         self._init_models(a_models, *args, **kwargs)
 
     def train(self, a_train_data, a_dev_data=None,
-              a_path=DFLT_MODEL_PATH, a_grid_search=True):
+              a_path=DFLT_MODEL_PATH, a_grid_search=True,
+              a_multi_gpu=False):
         """Train specified model(s) on the provided data.
 
         Args:
@@ -152,6 +153,7 @@ class SentimentAnalyzer(object):
           a_grid_search (bool):
             use grid search in order to determine hyper-paramaters of
             the model
+          a_multi_gpu (bool): train model on multiple GPUs
 
         Returns:
           void:
@@ -169,7 +171,8 @@ class SentimentAnalyzer(object):
         for i, model_i in enumerate(self._models):
             try:
                 model_i.train(train_x, train_y, dev_x, dev_y,
-                              a_grid_search=a_grid_search)
+                              a_grid_search=a_grid_search,
+                              a_multi_gpu=a_multi_gpu)
             except:
                 # in the end, we are going to switch to the fault-tolerant mode
                 raise

@@ -31,6 +31,7 @@ from cgsa.base import BaseAnalyzer
 from cgsa.utils.common import LOGGER, is_relevant, normlex
 from .layers import CUSTOM_OBJECTS, DFLT_INITIALIZER, EMPTY_IDX, UNK_IDX
 from .layers.word2vec import Word2Vec
+from .utils import ModelMGPU
 
 
 ##################################################################
@@ -118,7 +119,8 @@ class DLBaseAnalyzer(BaseAnalyzer):
         # times
         self._init_wemb_funcs()
 
-    def train(self, train_x, train_y, dev_x, dev_y, a_grid_search):
+    def train(self, train_x, train_y, dev_x, dev_y,
+              a_grid_search, a_multi_gpu):
         self._start_training()
         self._logger.debug("Training %s...", self.name)
         self._logger.debug("Preparing dataset...")
@@ -140,6 +142,8 @@ class DLBaseAnalyzer(BaseAnalyzer):
                                          mode="auto",
                                          verbose=1,
                                          save_best_only=True)
+            if a_multi_gpu:
+                self._model = ModelMGPU(self._model)
             self._model.fit(train_x, train_y,
                             validation_data=(dev_x, dev_y),
                             epochs=self._n_epochs,

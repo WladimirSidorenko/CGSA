@@ -99,7 +99,8 @@ class BaseAnalyzer(object):
                             kwargs.get("lexicons", []))
 
     @abc.abstractmethod
-    def train(self, train_x, train_y, dev_x, dev_y, grid_search=True):
+    def train(self, train_x, train_y, dev_x, dev_y,
+              a_grid_search=True, a_multi_gpu=False):
         """Method for training the model.
 
         Args:
@@ -111,9 +112,10 @@ class BaseAnalyzer(object):
             list of devset instances
           dev_y (list):
             labels of the devset instances
-          grid_search (bool):
+          a_grid_search (bool):
             use grid search in order to determine hyper-paramaters of
             the model
+          a_multi_gpu (bool): train model on multiple GPUs
 
         Returns:
           void:
