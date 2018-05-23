@@ -14,7 +14,7 @@ except ImportError:
     from _pickle import dump, load
 from collections import Counter
 from copy import deepcopy
-from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard
 from keras.layers.embeddings import Embedding
 from keras.models import load_model
 from keras.preprocessing.sequence import pad_sequences
@@ -137,17 +137,22 @@ class DLBaseAnalyzer(BaseAnalyzer):
         _, ofname = mkstemp(suffix=".hdf5", prefix=self.name + '.')
         try:
             early_stop = EarlyStopping(patience=3, verbose=1)
-            chck_point = ModelCheckpoint(filepath=ofname,
-                                         monitor="val_categorical_accuracy",
-                                         mode="auto",
-                                         verbose=1,
-                                         save_best_only=True)
+            chck_point = ModelCheckpoint(
+                filepath=ofname, monitor="val_categorical_accuracy",
+                mode="auto", verbose=1,
+                save_best_only=True
+            )
+            tensorboard = TensorBoard(
+                log_dir=os.environ.get("TENSORBOARD_DIR", "/tmp"),
+                histogram_freq=1, batch_size=32,
+                write_graph=True, write_grads=True
+            )
             if a_multi_gpu:
                 self._model = ModelMGPU(self._model)
             self._model.fit(train_x, train_y,
                             validation_data=(dev_x, dev_y),
                             epochs=self._n_epochs,
-                            callbacks=[early_stop, chck_point],
+                            callbacks=[early_stop, chck_point, tensorboard],
                             **self._fit_params)
             self._model = load_model(ofname, custom_objects=CUSTOM_OBJECTS)
             self._finish_training()
