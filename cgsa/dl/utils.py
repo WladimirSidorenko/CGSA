@@ -9,15 +9,14 @@
 from __future__ import absolute_import, unicode_literals, print_function
 from keras import Model
 from keras.utils import multi_gpu_model
-import GPUtil
+from tensorflow.python.client import device_lib
 
 
 ##################################################################
 # Constants
-try:
-    N_GPUS = len(GPUtil.getAvailable())
-except OSError:
-    N_GPUS = 1
+N_GPUS = len([x.name
+              for x in device_lib.list_local_devices()
+              if x.device_type == 'GPU'])
 
 
 ##################################################################
