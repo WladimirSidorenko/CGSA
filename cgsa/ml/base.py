@@ -107,7 +107,7 @@ class MLBaseAnalyzer(BaseAnalyzer):
         self._load_feats_weights()
 
     def train(self, train_x, train_y, dev_x, dev_y, a_grid_search,
-              a_extract_feats=True):
+              a_extract_feats=True, a_multi_gpu=False):
         self._logger.debug("Training %s...", self.name)
         train_len = len(train_x)
         if a_extract_feats:
