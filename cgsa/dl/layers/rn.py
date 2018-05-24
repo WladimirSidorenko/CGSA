@@ -11,7 +11,7 @@ from keras.engine import InputSpec
 from keras.layers.recurrent import Recurrent
 
 from .common import DFLT_INITIALIZER
-from .utils import get_subtensor, set_subtensor
+from .utils import dot_product, get_subtensor, set_subtensor
 
 
 ##################################################################
@@ -90,8 +90,8 @@ class RN(Recurrent):
         embs = states[0]
         chld_embs = get_subtensor(embs, inst_indcs, chld_indcs)
         prnt_embs = get_subtensor(embs, inst_indcs, prnt_indcs)
-        ret = K.dot(K.concatenate([chld_embs, prnt_embs], axis=-1),
-                    self.W)
+        ret = dot_product(K.concatenate([chld_embs, prnt_embs], axis=-1),
+                          self.W)
         if self.use_bias:
             ret = K.bias_add(ret, self.b)
         ret = self.activation(ret)

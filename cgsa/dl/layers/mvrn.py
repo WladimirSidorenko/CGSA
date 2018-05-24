@@ -7,7 +7,7 @@ from __future__ import absolute_import, unicode_literals, print_function
 
 from keras import backend as K
 from keras.engine import InputSpec
-from .rn import RN, set_subtensor
+from .rn import RN, dot_product, set_subtensor
 
 ##################################################################
 # Variables and Constants
@@ -52,8 +52,8 @@ class MVRN(RN):
         prnt_vecs = K.batch_dot(prnt_vecs, chld_mtcs)
         # compute new vector representations: `vec_ret` will have the
         # dimension: `batch_size x units`
-        vec_ret = K.dot(K.concatenate([chld_vecs, prnt_vecs], axis=-1),
-                        self.W)
+        vec_ret = dot_product(K.concatenate([chld_vecs, prnt_vecs], axis=-1),
+                              self.W)
         if self.use_bias:
             vec_ret = K.bias_add(vec_ret, self.b)
         vec_ret = self.activation(vec_ret)
@@ -63,7 +63,7 @@ class MVRN(RN):
         node_matrices = K.concatenate([chld_mtcs, prnt_mtcs], axis=-1)
         # compute new matrix representations: `mtx_ret` will have the shape
         # `batch_size x units x units`
-        mtx_ret = K.dot(node_matrices, self.W_m)
+        mtx_ret = dot_product(node_matrices, self.W_m)
         emb_mtcs = set_subtensor(emb_mtcs, mtx_ret, inst_indcs, prnt_indcs)
         # return newly computed vector representations, and updated vectors and
         # matrices
