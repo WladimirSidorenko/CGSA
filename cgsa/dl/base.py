@@ -105,6 +105,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
         self._n_epochs = DFLT_N_EPOCHS
         # mapping from word to its embedding index
         self._aux_keys = set((0, 1))
+        self._max_seq_len = -1
         self._min_width = 0
         self._n_y = 0
         self._train_params = deepcopy(DFLT_TRAIN_PARAMS)

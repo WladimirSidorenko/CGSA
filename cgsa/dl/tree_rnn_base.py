@@ -32,14 +32,15 @@ class TreeRNNBaseAnalyzer(FunctionalWord2Vec, DLBaseAnalyzer):
     """Abstract base class for tree-RNNs.
 
     """
+    DEP_PAD = [0, 0]
 
     def predict_proba(self, msg, yvec):
         wseq = self._tweet2wseq(msg)
-        deps = self._get_deps(msg)
         # self._logger.debug("deps: %r", deps)
         embs = np.array(
-            [self.get_test_w_emb(w) for w in wseq]
-            + self._pad(len(wseq), self._pad_value), dtype="int32")
+            self._pad(len(wseq), self._pad_value)
+            + [self.get_test_w_emb(w) for w in wseq], dtype="int32")
+        deps = [self.DEP_PAD] + self._get_deps(msg, len(msg) + 1)
         # self._logger.debug("embs: %r", embs)
         ret = self._model.predict([np.asarray([deps]),
                                    np.asarray([embs])],
@@ -58,16 +59,23 @@ class TreeRNNBaseAnalyzer(FunctionalWord2Vec, DLBaseAnalyzer):
           2-tuple[list, list]: digitized training and development sets
 
         """
+        max_train_len = max(len(x) for x in train_x)
+        max_dev_len = max(len(x) for x in dev_x) if dev_x else -1
+        self._max_seq_len = max(max_train_len, max_dev_len) + 1
+        self._min_width = self._max_seq_len
         # extract word embeddings
         train_embs, dev_embs = super(TreeRNNBaseAnalyzer, self)._digitize_data(
             train_x, dev_x
         )
-        train_deps = pad_sequences([self._get_deps(x) for x in train_x],
-                                   value=[-1, -1])
+        train_deps = pad_sequences([self._get_deps(x, self._max_seq_len)
+                                    for x in train_x],
+                                   value=self.DEP_PAD,
+                                   maxlen=self._max_seq_len)
         train_x = [train_deps, train_embs]
-
-        dev_deps = pad_sequences([self._get_deps(x) for x in dev_x],
-                                 value=[-1, -1])
+        dev_deps = pad_sequences([self._get_deps(x, self._max_seq_len)
+                                  for x in dev_x],
+                                 value=self.DEP_PAD,
+                                 maxlen=self._max_seq_len)
         dev_x = [dev_deps, dev_embs]
         return (train_x, dev_x)
 
@@ -104,11 +112,12 @@ class TreeRNNBaseAnalyzer(FunctionalWord2Vec, DLBaseAnalyzer):
         """
         raise NotImplementedError
 
-    def _get_deps(self, tweet):
+    def _get_deps(self, tweet, max_len):
         """Extract dependency indices of tweet tokens in topological order.
 
         Args:
           tweet (cgsa.utils.data.Tweet): analyzed input tweet
+          max_len (int): maximum tweet length used for padding
 
         Returns:
           list[tuple]: list of dependencies as 2-tuples of the form
@@ -122,12 +131,14 @@ class TreeRNNBaseAnalyzer(FunctionalWord2Vec, DLBaseAnalyzer):
             "No root found in tweet {:s}".format(str(tweet))
         ret = []
         active_nodes = [-1]
+        offset = max_len - len(tweet)
         while active_nodes:
             prnt = active_nodes.pop(0)
             children = deps[prnt]
             active_nodes.extend(children)
             for child_i in children:
-                ret.append((child_i, prnt))
+                ret.append((child_i + offset,
+                            prnt + offset if prnt >= 0 else 0))
         assert len(ret) == len(tweet), \
             "Unmatching number of tokens and dependencies."
         ret.reverse()           # we proceed bottom-up
@@ -146,6 +157,18 @@ class TreeRNNBaseAnalyzer(FunctionalWord2Vec, DLBaseAnalyzer):
 
         """
         return [pad_value]
+
+    def _pad_sequences(self, x):
+        """Make all input instances of equal length.
+
+        Args:
+          x (list[np.array]): list of embedding indices
+
+        Returns:
+          x: list of embedding indices of equal lengths
+
+        """
+        return pad_sequences(x, maxlen=self._max_seq_len)
 
     def _tweet2wseq(self, msg):
         """Convert tweet to a sequence of word lemmas.

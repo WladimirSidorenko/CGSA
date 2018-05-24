@@ -34,7 +34,6 @@ class BaziotisAnalyzer(DLBaseAnalyzer):
     def __init__(self, *args, **kwargs):
         super(BaziotisAnalyzer, self).__init__(*args, **kwargs)
         self.name = "baziotis"
-        self._max_seq_len = -1
         # Throughout this classifier, we use the same hyper-parameters as the
         # ones used by Baziotis et al. in their original work.
         # self.ndim = 300
