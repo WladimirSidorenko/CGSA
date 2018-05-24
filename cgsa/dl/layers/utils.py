@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- mode: python; coding: utf-8 -*-
 
-"""Module containing custom Keras operations that might be used by different layers.
+"""Module containing custom Keras operations that might be used by layers.
 
 """
 
@@ -35,13 +35,42 @@ if K.backend() == "tensorflow":
     def set_subtensor(tensor, value, *indices):
         x_shape = K.shape(indices[-1])[0]
         z_shape = K.int_shape(tensor)[-1]
-        indices = [repeat_elements(idx, z_shape) for idx in indices]
-        indices = K.tf.transpose(K.tf.stack(indices))
+        indices = K.tf.transpose(
+            K.tf.stack(
+                [repeat_elements(idx, z_shape) for idx in indices]
+            )
+        )
         z = K.expand_dims(
-            K.tf.reshape(
-                K.tf.tile(K.arange(0, z_shape), [x_shape]), [-1]), -1
+            K.flatten(K.tf.tile(K.arange(0, z_shape), [x_shape])),
+            -1
         )
         indices = K.concatenate([indices, z], axis=-1)
+        binary_mask = K.tf.cast(
+            K.tf.sparse_to_dense(indices, K.shape(tensor), 1),
+            K.tf.bool)
+        val_tensor = K.tf.sparse_to_dense(indices, K.shape(tensor),
+                                          K.flatten(value))
+        return K.tf.where(binary_mask, val_tensor, tensor)
+
+    def set_mtx_subtensor(tensor, value, *indices):
+        x_shape = K.shape(indices[-1])[-1]
+        y_shape = K.int_shape(tensor)[-2]
+        z_shape = K.int_shape(tensor)[-1]
+        indices = K.tf.transpose(
+            K.tf.stack(
+                [repeat_elements(idx, y_shape * z_shape) for idx in indices]
+            )
+        )
+        y = K.expand_dims(
+            K.tf.tile(
+                repeat_elements(K.arange(0, y_shape), z_shape),
+                [x_shape]),
+            -1)
+        z = K.expand_dims(
+            K.tf.tile(K.arange(0, z_shape), [x_shape * y_shape]),
+            -1
+        )
+        indices = K.concatenate([indices, y, z], axis=-1)
         binary_mask = K.tf.cast(
             K.tf.sparse_to_dense(indices, K.shape(tensor), 1),
             K.tf.bool)
@@ -75,6 +104,7 @@ elif K.backend() == "theano":
     def repeat_elements(tensor, n, axis=0):
         return K.repeat_elements(tensor, n, axis)
 
+    set_mtx_subtensor = set_subtensor
 
 else:
     raise NotImplementedError

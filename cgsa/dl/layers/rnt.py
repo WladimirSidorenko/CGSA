@@ -42,7 +42,7 @@ class RNT(RN):
         # ret0 will have the dimension (units x 2 * units x batch_size)
         # tiled node embs will have the dimension (units x 2 * units x batch_size)
         # ret1 will have the dimension (units x batch_size x 2 * units)
-        ret1 = ret0 * K.tile(node_embs_t, (self.units, 1, 1))
+        ret1 = ret0 * K.tile(node_embs_t, [self.units, 1, 1])
         # ret2 will have the dimension (batch_size x units)
         ret2 = K.transpose(K.sum(ret1, axis=1))
         # ret will have the same dimensions as ret2

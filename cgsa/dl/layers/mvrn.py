@@ -7,7 +7,9 @@ from __future__ import absolute_import, unicode_literals, print_function
 
 from keras import backend as K
 from keras.engine import InputSpec
-from .rn import RN, dot_product, set_subtensor
+from .rn import RN
+from .utils import (dot_product, get_subtensor, set_mtx_subtensor,
+                    set_subtensor)
 
 ##################################################################
 # Variables and Constants
@@ -43,10 +45,10 @@ class MVRN(RN):
         # matrix representation of words
         emb_mtcs = states[1]
 
-        chld_vecs = emb_vecs[inst_indcs, chld_indcs]
-        chld_mtcs = emb_mtcs[inst_indcs, chld_indcs]
-        prnt_vecs = emb_vecs[inst_indcs, prnt_indcs]
-        prnt_mtcs = emb_mtcs[inst_indcs, prnt_indcs]
+        chld_vecs = get_subtensor(emb_vecs, inst_indcs, chld_indcs)
+        chld_mtcs = get_subtensor(emb_mtcs, inst_indcs, chld_indcs)
+        prnt_vecs = get_subtensor(emb_vecs, inst_indcs, prnt_indcs)
+        prnt_mtcs = get_subtensor(emb_mtcs, inst_indcs, prnt_indcs)
         # multiply child vectors with parent matrices and vice versa
         chld_vecs = K.batch_dot(chld_vecs, prnt_mtcs)
         prnt_vecs = K.batch_dot(prnt_vecs, chld_mtcs)
@@ -64,7 +66,7 @@ class MVRN(RN):
         # compute new matrix representations: `mtx_ret` will have the shape
         # `batch_size x units x units`
         mtx_ret = dot_product(node_matrices, self.W_m)
-        emb_mtcs = set_subtensor(emb_mtcs, mtx_ret, inst_indcs, prnt_indcs)
+        emb_mtcs = set_mtx_subtensor(emb_mtcs, mtx_ret, inst_indcs, prnt_indcs)
         # return newly computed vector representations, and updated vectors and
         # matrices
         return vec_ret, [emb_vecs, emb_mtcs]
