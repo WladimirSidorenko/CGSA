@@ -31,6 +31,8 @@ from cgsa.constants import (DFLT_MODEL_PATH, DFLT_W2V_PATH, BAZIOTIS,
                             SEVERYN, TABOADA, YESSENALINA, CLS2IDX, IDX2CLS)
 from cgsa.dl.base import DLBaseAnalyzer
 from cgsa.judge import DefaultJudge
+from cgsa.utils import balance_data
+
 from cgsa.utils.word2vec import Word2Vec
 
 
@@ -140,7 +142,7 @@ class SentimentAnalyzer(object):
 
     def train(self, a_train_data, a_dev_data=None,
               a_path=DFLT_MODEL_PATH, a_grid_search=True,
-              a_multi_gpu=False):
+              a_multi_gpu=False, a_balance=False):
         """Train specified model(s) on the provided data.
 
         Args:
@@ -154,6 +156,8 @@ class SentimentAnalyzer(object):
             use grid search in order to determine hyper-paramaters of
             the model
           a_multi_gpu (bool): train model on multiple GPUs
+          a_balance (bool): balance dataset to get equal number of instances
+            for all classes (via downsampling)
 
         Returns:
           void:
@@ -170,6 +174,8 @@ class SentimentAnalyzer(object):
         # separately train and dump each model
         for i, model_i in enumerate(self._models):
             try:
+                if a_balance:
+                    train_x, train_y = balance_data(train_x, train_y)
                 model_i.train(train_x, train_y, dev_x, dev_y,
                               a_grid_search=a_grid_search,
                               a_multi_gpu=a_multi_gpu)
