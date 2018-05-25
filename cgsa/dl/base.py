@@ -31,7 +31,7 @@ from cgsa.base import BaseAnalyzer
 from cgsa.utils.common import LOGGER, is_relevant, normlex
 from .layers import CUSTOM_OBJECTS, DFLT_INITIALIZER, EMPTY_IDX, UNK_IDX
 from .layers.word2vec import Word2Vec
-from .utils import ModelMGPU
+from .utils import ModelMGPU, N_GPUS
 
 
 ##################################################################
@@ -141,6 +141,7 @@ class DLBaseAnalyzer(BaseAnalyzer):
             chck_point = ModelCheckpoint(
                 filepath=ofname, monitor="val_categorical_accuracy",
                 mode="auto", verbose=1,
+                save_weights_only=True,
                 save_best_only=True
             )
             tensorboard = TensorBoard(
@@ -149,13 +150,17 @@ class DLBaseAnalyzer(BaseAnalyzer):
                 write_graph=True, write_grads=True
             )
             if a_multi_gpu:
-                self._model = ModelMGPU(self._model)
-            self._model.fit(train_x, train_y,
+                train_model = ModelMGPU(self._model)
+                self._fit_params["batch_size"] = 32 * N_GPUS
+                train_model.compile(**self._train_params)
+            else:
+                train_model = self._model
+            train_model.fit(train_x, train_y,
                             validation_data=(dev_x, dev_y),
                             epochs=self._n_epochs,
                             callbacks=[early_stop, chck_point, tensorboard],
                             **self._fit_params)
-            self._model = load_model(ofname, custom_objects=CUSTOM_OBJECTS)
+            self._model.load_weights(ofname)
             self._finish_training()
         finally:
             os.remove(ofname)
