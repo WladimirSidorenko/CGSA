@@ -42,7 +42,7 @@ function get_label(feats) {
 
 
 function get_prnt_idx(tok_offset, prnt_id) {
-    if (prn_id == "_" || prn_id == "0")
+    if (prnt_id == "_" || prnt_id == "0")
 	return prnt_d
 
     return tok_offset + prnt_id
