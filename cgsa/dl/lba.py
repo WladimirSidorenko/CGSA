@@ -268,17 +268,17 @@ class LBAAnalyzer(FunctionalWord2Vec, BaziotisAnalyzer):
         super(LBAAnalyzer, self)._load(a_path)
         self.attention_debug = K.function(
             inputs=self._model.input + [K.learning_phase()],
-            outputs=self._model.get_layer("raw_attention_1").output
+            outputs=(self._model.get_layer("raw_attention_1").output,)
         )
         lba_layer = self._model.get_layer("lba_1")
         self._logger.debug("lba_layer: %r", lba_layer.get_weights())
         self.lba_debug = K.function(
             inputs=self._model.input + [K.learning_phase()],
-            outputs=self._model.get_layer("lba_1").output
+            outputs=(self._model.get_layer("lba_1").output,)
         )
         self.cba_debug = K.function(
             inputs=self._model.input + [K.learning_phase()],
-            outputs=self._model.get_layer("cba_1").output
+            outputs=(self._model.get_layer("cba_1").output,)
         )
 
     def reset(self):
