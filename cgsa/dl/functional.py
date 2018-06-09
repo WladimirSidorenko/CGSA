@@ -10,6 +10,7 @@
 from __future__ import (absolute_import, unicode_literals, print_function,
                         print_function)
 from abc import ABCMeta
+from keras import backend as K
 from keras.layers import Input
 from six import add_metaclass
 
@@ -29,7 +30,7 @@ class FunctionalWord2Vec():
           layers (list or None): list of Keras layers to search in
 
         Returns:
-          int: index of embedding layer
+          int or None: index of embedding layer
 
         """
         if layers is None:
@@ -38,7 +39,7 @@ class FunctionalWord2Vec():
         for i, layer_i in enumerate(layers):
             if layer_i.name == name:
                 return i
-        raise KeyError("{:s} layer not found.".format(name))
+        raise KeyError("{:s} layer not found in {!r}.".format(name, layers))
 
     def _recompile_model(self, emb_layer_idx):
         """Replace the embedding layer of the model.
@@ -72,7 +73,14 @@ class FunctionalWord2Vec():
         # embedding layer
         model_inputs = self._model.inputs
         self._logger.info("self._model.inputs (original): %r", model_inputs)
-        input_idx = self._get_layer_idx(name='/' + EMB_INDICES_NAME,
+        if K.backend() == "tensorflow":
+            name_prfx = ''
+            name_sfx = ':0'
+        else:
+            name_prfx = '/'
+            name_sfx = ''
+        input_idx = self._get_layer_idx(name=name_prfx + EMB_INDICES_NAME
+                                        + name_sfx,
                                         layers=model_inputs)
         model_inputs[input_idx] = new_emb_layer
         self._logger.info("self._model.inputs (modified): %r", model_inputs)

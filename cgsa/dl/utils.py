@@ -8,15 +8,18 @@
 # Imports
 from __future__ import absolute_import, unicode_literals, print_function
 from keras import Model
+from keras import backend as K
 from keras.utils import multi_gpu_model
 from tensorflow.python.client import device_lib
 
 
 ##################################################################
 # Constants
-N_GPUS = len([x.name
-              for x in device_lib.list_local_devices()
-              if x.device_type == 'GPU'])
+N_GPUS = 1
+if K.backend() == "tensorflow":
+    N_GPUS = len([x.name
+                  for x in device_lib.list_local_devices()
+                  if x.device_type == 'GPU'])
 
 
 ##################################################################
