@@ -125,7 +125,7 @@ class BaseAnalyzer(object):
 
     @abc.abstractmethod
     def predict_proba(self, msg, yvec):
-        """Method for predicting sentiment propbablities of a single message.
+        """Method for predicting sentiment probabilities of a single message.
 
         Args:
           msg (cgsa.utils.data.Tweet):
@@ -217,8 +217,7 @@ class BaseAnalyzer(object):
         if dev_y:
             return self._get_devset_cv(train_x, train_y,
                                        dev_x, dev_y, n_folds)
-        cv = None
-        return cv, train_x, train_y
+        return None, train_x, train_y
 
     def _get_devset_cv(self, train_x, train_y, dev_x, dev_y, n_folds):
         """Generate a cross-validator from training and development data.

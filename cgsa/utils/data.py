@@ -312,7 +312,7 @@ class Tweet(object):
             self._logger.error("Lemmas: %d", len(lemmas))
             self._logger.error("Tags: %d", len(tags))
             self._logger.error("Dependencies: %d", len(deps))
-            self._logger.error("Features: ", len(feats))
+            self._logger.error("Features: %r", len(feats))
             for tok_i, lemma_i in zip(toks, lemmas):
                 if tok_i.lower() != lemma_i.lower():
                     self._logger.error("{!r} <-> {!r}".format(tok_i, lemma_i))

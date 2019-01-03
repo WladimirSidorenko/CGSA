@@ -335,9 +335,9 @@ class LBAAnalyzer(FunctionalWord2Vec, BaziotisAnalyzer):
         self._wseq2emb_ids(lex_embs, self.get_lex_emb_i)
         # obtain head indices
         offset = self._max_seq_len - len(msg)
-        dep_embs = [self._pad(len(msg))
-                    + [w.prnt_idx + offset if w.prnt_idx >= 0 else 0
-                       for w in msg]]
+        deps = [self._pad(len(msg))
+                + [w.prnt_idx + offset if w.prnt_idx >= 0 else 0
+                   for w in msg]]
         nn_input = [np.asarray(embs), np.asarray(lex_embs),
-                    np.asarray(dep_embs)]
+                    np.asarray(deps)]
         return nn_input

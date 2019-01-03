@@ -308,7 +308,7 @@ class MohammadAnalyzer(MLBaseAnalyzer):
                 if ngram[0].startswith('#'):
                     keys.append(HSHTAG)
                 keys.append("%TAGS-" + '_'.join(tags))
-                # Kiritchenko et al., 2014, do not use CAPS for automatic
+                # Kiritchenko et al. (2014) do not use CAPS for automatic
                 # lexicons
                 # if CAPS_RE.match(ngram[0]):
                 #     keys.append(CAPS)
