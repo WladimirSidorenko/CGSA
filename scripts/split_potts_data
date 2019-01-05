@@ -1,0 +1,12 @@
+#!/bin/sh
+
+for trg_dir in train dev test; do
+    echo "Processing directory $d" >&2
+    for f in data/PotTS/preprocessed/$trg_dir/*.tsv; do
+	base_f=$(basename $f)
+	echo "Moving file $base_f" >&2
+	for src_dir in data/PotTS/preprocessed-no-*; do
+	    mv $src_dir/raw/$base_f $src_dir/$trg_dir/
+	done
+    done
+done
