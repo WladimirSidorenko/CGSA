@@ -1,0 +1,103 @@
+#!/usr/bin/awk -f
+
+##################################################################
+function usage(ecode) {
+    printf("Script for correcting dependencies in TSV files.\n") > "/dev/stderr"
+    printf("USAGE:\n%s conll_file tsv_file\n") > "/dev/stderr"
+    exit ecode
+}
+
+function read_conll(fname) {
+    msgid = ""
+    while ((ret = (getline < fname)) > 0) {
+	if ($0 ~ /^/ ) {
+	    if ($(NF - 1) == "id") {
+		if (msgid != "") {
+		    MSGID2LEN[msgid] = ntoks
+		}
+		ntoks = 0
+		msgid = $NF
+	    }
+	} else if (NF) {
+	    ++ntoks
+	    n = split($0, fields, "\t")
+	    if (n < 12)
+		continue
+	    prnt = $10
+	    if (prnt == "0") {
+		if (msgid in MSGID2ROOTS) {
+		    MSGID2ROOTS[msgid] = MSGID2ROOTS[msgid] SUBSEP ntoks
+		} else {
+		    MSGID2ROOTS[msgid] = ntoks
+		}
+	    }
+	}
+    }
+    if (msgid != "") {
+	MSGID2LEN[msgid] = ntoks
+    }
+    if (ret < 0) {
+	printf("Error while reading file %s.", fname) > "/dev/stderr"
+	exit 3
+    }
+    close(fname)
+}
+
+##################################################################
+BEGIN {
+    FS = OFS = "\t"
+
+    if (ARGC < 3) {
+	print "Incorrect number of arguments.  Type --help to see usage" > "/dev/stderr"
+	usage(1)
+    }
+    i = 1
+    for (i = 1; i < ARGC; ++i) {
+	if (ARGV[i] == "-h" || ARGV[i] == "--help") {
+	    usage(0)
+	} else if (ARGV[i] == "--") {
+	    ARGV[i] = ""
+	    break
+	} else if (ARGV[i] ~ /^-.+/) {
+	    printf("Unrecognized option %s.  Type --help to see usage", ARGV[i]) > "/dev/stderr"
+	    exit 2
+	} else {
+	    break
+	}
+    }
+    read_conll(ARGV[i])
+    ARGV[i] = ""
+}
+
+##################################################################
+NF {
+    msgid = $1
+    if (!(msgid in MSGID2LEN)) {
+	printf("Unknown message id: %s\n", msgid)
+	exit 3
+    }
+    n_deps = split($6, deps, " ")
+    if (n_deps != MSGID2LEN[msgid]) {
+	printf("Unequal number of tokens for message with id: %s (%d vs. %d)\n", \
+	       msgid, n_deps, MSGID2LEN[msgid])
+	exit 4
+    }
+    m_roots = split(MSGID2ROOTS[msgid], roots, SUBSEP)
+    for (i = 1; i <= m_roots; ++i) {
+	j = roots[i]
+	k_deps = split(deps[j], dep_fields, "/")
+	if (k_deps != 2) {
+	    printf("Unrecognized dependency field format: %s\n", deps[j])
+	    exit 5
+	}
+	deps[j] = "0/" dep_fields[2]
+    }
+    if (n_deps) {
+	new_deps = deps[1]
+	for (i = 2; i <= n_deps; ++i) {
+	    new_deps = new_deps " " deps[i]
+	}
+	$6 = new_deps
+    }
+    print
+}
