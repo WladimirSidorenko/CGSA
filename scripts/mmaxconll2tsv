@@ -23,17 +23,19 @@ function get_label(feats) {
     neg_expr = (feats ~ /\<EmoExpression::[^:]+::Polarity=negative\>/)
 
     if (pos_snt) {
-	if (!neg_snt)
-	    return "positive"
-	else
+	if (neg_snt) {
 	    return "mixed"
+	} else {
+	    return "positive"
+	}
     } else if (neg_snt) {
 	return "negative"
     } else if (pos_expr) {
-	if (!neg_expr)
-	    return "positive"
-	else
+	if (neg_expr) {
 	    return "mixed"
+	} else {
+	    return "positive"
+	}
     } else if (neg_expr) {
 	return "negative"
     }
