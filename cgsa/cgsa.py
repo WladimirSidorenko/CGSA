@@ -270,9 +270,13 @@ class SentimentAnalyzer(object):
             model_i.predict_proba(instance, self._wbench[i])
             self._logger.info("Predicted scores: %r", self._wbench[i])
             # explanations
+            predict_proba_raw = model_i.predict_proba
+            if hasattr(model_i, "predict_proba_raw"):
+                predict_proba_raw = model_i.predict_proba_raw
+
             explanations = explainer.explain_instance(
                 instance,
-                model_i.predict_proba_raw,
+                predict_proba_raw,
                 num_features=DEBUG_NFEATS,
                 labels=[y for y in range(len(IDX2CLS))]
             )
